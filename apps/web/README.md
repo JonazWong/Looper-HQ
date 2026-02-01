@@ -1,6 +1,6 @@
 # Looper HQ - Web Application
 
-The main web application for Looper HQ legal case management platform, built with Next.js 14, React 19, and TailwindCSS.
+The main web application for Looper HQ legal case management platform, built with Next.js 15, React 19, and TailwindCSS.
 
 ## 🚀 Getting Started
 
@@ -106,7 +106,7 @@ The application uses a custom component library inspired by shadcn/ui with the f
 
 ## 🎯 Features
 
-- ✅ Next.js 14 with App Router
+- ✅ Next.js 15 with App Router
 - ✅ React 19
 - ✅ TypeScript with strict mode
 - ✅ TailwindCSS with custom theme

@@ -39,7 +39,7 @@ looper-hq/
 
 ## 🛠️ Tech Stack
 
-- Next.js 14, React 19, TailwindCSS
+- Next.js 15, React 19, TailwindCSS
 - Spring Boot 3, Node.js, Flask
 - PostgreSQL, Prisma, Redis
 - Keycloak, NextAuth.js
