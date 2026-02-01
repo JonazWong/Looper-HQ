@@ -27,6 +27,10 @@ const activityIconMap: Record<string, LucideIcon> = {
   'CLIENT_UPDATED': Users,
 }
 
+// Constants
+const UNKNOWN_USER = 'Unknown User'
+const UNKNOWN_CLIENT = 'Unknown Client'
+
 // Helper to get user initials
 function getInitials(name: string): string {
   return name
@@ -79,7 +83,7 @@ async function getDashboardStats() {
       ...case_,
       client: {
         id: case_.client.id,
-        name: case_.client.name || 'Unknown Client'
+        name: case_.client.name || UNKNOWN_CLIENT
       }
     }))
 
@@ -150,8 +154,8 @@ async function getRecentActivities() {
     const formattedActivities: Activity[] = activities.map((activity) => ({
       id: activity.id,
       user: {
-        name: activity.user.name || 'Unknown User',
-        initials: getInitials(activity.user.name || 'Unknown User'),
+        name: activity.user.name || UNKNOWN_USER,
+        initials: getInitials(activity.user.name || UNKNOWN_USER),
       },
       action: activity.action,
       description: activity.description || `${activity.action} - ${activity.case?.title || 'System'}`,
