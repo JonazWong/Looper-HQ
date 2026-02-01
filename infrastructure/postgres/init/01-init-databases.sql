@@ -13,6 +13,8 @@ GRANT ALL PRIVILEGES ON DATABASE looper_hq TO postgres;
 GRANT ALL PRIVILEGES ON DATABASE keycloak TO postgres;
 
 -- Configure connection pooling and performance settings
+-- NOTE: These ALTER SYSTEM commands write to postgresql.auto.conf
+-- and will take effect on the next server restart (already handled by Docker container lifecycle)
 ALTER SYSTEM SET max_connections = 200;
 ALTER SYSTEM SET shared_buffers = '256MB';
 ALTER SYSTEM SET effective_cache_size = '1GB';

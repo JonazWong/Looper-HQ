@@ -1,4 +1,5 @@
 {
+  "_comment": "⚠️ DEVELOPMENT ONLY: This realm configuration contains hardcoded test credentials. NEVER use in production! Change all passwords and remove test users before any production deployment.",
   "realm": "looper-hq",
   "enabled": true,
   "displayName": "Looper HQ",
@@ -214,7 +215,6 @@
           "consentRequired": false,
           "config": {
             "multivalued": "true",
-            "user.attribute": "foo",
             "access.token.claim": "true",
             "claim.name": "realm_access.roles",
             "jsonType.label": "String"
@@ -227,7 +227,6 @@
           "consentRequired": false,
           "config": {
             "multivalued": "true",
-            "user.attribute": "foo",
             "access.token.claim": "true",
             "claim.name": "resource_access.${client_id}.roles",
             "jsonType.label": "String"
@@ -241,7 +240,6 @@
     "cibaBackchannelTokenDeliveryMode": "poll",
     "cibaExpiresIn": "120",
     "cibaAuthRequestedUserHint": "login_hint",
-    "parRequestUriLifespan": "60",
-    "frontendUrl": "http://localhost:8080"
+    "parRequestUriLifespan": "60"
   }
 }
