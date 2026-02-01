@@ -70,7 +70,7 @@ async function getClients(params: SearchParams) {
 
     // Tier filter
     if (params.tier && Object.values(MembershipTier).includes(params.tier as MembershipTier)) {
-      where.membershipTier = params.tier
+      where.membershipTier = params.tier as MembershipTier
     }
 
     // Fetch clients with pagination
@@ -108,10 +108,10 @@ async function getClientStats() {
   try {
     const [totalClients, basicTier, standardTier, premiumTier, premierTier] = await Promise.all([
       prisma.client.count(),
-      prisma.client.count({ where: { membershipTier: 'BASIC' } }),
-      prisma.client.count({ where: { membershipTier: 'STANDARD' } }),
-      prisma.client.count({ where: { membershipTier: 'PREMIUM' } }),
-      prisma.client.count({ where: { membershipTier: 'PREMIER' } }),
+      prisma.client.count({ where: { membershipTier: MembershipTier.BASIC } }),
+      prisma.client.count({ where: { membershipTier: MembershipTier.STANDARD } }),
+      prisma.client.count({ where: { membershipTier: MembershipTier.PREMIUM } }),
+      prisma.client.count({ where: { membershipTier: MembershipTier.PREMIER } }),
     ])
 
     return {

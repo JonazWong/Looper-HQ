@@ -157,6 +157,12 @@ export function SearchForm({
             <DropdownMenuItem onClick={() => updateFilters('status', 'COMPLETED')}>
               Completed
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => updateFilters('status', 'ARCHIVED')}>
+              Archived
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => updateFilters('status', 'CANCELLED')}>
+              Cancelled
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
