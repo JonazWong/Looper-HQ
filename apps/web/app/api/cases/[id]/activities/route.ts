@@ -12,14 +12,15 @@ import { requireAuth } from '@/lib/api/auth'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAuth()
+    const { id } = await params
 
     // Check if case exists
     const caseData = await prisma.case.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!caseData) {
@@ -27,7 +28,7 @@ export async function GET(
     }
 
     const activities = await prisma.activity.findMany({
-      where: { caseId: params.id },
+      where: { caseId: id },
       include: {
         user: {
           select: {

@@ -14,13 +14,14 @@ import { updateClientSchema } from '@/lib/validations/schemas'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAuth()
+    const { id } = await params
 
     const client = await prisma.client.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!client) {
@@ -39,10 +40,11 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
+    const { id } = await params
     const body = await request.json()
 
     // Validate input
@@ -56,7 +58,7 @@ export async function PATCH(
 
     // Check if client exists
     const existingClient = await prisma.client.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!existingClient) {
@@ -65,7 +67,7 @@ export async function PATCH(
 
     // Update client
     const updatedClient = await prisma.client.update({
-      where: { id: params.id },
+      where: { id },
       data,
     })
 

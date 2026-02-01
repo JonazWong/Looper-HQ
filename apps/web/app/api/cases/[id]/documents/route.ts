@@ -14,14 +14,15 @@ import { documentSchema } from '@/lib/validations/schemas'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAuth()
+    const { id } = await params
 
     // Check if case exists
     const caseData = await prisma.case.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!caseData) {
@@ -29,7 +30,7 @@ export async function GET(
     }
 
     const documents = await prisma.document.findMany({
-      where: { caseId: params.id },
+      where: { caseId: id },
       include: {
         uploadedBy: {
           select: {
@@ -56,16 +57,17 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
+    const { id } = await params
     const body = await request.json()
 
     // Validate input
     const validationResult = documentSchema.safeParse({
       ...body,
-      caseId: params.id,
+      caseId: id,
     })
 
     if (!validationResult.success) {
@@ -76,7 +78,7 @@ export async function POST(
 
     // Check if case exists
     const caseData = await prisma.case.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!caseData) {
@@ -87,7 +89,7 @@ export async function POST(
     const document = await prisma.document.create({
       data: {
         ...data,
-        caseId: params.id,
+        caseId: id,
         uploadedById: session.user.id,
       },
       include: {
@@ -105,7 +107,7 @@ export async function POST(
     await prisma.activity.create({
       data: {
         userId: session.user.id,
-        caseId: params.id,
+        caseId: id,
         type: 'DOCUMENT_UPLOADED',
         action: 'uploaded',
         description: `Uploaded document: ${document.fileName}`,

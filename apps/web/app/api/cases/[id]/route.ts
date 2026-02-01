@@ -15,13 +15,14 @@ import { updateCaseSchema } from '@/lib/validations/schemas'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAuth()
+    const { id } = await params
 
     const caseData = await prisma.case.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         client: {
           select: {
@@ -106,10 +107,11 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
+    const { id } = await params
     const body = await request.json()
 
     // Validate input
@@ -123,7 +125,7 @@ export async function PATCH(
 
     // Check if case exists
     const existingCase = await prisma.case.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!existingCase) {
@@ -132,7 +134,7 @@ export async function PATCH(
 
     // Update case
     const updatedCase = await prisma.case.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...data,
         courtDate: data.courtDate ? new Date(data.courtDate) : undefined,
@@ -178,14 +180,15 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
+    const { id } = await params
 
     // Check if case exists
     const existingCase = await prisma.case.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!existingCase) {
@@ -194,7 +197,7 @@ export async function DELETE(
 
     // Archive instead of delete
     const archivedCase = await prisma.case.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: 'ARCHIVED',
       },
