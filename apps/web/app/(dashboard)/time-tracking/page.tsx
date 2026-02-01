@@ -146,7 +146,7 @@ async function getTimeTrackingStats(params: SearchParams) {
       nonBillableLogs,
       totalHours,
       billableHours,
-      totalRevenue,
+      billableTimeLogs,
     ] = await Promise.all([
       prisma.timeLog.count({ where }),
       prisma.timeLog.count({ where: { ...where, billable: true } }),
@@ -159,14 +159,23 @@ async function getTimeTrackingStats(params: SearchParams) {
         where: { ...where, billable: true },
         _sum: { hours: true },
       }),
-      prisma.$queryRaw<[{ total: number }]>`
-        SELECT COALESCE(SUM(hours * hourly_rate), 0) as total
-        FROM time_logs
-        WHERE billable = true
-        AND hourly_rate IS NOT NULL
-        ${params.caseId ? prisma.$queryRawUnsafe(`AND case_id = '${params.caseId}'`) : prisma.$queryRawUnsafe('')}
-      `,
+      prisma.timeLog.findMany({
+        where: { 
+          ...where, 
+          billable: true,
+          hourlyRate: { not: null }
+        },
+        select: {
+          hours: true,
+          hourlyRate: true,
+        },
+      }),
     ])
+
+    // Calculate total revenue from billable time logs
+    const totalRevenue = billableTimeLogs.reduce((sum, log) => {
+      return sum + (Number(log.hours) * Number(log.hourlyRate))
+    }, 0)
 
     return {
       totalLogs,
@@ -174,7 +183,7 @@ async function getTimeTrackingStats(params: SearchParams) {
       nonBillableLogs,
       totalHours: Number(totalHours._sum.hours || 0),
       billableHours: Number(billableHours._sum.hours || 0),
-      totalRevenue: Number(totalRevenue[0]?.total || 0),
+      totalRevenue,
     }
   } catch (error) {
     console.error('Error fetching time tracking stats:', error)
