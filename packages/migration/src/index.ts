@@ -22,7 +22,7 @@ async function runMigration() {
   
   try {
     logger.info('🚀 Starting Looper HQ data migration...')
-    logger.info('=' .repeat(70))
+    logger.info('='.repeat(70))
     
     // Step 1: Create backup
     logger.info('\n📦 Step 1: Creating database backup...')

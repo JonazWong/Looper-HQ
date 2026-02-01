@@ -113,10 +113,10 @@ function parseDate(dateValue: string | Date | null | undefined): Date {
 }
 
 /**
- * Generate a temporary Keycloak ID (to be synced later with actual Keycloak)
+ * Generate a temporary Keycloak ID (will be replaced when syncing with actual Keycloak)
  */
 function generateTempKeycloakId(email: string): string {
-  // For now, return null as we'll sync with Keycloak in a later step
+  // Generate a temporary ID that will be replaced during Keycloak sync
   return `temp-${email.split('@')[0]}-${Date.now()}`
 }
 

@@ -96,7 +96,7 @@ export async function migrateCases(prisma: PrismaClient, logger: Logger) {
         } catch (error: any) {
           errorCount++
           errors.push({
-            case: result.value,
+            transformedCase: result.value,
             legacyCase,
             error: error.message,
             stack: error.stack
