@@ -9,3 +9,8 @@ build/
 *.log
 coverage/
 *.tsbuildinfo
+
+# Migration package
+packages/migration/logs/
+packages/migration/data/backups/
+packages/migration/data/transformed/

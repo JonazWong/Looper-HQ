@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "ip_address": "192.168.1.1",
+    "query": "contract law",
+    "results_count": 15,
+    "searched_at": "2023-05-01T10:30:00Z"
+  },
+  {
+    "id": 2,
+    "ip_address": "192.168.1.2",
+    "query": "employment rights",
+    "results_count": 8,
+    "searched_at": "2023-05-02T14:20:00Z"
+  }
+]
