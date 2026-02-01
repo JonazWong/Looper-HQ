@@ -3,7 +3,7 @@ import { ArrowRight, Scale, Shield, Search, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export default function HomePage() {
+export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
