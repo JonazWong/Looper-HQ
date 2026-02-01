@@ -87,7 +87,7 @@ export function hasPermission(
   
   // Define role-based permissions
   const permissions: Record<UserRole, string[]> = {
-    ADMIN: [], // All permissions
+    ADMIN: [], // Empty array - ADMIN role is checked above and returns true for all permissions
     LAWYER: [
       'case:read',
       'case:write',

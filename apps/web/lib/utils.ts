@@ -108,6 +108,8 @@ export function isValidHKIDFormat(hkid: string): boolean {
 }
 
 // Alias for backwards compatibility
+// Note: This is format-only validation. For complete HKID validation
+// including check digit verification, use isValidHKID() from @looper-hq/utils package
 export const isValidHKID = isValidHKIDFormat
 
 /**
