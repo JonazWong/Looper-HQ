@@ -91,11 +91,11 @@ export async function GET(request: NextRequest) {
       totalClients,
       successRate,
       casesByStatus,
-      casesByCategory: casesByCategory.map(item => ({
+      casesByCategory: casesByCategory.map((item: any) => ({
         label: item.category,
         value: item._count.category,
       })),
-      casesByPriority: casesByPriority.map(item => ({
+      casesByPriority: casesByPriority.map((item: any) => ({
         label: item.priority,
         value: item._count.priority,
       })),
