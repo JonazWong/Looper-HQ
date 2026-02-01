@@ -1,0 +1,51 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build outputs
+.next/
+dist/
+build/
+out/
+
+# Development files
+.turbo/
+.git/
+.github/
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+docs/
+
+# Test files
+coverage/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Build info
+*.tsbuildinfo
+
+# Infrastructure (not needed in container)
+infrastructure/deployment/
+infrastructure/monitoring/
+infrastructure/keycloak/
+infrastructure/postgres/
