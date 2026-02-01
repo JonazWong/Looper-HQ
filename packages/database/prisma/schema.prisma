@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  name             String?
+  password         String?
+  role             Role      @default(USER)
+  membershipTier   MembershipTier @default(STARTER)
+  
+  cases            Case[]
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+enum Role {
+  USER
+  STAFF
+  OWNER
+  ADMIN
+}
+
+enum MembershipTier {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+model Case {
+  id            String      @id @default(cuid())
+  caseNumber    String      @unique
+  title         String
+  status        CaseStatus  @default(PENDING)
+  userId        String?
+  
+  user          User?       @relation(fields: [userId], references: [id])
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+enum CaseStatus {
+  PENDING
+  ACTIVE
+  CLOSED
+}
