@@ -25,7 +25,7 @@ jobs:
 
       - name: Validate docker-compose.yml syntax
         run: |
-          docker-compose -f infrastructure/docker/docker-compose.yml config > /dev/null
+          docker compose -f infrastructure/docker/docker-compose.yml config > /dev/null
           echo "✅ Docker Compose configuration is valid"
 
       - name: Check for required environment variables
@@ -114,15 +114,15 @@ jobs:
           EOF
           
           # Start services in detached mode
-          docker-compose -f infrastructure/docker/docker-compose.yml up -d
+          docker compose -f infrastructure/docker/docker-compose.yml up -d
           
           echo "Waiting for services to start..."
           sleep 30
           
           # Check if containers are running
-          if ! docker-compose -f infrastructure/docker/docker-compose.yml ps | grep -q "Up"; then
+          if ! docker compose -f infrastructure/docker/docker-compose.yml ps | grep -q "Up"; then
             echo "❌ Services failed to start"
-            docker-compose -f infrastructure/docker/docker-compose.yml logs
+            docker compose -f infrastructure/docker/docker-compose.yml logs
             exit 1
           fi
           
@@ -212,7 +212,7 @@ jobs:
         if: always()
         run: |
           echo "Cleaning up Docker resources..."
-          docker-compose -f infrastructure/docker/docker-compose.yml down -v
+          docker compose -f infrastructure/docker/docker-compose.yml down -v
           echo "✅ Cleanup complete"
 
   validate-documentation:

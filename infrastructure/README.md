@@ -193,7 +193,7 @@ Realm: looper-hq
 **pgAdmin** (when enabled with `--profile tools`):
 ```
 URL: http://localhost:5050
-Email: admin@looper-hq.local
+Email: admin@looper-hq.dev
 Password: admin
 ```
 
