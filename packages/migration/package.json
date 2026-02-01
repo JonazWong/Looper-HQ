@@ -14,7 +14,8 @@
     "backup": "tsx src/utils/backup.ts",
     "rollback": "tsx src/scripts/rollback.ts",
     "analyze": "tsx src/utils/analyze.ts",
-    "export:legacy": "tsx src/scripts/export-legacy.ts"
+    "export:legacy": "tsx src/scripts/export-legacy.ts",
+    "test": "tsx test/verify-migration.ts"
   },
   "dependencies": {
     "@looper-hq/database": "workspace:*",
