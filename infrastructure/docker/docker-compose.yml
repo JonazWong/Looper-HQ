@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: looper-hq-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: looper_hq
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - looper-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: looper-hq-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - looper-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: looper-hq-keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_HOSTNAME_STRICT: false
+      KC_HTTP_ENABLED: true
+    command: start-dev
+    ports:
+      - "8080:8080"
+    networks:
+      - looper-network
+
+volumes:
+  postgres_data:
+
+networks:
+  looper-network:
+    driver: bridge
