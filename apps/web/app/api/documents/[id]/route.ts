@@ -2,8 +2,7 @@ import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/db'
 import { 
   successResponse, 
-  errorResponse, 
-  notFoundResponse,
+  errorResponse,
   validationErrorResponse 
 } from '@/lib/api/response'
 import { handleApiError, NotFoundError } from '@/lib/api/errors'
