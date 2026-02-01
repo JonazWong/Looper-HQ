@@ -1,5 +1,4 @@
 {
-  "_comment": "⚠️ DEVELOPMENT ONLY: This realm configuration contains hardcoded test credentials. NEVER use in production! Change all passwords and remove test users before any production deployment.",
   "realm": "looper-hq",
   "enabled": true,
   "displayName": "Looper HQ",
