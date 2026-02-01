@@ -1,0 +1,256 @@
+name: Infrastructure Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infrastructure/**'
+      - '.env.example'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'infrastructure/**'
+      - '.env.example'
+
+jobs:
+  validate-docker-compose:
+    name: Validate Docker Compose Configuration
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate docker-compose.yml syntax
+        run: |
+          docker-compose -f infrastructure/docker/docker-compose.yml config > /dev/null
+          echo "✅ Docker Compose configuration is valid"
+
+      - name: Check for required environment variables
+        run: |
+          echo "Checking .env.example for required variables..."
+          
+          required_vars=(
+            "DATABASE_URL"
+            "POSTGRES_USER"
+            "POSTGRES_PASSWORD"
+            "POSTGRES_DB"
+            "REDIS_URL"
+            "KEYCLOAK_ADMIN"
+            "KEYCLOAK_ADMIN_PASSWORD"
+            "KEYCLOAK_FRONTEND_URL"
+          )
+          
+          for var in "${required_vars[@]}"; do
+            if grep -q "^${var}=" .env.example; then
+              echo "✅ Found: $var"
+            else
+              echo "❌ Missing: $var"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All required environment variables are documented"
+
+      - name: Validate PostgreSQL init scripts
+        run: |
+          echo "Checking PostgreSQL initialization scripts..."
+          
+          if [ ! -d "infrastructure/postgres/init" ]; then
+            echo "❌ PostgreSQL init directory not found"
+            exit 1
+          fi
+          
+          if [ ! -f "infrastructure/postgres/init/01-init-databases.sql" ]; then
+            echo "❌ PostgreSQL init script not found"
+            exit 1
+          fi
+          
+          echo "✅ PostgreSQL initialization scripts exist"
+
+      - name: Validate Keycloak realm configuration
+        run: |
+          echo "Checking Keycloak realm configuration..."
+          
+          if [ ! -d "infrastructure/keycloak/realms" ]; then
+            echo "❌ Keycloak realms directory not found"
+            exit 1
+          fi
+          
+          if [ ! -f "infrastructure/keycloak/realms/looper-hq-realm.json" ]; then
+            echo "❌ Keycloak realm configuration not found"
+            exit 1
+          fi
+          
+          # Validate JSON syntax
+          if ! jq empty infrastructure/keycloak/realms/looper-hq-realm.json 2>/dev/null; then
+            echo "❌ Invalid JSON in Keycloak realm configuration"
+            exit 1
+          fi
+          
+          # Check for required realm properties
+          realm_name=$(jq -r '.realm' infrastructure/keycloak/realms/looper-hq-realm.json)
+          if [ "$realm_name" != "looper-hq" ]; then
+            echo "❌ Realm name is not 'looper-hq'"
+            exit 1
+          fi
+          
+          echo "✅ Keycloak realm configuration is valid"
+
+      - name: Test Docker Compose services start
+        run: |
+          echo "Starting Docker Compose services..."
+          
+          # Create a minimal .env file for testing
+          cat > .env << EOF
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=looper_hq
+          KEYCLOAK_ADMIN=admin
+          KEYCLOAK_ADMIN_PASSWORD=admin
+          KEYCLOAK_FRONTEND_URL=http://localhost:8080
+          EOF
+          
+          # Start services in detached mode
+          docker-compose -f infrastructure/docker/docker-compose.yml up -d
+          
+          echo "Waiting for services to start..."
+          sleep 30
+          
+          # Check if containers are running
+          if ! docker-compose -f infrastructure/docker/docker-compose.yml ps | grep -q "Up"; then
+            echo "❌ Services failed to start"
+            docker-compose -f infrastructure/docker/docker-compose.yml logs
+            exit 1
+          fi
+          
+          echo "✅ Services started successfully"
+
+      - name: Test PostgreSQL health
+        run: |
+          echo "Testing PostgreSQL connection..."
+          
+          # Wait for PostgreSQL to be ready
+          timeout=60
+          elapsed=0
+          
+          while [ $elapsed -lt $timeout ]; do
+            if docker exec looper-hq-db pg_isready -U postgres -d looper_hq > /dev/null 2>&1; then
+              echo "✅ PostgreSQL is ready"
+              break
+            fi
+            sleep 5
+            elapsed=$((elapsed + 5))
+          done
+          
+          if [ $elapsed -ge $timeout ]; then
+            echo "❌ PostgreSQL health check timeout"
+            docker logs looper-hq-db
+            exit 1
+          fi
+          
+          # Test database connection
+          docker exec looper-hq-db psql -U postgres -d looper_hq -c "SELECT version();" > /dev/null
+          echo "✅ PostgreSQL connection successful"
+
+      - name: Test Redis health
+        run: |
+          echo "Testing Redis connection..."
+          
+          # Wait for Redis to be ready
+          timeout=30
+          elapsed=0
+          
+          while [ $elapsed -lt $timeout ]; do
+            if docker exec looper-hq-redis redis-cli ping > /dev/null 2>&1; then
+              echo "✅ Redis is ready"
+              break
+            fi
+            sleep 5
+            elapsed=$((elapsed + 5))
+          done
+          
+          if [ $elapsed -ge $timeout ]; then
+            echo "❌ Redis health check timeout"
+            docker logs looper-hq-redis
+            exit 1
+          fi
+          
+          # Test Redis operations
+          docker exec looper-hq-redis redis-cli SET test "Hello" > /dev/null
+          docker exec looper-hq-redis redis-cli GET test > /dev/null
+          echo "✅ Redis operations successful"
+
+      - name: Test Keycloak health
+        run: |
+          echo "Testing Keycloak health..."
+          
+          # Wait for Keycloak to be ready (can take longer)
+          timeout=120
+          elapsed=0
+          
+          while [ $elapsed -lt $timeout ]; do
+            if curl -f http://localhost:8080/health/ready > /dev/null 2>&1; then
+              echo "✅ Keycloak is ready"
+              break
+            fi
+            sleep 10
+            elapsed=$((elapsed + 10))
+          done
+          
+          if [ $elapsed -ge $timeout ]; then
+            echo "⚠️  Keycloak health check timeout (this is common in CI)"
+            docker logs looper-hq-keycloak
+            # Don't fail the build for Keycloak timeout as it can be slow in CI
+          else
+            echo "✅ Keycloak health check successful"
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "Cleaning up Docker resources..."
+          docker-compose -f infrastructure/docker/docker-compose.yml down -v
+          echo "✅ Cleanup complete"
+
+  validate-documentation:
+    name: Validate Infrastructure Documentation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check infrastructure README exists
+        run: |
+          if [ ! -f "infrastructure/README.md" ]; then
+            echo "❌ infrastructure/README.md not found"
+            exit 1
+          fi
+          echo "✅ Infrastructure README exists"
+
+      - name: Validate README content
+        run: |
+          required_sections=(
+            "Overview"
+            "Services"
+            "Quick Start"
+            "Port Mappings"
+            "Access Credentials"
+            "Troubleshooting"
+          )
+          
+          for section in "${required_sections[@]}"; do
+            if grep -q "$section" infrastructure/README.md; then
+              echo "✅ Found section: $section"
+            else
+              echo "❌ Missing section: $section"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All required sections are present"

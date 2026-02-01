@@ -24,7 +24,11 @@
     "db:seed": "pnpm --filter=@looper-hq/database seed",
     "db:studio": "pnpm --filter=@looper-hq/database studio",
     "docker:up": "docker-compose -f infrastructure/docker/docker-compose.yml up -d",
-    "docker:down": "docker-compose -f infrastructure/docker/docker-compose.yml down"
+    "docker:down": "docker-compose -f infrastructure/docker/docker-compose.yml down",
+    "docker:logs": "docker-compose -f infrastructure/docker/docker-compose.yml logs -f",
+    "docker:clean": "docker-compose -f infrastructure/docker/docker-compose.yml down -v --remove-orphans",
+    "docker:ps": "docker-compose -f infrastructure/docker/docker-compose.yml ps",
+    "docker:restart": "docker-compose -f infrastructure/docker/docker-compose.yml restart"
   },
   "devDependencies": {
     "@types/node": "^20.14.12",
