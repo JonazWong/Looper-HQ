@@ -30,6 +30,7 @@ pnpm dev
 ```
 looper-hq/
 ├── apps/          # Applications
+│   └── web/       # Next.js web application
 ├── services/      # Microservices
 ├── packages/      # Shared packages
 ├── infrastructure/
