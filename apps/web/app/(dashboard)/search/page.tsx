@@ -302,7 +302,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <div className="pt-4">
                 <div className="inline-flex flex-col gap-2 text-left">
                   <p className="text-sm text-premier-pearl-gray">
-                    <span className="text-premier-gold">•</span> Search by case number (e.g., "HK-2026-001")
+                    <span className="text-premier-gold">•</span> Search by case number (e.g., &quot;HK-2026-001&quot;)
                   </p>
                   <p className="text-sm text-premier-pearl-gray">
                     <span className="text-premier-gold">•</span> Search by case title or keywords
