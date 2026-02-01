@@ -12,6 +12,7 @@
   "packageManager": "pnpm@8.15.0",
   "scripts": {
     "dev": "turbo run dev",
+    "postinstall": "pnpm --filter=@looper-hq/database prisma generate",
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
