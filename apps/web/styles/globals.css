@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Premier fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;600;700&display=swap');
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -36,33 +39,34 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Premier Dark Theme - Black Veil Empress */
+    --background: 0 0% 3.9%;        /* #0a0a0a */
+    --foreground: 0 0% 96.1%;       /* #F5F5F5 */
     
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 10.2%;             /* #1a1a1a with transparency */
+    --card-foreground: 0 0% 96.1%;
     
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 5.9%;
+    --popover-foreground: 0 0% 96.1%;
     
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 43 74% 52%;          /* #D4AF37 - Royal Gold */
+    --primary-foreground: 0 0% 3.9%;
     
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 43 60% 38%;        /* #9A7B2F - Dark Gold */
+    --secondary-foreground: 0 0% 96.1%;
     
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 0 0% 10.2%;
+    --muted-foreground: 0 0% 75.3%;
     
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 43 74% 52%;           /* Gold accent */
+    --accent-foreground: 0 0% 3.9%;
     
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 96.1%;
     
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --border: 43 74% 52% / 0.1;     /* Gold border with low opacity */
+    --input: 0 0% 10.2%;
+    --ring: 43 74% 52%;             /* Gold ring */
   }
 }
 
@@ -72,6 +76,11 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Default to dark theme for Premier experience */
+  html {
+    @apply dark;
   }
 }
 
@@ -88,5 +97,37 @@
   }
   .case-status-archived {
     @apply bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200;
+  }
+}
+
+/* Premier Glassmorphism Effects */
+@layer components {
+  .glass-card {
+    @apply bg-premier-black-light/60 backdrop-blur-[16px] border border-premier-gold/10 shadow-premier-lg;
+  }
+  
+  .glass-gold {
+    background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(184,134,11,0.05) 100%);
+    @apply backdrop-blur-[20px] border border-premier-gold/20;
+  }
+  
+  .glass-frosted {
+    @apply bg-white/[0.03] backdrop-blur-[24px] saturate-[180%] border border-white/5;
+  }
+  
+  .glass-mystery {
+    background: linear-gradient(135deg, rgba(74,20,140,0.1) 0%, rgba(26,35,126,0.05) 100%);
+    @apply backdrop-blur-[20px] border border-premier-mystery-violet/20;
+  }
+}
+
+/* Premier Text Gradients */
+@layer utilities {
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-premier-gold via-premier-gold-rose to-premier-gold;
+  }
+  
+  .text-gradient-mystery {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-premier-mystery-violet via-premier-mystery-purple to-premier-mystery-indigo;
   }
 }
