@@ -11,8 +11,6 @@
   },
   "packageManager": "pnpm@8.15.0",
   "scripts": {
-    "postinstall": "prisma generate",
-    "build": "next build"
     "dev": "turbo run dev",
     "postinstall": "pnpm --filter=@looper-hq/database prisma generate",
     "build": "turbo run build",
@@ -26,6 +24,14 @@
     "db:migrate": "pnpm --filter=@looper-hq/database migrate",
     "db:seed": "pnpm --filter=@looper-hq/database seed",
     "db:studio": "pnpm --filter=@looper-hq/database studio",
+    "migrate:all": "pnpm --filter=@looper-hq/migration migrate:all",
+    "migrate:clients": "pnpm --filter=@looper-hq/migration migrate:clients",
+    "migrate:cases": "pnpm --filter=@looper-hq/migration migrate:cases",
+    "migrate:memberships": "pnpm --filter=@looper-hq/migration migrate:memberships",
+    "migrate:validate": "pnpm --filter=@looper-hq/migration validate",
+    "migrate:backup": "pnpm --filter=@looper-hq/migration backup",
+    "migrate:rollback": "pnpm --filter=@looper-hq/migration rollback",
+    "migrate:export-legacy": "pnpm --filter=@looper-hq/migration export:legacy",
     "docker:up": "docker compose -f infrastructure/docker/docker-compose.yml up -d",
     "docker:down": "docker compose -f infrastructure/docker/docker-compose.yml down",
     "docker:logs": "docker compose -f infrastructure/docker/docker-compose.yml logs -f",
