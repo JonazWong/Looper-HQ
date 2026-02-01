@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "full_name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "+852 9123 4567",
+    "type": "individual",
+    "created_at": "2023-01-15T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "full_name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "phone": "+852 9234 5678",
+    "type": "individual",
+    "created_at": "2023-02-20T11:00:00Z"
+  }
+]

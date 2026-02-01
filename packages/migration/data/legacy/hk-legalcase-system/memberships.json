@@ -1,0 +1,10 @@
+[
+  {
+    "id": 1,
+    "email": "contact@abccorp.com",
+    "tier": "premium",
+    "is_active": true,
+    "start_date": "2023-01-10T00:00:00Z",
+    "created_at": "2023-01-10T08:00:00Z"
+  }
+]

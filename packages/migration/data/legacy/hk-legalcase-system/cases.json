@@ -1,0 +1,12 @@
+[
+  {
+    "id": 201,
+    "title": "Corporate Merger Review",
+    "description": "Legal review for corporate merger",
+    "status": "active",
+    "category": "corporate",
+    "client_id": 101,
+    "is_public": true,
+    "createdAt": "2023-04-01T10:00:00Z"
+  }
+]

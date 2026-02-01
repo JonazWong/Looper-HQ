@@ -18,3 +18,7 @@ backups/
 *.sql
 *.sql.gz
 
+# Migration package
+packages/migration/logs/
+packages/migration/data/backups/
+packages/migration/data/transformed/
