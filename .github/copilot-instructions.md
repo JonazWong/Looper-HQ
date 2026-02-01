@@ -6,7 +6,7 @@ Looper HQ is a unified legal case management and inquiry platform for Hong Kong,
 
 **Tech Stack:**
 - Frontend: Next.js 15, React 19, TailwindCSS
-- Backend: Spring Boot 3, Node.js, Flask
+- Backend: Spring Boot 3 (Java microservices), Node.js (API services), Flask (Python services)
 - Database: PostgreSQL, Prisma, Redis
 - Auth: Keycloak, NextAuth.js
 - Tools: Docker, Turborepo, pnpm
@@ -74,7 +74,7 @@ looper-hq/
 
 - Start development: `pnpm dev`
 - Build all packages: `pnpm build`
-- Use Turbo cache for faster builds
+- Turbo cache is automatically enabled for faster incremental builds
 - Test locally with Docker: `pnpm docker:up`
 
 ### Database Changes
