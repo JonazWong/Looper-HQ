@@ -80,12 +80,12 @@ model Case {
   @@index([caseNumber])
 }
 
-enum CaseStatus {
-  ACTIVE
-  PENDING
-  COMPLETED
-  ARCHIVED
-  CANCELLED
+export enum CaseStatus {
+  ACTIVE = "ACTIVE",
+  PENDING = "PENDING",
+  COMPLETED = "COMPLETED",
+  ARCHIVED = "ARCHIVED",
+  CANCELLED = "CANCELLED",
 }
 
 enum Priority {
