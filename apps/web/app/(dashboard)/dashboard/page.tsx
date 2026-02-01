@@ -74,6 +74,15 @@ async function getDashboardStats() {
       },
     })
 
+    // Transform cases to ensure client name is never null
+    const formattedRecentCases = recentCases.map(case_ => ({
+      ...case_,
+      client: {
+        id: case_.client.id,
+        name: case_.client.name || 'Unknown Client'
+      }
+    }))
+
     // Calculate success rate (completed / total non-cancelled)
     const nonCancelledCases = await prisma.case.count({
       where: {
@@ -93,7 +102,7 @@ async function getDashboardStats() {
       totalClients,
       successRate,
       casesByStatus,
-      recentCases,
+      recentCases: formattedRecentCases,
     }
   } catch (error) {
     console.error('Error fetching dashboard stats:', error)
@@ -141,8 +150,8 @@ async function getRecentActivities() {
     const formattedActivities: Activity[] = activities.map((activity) => ({
       id: activity.id,
       user: {
-        name: activity.user.name,
-        initials: getInitials(activity.user.name),
+        name: activity.user.name || 'Unknown User',
+        initials: getInitials(activity.user.name || 'Unknown User'),
       },
       action: activity.action,
       description: activity.description || `${activity.action} - ${activity.case?.title || 'System'}`,
