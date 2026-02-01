@@ -1,152 +1,320 @@
-"use client"
+/**
+ * Public Case Search Page - Server Component
+ * Allows searching for public cases with filters and logging
+ */
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { headers } from 'next/headers'
+import { 
+  Search as SearchIcon,
+  FileText,
+  Calendar,
+  AlertCircle,
+  Scale
+} from "lucide-react"
+import { prisma } from "@/lib/db"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Search } from "lucide-react"
+import { StatCard } from "@/components/ui/stat-card"
+import { 
+  GlassCard, 
+  GlassCardHeader, 
+  GlassCardTitle, 
+  GlassCardDescription, 
+  GlassCardContent,
+  GlassCardFooter
+} from "@/components/ui/glass-card"
+import { SearchForm } from "@/components/search/search-form"
+import { CaseStatus, CaseCategory } from "@prisma/client"
 
-// Mock search results
-const mockResults = [
-  {
-    id: "1",
-    caseNumber: "HCA 1234/2024",
-    title: "Wong v. Chan",
-    type: "Property",
-    court: "High Court",
-    status: "in-progress",
-    filingDate: "2024-01-15",
-  },
-  {
-    id: "2",
-    caseNumber: "HCMP 5678/2024",
-    title: "Re: Li Family Trust",
-    type: "Family",
-    court: "High Court",
-    status: "closed",
-    filingDate: "2024-01-20",
-  },
-]
+interface SearchParams {
+  q?: string
+  category?: string
+  status?: string
+}
 
-export default function SearchPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchType, setSearchType] = useState("caseNumber")
-  const [results, setResults] = useState<typeof mockResults>([])
+interface SearchPageProps {
+  searchParams: Promise<SearchParams>
+}
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    // TODO: Implement actual search
-    if (searchQuery) {
-      setResults(mockResults)
-    } else {
-      setResults([])
+// Fetch public cases from database
+async function searchPublicCases(params: SearchParams) {
+  try {
+    // Build where clause - only public cases
+    const where: any = {
+      isPublic: true,
     }
+
+    // Search filter
+    if (params.q) {
+      where.OR = [
+        { caseNumber: { contains: params.q, mode: 'insensitive' } },
+        { title: { contains: params.q, mode: 'insensitive' } },
+        { description: { contains: params.q, mode: 'insensitive' } },
+        { publicNote: { contains: params.q, mode: 'insensitive' } },
+      ]
+    }
+
+    // Category filter
+    if (params.category && Object.values(CaseCategory).includes(params.category as CaseCategory)) {
+      where.category = params.category
+    }
+
+    // Status filter
+    if (params.status && Object.values(CaseStatus).includes(params.status as CaseStatus)) {
+      where.status = params.status
+    }
+
+    // Fetch public cases
+    const cases = await prisma.case.findMany({
+      where,
+      orderBy: {
+        startDate: 'desc',
+      },
+      take: 50, // Limit results
+      select: {
+        id: true,
+        caseNumber: true,
+        title: true,
+        category: true,
+        status: true,
+        startDate: true,
+        publicNote: true,
+      },
+    })
+
+    return cases
+  } catch (error) {
+    console.error('Error searching cases:', error)
+    return []
   }
+}
+
+// Log search to SearchHistory
+async function logSearch(query: string, resultsCount: number, ipAddress: string) {
+  try {
+    await prisma.searchHistory.create({
+      data: {
+        query,
+        resultsCount,
+        ipAddress,
+      },
+    })
+  } catch (error) {
+    console.error('Error logging search:', error)
+  }
+}
+
+// Get client IP address
+function getClientIp(headersList: Headers): string {
+  const forwarded = headersList.get('x-forwarded-for')
+  const realIp = headersList.get('x-real-ip')
+  
+  if (forwarded) {
+    return forwarded.split(',')[0].trim()
+  }
+  
+  return realIp || 'unknown'
+}
+
+// Format date
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(date))
+}
+
+// Get status badge color
+function getStatusColor(status: CaseStatus): string {
+  const colors: Record<CaseStatus, string> = {
+    ACTIVE: 'bg-green-500/20 text-green-400 border-green-500/30',
+    PENDING: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    COMPLETED: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    ARCHIVED: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    CANCELLED: 'bg-red-500/20 text-red-400 border-red-500/30',
+  }
+  return colors[status] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+}
+
+// Format category for display
+function formatCategory(category: CaseCategory): string {
+  return category.replace('_', ' ')
+}
+
+// Truncate text
+function truncate(text: string | null, length: number): string {
+  if (!text) return ''
+  return text.length > length ? text.substring(0, length) + '...' : text
+}
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  // Await searchParams (Next.js 15 requirement)
+  const params = await searchParams
+  
+  // Get search results
+  const results = params.q || params.category || params.status 
+    ? await searchPublicCases(params)
+    : []
+
+  // Log search if there's a query
+  if (params.q) {
+    const headersList = await headers()
+    const ipAddress = getClientIp(headersList)
+    await logSearch(params.q, results.length, ipAddress)
+  }
+
+  const hasSearched = Boolean(params.q || params.category || params.status)
+  const totalResults = results.length
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Public Case Search</h1>
-        <p className="text-muted-foreground">
-          Search for cases in the Hong Kong legal system
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <Scale className="h-10 w-10 text-premier-gold" />
+          <h1 className="text-4xl font-bold tracking-tight text-gradient-gold">
+            Public Case Search
+          </h1>
+        </div>
+        <p className="text-premier-pearl-gray text-lg">
+          Search for publicly available legal cases
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Search Cases</CardTitle>
-          <CardDescription>
-            Enter case number, party names, or keywords to search
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSearch} className="space-y-4">
-            <div className="flex gap-4">
-              <div className="flex-1 space-y-2">
-                <Label htmlFor="search">Search Query</Label>
-                <Input
-                  id="search"
-                  placeholder="Enter case number, party name, or keywords..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <div className="flex items-end">
-                <Button type="submit">
-                  <Search className="mr-2 h-4 w-4" />
-                  Search
-                </Button>
-              </div>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+      {/* Search Form */}
+      <GlassCard variant="gold">
+        <GlassCardContent className="pt-6">
+          <SearchForm
+            initialQuery={params.q}
+            initialCategory={params.category}
+            initialStatus={params.status}
+          />
+        </GlassCardContent>
+      </GlassCard>
 
-      {results.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Search Results</CardTitle>
-            <CardDescription>
-              Found {results.length} case(s)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Case Number</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Court</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Filing Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {results.map((result) => (
-                  <TableRow key={result.id}>
-                    <TableCell className="font-medium">
-                      {result.caseNumber}
-                    </TableCell>
-                    <TableCell>{result.title}</TableCell>
-                    <TableCell>{result.type}</TableCell>
-                    <TableCell>{result.court}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={
-                          result.status === "in-progress"
-                            ? "case-status-in-progress"
-                            : "case-status-closed"
-                        }
-                      >
-                        {result.status.replace("-", " ")}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{result.filingDate}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+      {/* Search Stats */}
+      {hasSearched && (
+        <div className="grid gap-4 md:grid-cols-3">
+          <StatCard
+            title="Search Results"
+            value={totalResults}
+            icon={SearchIcon}
+          />
+          <StatCard
+            title="Search Query"
+            value={params.q || 'Filtered'}
+            icon={FileText}
+          />
+          <StatCard
+            title="Filters Applied"
+            value={(params.category ? 1 : 0) + (params.status ? 1 : 0)}
+            icon={AlertCircle}
+          />
+        </div>
       )}
 
-      {searchQuery && results.length === 0 && (
-        <Card>
-          <CardContent className="py-10 text-center text-muted-foreground">
-            No results found. Try a different search query.
-          </CardContent>
-        </Card>
+      {/* Results */}
+      {hasSearched && (
+        <div>
+          {results.length === 0 ? (
+            // Empty State
+            <GlassCard>
+              <GlassCardContent className="py-16">
+                <div className="text-center">
+                  <SearchIcon className="mx-auto h-16 w-16 text-premier-pearl-gray opacity-50" />
+                  <h3 className="mt-4 text-xl font-semibold text-premier-pearl">No results found</h3>
+                  <p className="mt-2 text-premier-pearl-gray">
+                    Try adjusting your search query or filters
+                  </p>
+                </div>
+              </GlassCardContent>
+            </GlassCard>
+          ) : (
+            // Results Grid
+            <>
+              <div className="mb-4">
+                <h2 className="text-2xl font-semibold text-premier-pearl">
+                  Found {totalResults} case{totalResults !== 1 ? 's' : ''}
+                </h2>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {results.map((caseItem) => (
+                  <GlassCard key={caseItem.id} className="hover:border-premier-gold/50 transition-colors">
+                    <GlassCardHeader>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <GlassCardTitle className="text-base truncate">
+                            {caseItem.caseNumber}
+                          </GlassCardTitle>
+                          <GlassCardDescription className="mt-1 line-clamp-2">
+                            {caseItem.title}
+                          </GlassCardDescription>
+                        </div>
+                        <Badge 
+                          variant="outline" 
+                          className={getStatusColor(caseItem.status)}
+                        >
+                          {caseItem.status}
+                        </Badge>
+                      </div>
+                    </GlassCardHeader>
+                    <GlassCardContent className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm">
+                        <FileText className="h-4 w-4 text-premier-gold" />
+                        <span className="text-premier-pearl-gray">
+                          {formatCategory(caseItem.category)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Calendar className="h-4 w-4 text-premier-gold" />
+                        <span className="text-premier-pearl-gray">
+                          {formatDate(caseItem.startDate)}
+                        </span>
+                      </div>
+                      {caseItem.publicNote && (
+                        <p className="text-sm text-premier-pearl-gray line-clamp-3 mt-2">
+                          {truncate(caseItem.publicNote, 120)}
+                        </p>
+                      )}
+                    </GlassCardContent>
+                  </GlassCard>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Initial State */}
+      {!hasSearched && (
+        <GlassCard>
+          <GlassCardContent className="py-16">
+            <div className="text-center space-y-4">
+              <div className="mx-auto w-16 h-16 rounded-full bg-premier-gold/10 flex items-center justify-center">
+                <SearchIcon className="h-8 w-8 text-premier-gold" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-premier-pearl">Start Your Search</h3>
+                <p className="mt-2 text-premier-pearl-gray">
+                  Enter a case number, title, or keywords to search for public cases
+                </p>
+              </div>
+              <div className="pt-4">
+                <div className="inline-flex flex-col gap-2 text-left">
+                  <p className="text-sm text-premier-pearl-gray">
+                    <span className="text-premier-gold">•</span> Search by case number (e.g., "HK-2026-001")
+                  </p>
+                  <p className="text-sm text-premier-pearl-gray">
+                    <span className="text-premier-gold">•</span> Search by case title or keywords
+                  </p>
+                  <p className="text-sm text-premier-pearl-gray">
+                    <span className="text-premier-gold">•</span> Filter by category and status
+                  </p>
+                </div>
+              </div>
+            </div>
+          </GlassCardContent>
+        </GlassCard>
       )}
     </div>
   )
