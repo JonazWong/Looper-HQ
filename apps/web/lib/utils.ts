@@ -93,9 +93,11 @@ export function isValidEmail(email: string): boolean {
 }
 
 /**
- * Validate Hong Kong ID card number (format only)
+ * Validate Hong Kong ID card number format (basic format check only)
+ * Note: This validates the format but not the check digit algorithm
+ * For full validation with check digit, use the validation package
  */
-export function isValidHKID(hkid: string): boolean {
+export function isValidHKIDFormat(hkid: string): boolean {
   // Remove spaces, parentheses and convert to uppercase
   const cleaned = hkid.replace(/[\s()]/g, '').toUpperCase()
   
@@ -104,6 +106,9 @@ export function isValidHKID(hkid: string): boolean {
   
   return hkidRegex.test(cleaned)
 }
+
+// Alias for backwards compatibility
+export const isValidHKID = isValidHKIDFormat
 
 /**
  * Validate case number format (HK-YYYY-XXX)
