@@ -20,5 +20,6 @@ jobs:
         with:
           node-version: 18
           cache: 'pnpm'
-      - run: pnpm install
+      - run: pnpm install --no-frozen-lockfile 
+      - run: pnpm --filter=@looper-hq/database prisma generate  
       - run: pnpm build
