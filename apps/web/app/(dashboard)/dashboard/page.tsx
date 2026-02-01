@@ -1,278 +1,169 @@
-'use client'
-
 /**
  * Enhanced Dashboard Page with Premier Design System
+ * Server Component - fetches real data from database
  */
 
-import { motion } from "framer-motion"
 import { 
   Briefcase, 
   Users, 
   FileText, 
   TrendingUp, 
-  Plus,
-  Search,
   Calendar,
   Upload,
-  BarChart3,
-  FolderOpen,
-  Clock
+  LucideIcon
 } from "lucide-react"
-import { StatCard } from "@/components/ui/stat-card"
-import { GlassCard, GlassCardHeader, GlassCardTitle, GlassCardContent } from "@/components/ui/glass-card"
-import { PremierButton } from "@/components/ui/premier-button"
-import { ProgressRing } from "@/components/ui/progress-ring"
-import { ActivityTimeline, type Activity } from "@/components/ui/activity-timeline"
-import { containerVariants, itemVariants } from "@/lib/animations"
+import { DashboardContent } from "@/components/dashboard/dashboard-content"
+import { type Activity } from "@/components/ui/activity-timeline"
+import { prisma } from "@/lib/db"
 
-// Sample data
-const caseSegments = [
-  { label: 'Active', value: 15, color: '#D4AF37' },
-  { label: 'Pending', value: 8, color: '#4A148C' },
-  { label: 'Completed', value: 20, color: '#10b981' },
-  { label: 'Archived', value: 5, color: '#6b7280' },
-]
+// Icon mapping for activities
+const activityIconMap: Record<string, LucideIcon> = {
+  'CASE_CREATED': Briefcase,
+  'CASE_UPDATED': FileText,
+  'CASE_COMPLETED': TrendingUp,
+  'DOCUMENT_UPLOADED': Upload,
+  'COURT_HEARING': Calendar,
+  'CLIENT_CREATED': Users,
+  'CLIENT_UPDATED': Users,
+}
 
-const recentActivities: Activity[] = [
-  {
-    id: '1',
-    user: { name: 'Sarah Chen', initials: 'SC' },
-    action: 'filed',
-    description: 'New case: Wong v. Chan Property Dispute',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    icon: Briefcase,
-  },
-  {
-    id: '2',
-    user: { name: 'Michael Lee', initials: 'ML' },
-    action: 'updated',
-    description: 'Case documents uploaded for HCA 1234/2024',
-    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-    icon: Upload,
-  },
-  {
-    id: '3',
-    user: { name: 'Emily Wong', initials: 'EW' },
-    action: 'scheduled',
-    description: 'Court hearing for Li Family Trust',
-    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),
-    icon: Calendar,
-  },
-  {
-    id: '4',
-    user: { name: 'David Tam', initials: 'DT' },
-    action: 'completed',
-    description: 'Settlement reached in ABC Ltd merger',
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    icon: TrendingUp,
-  },
-  {
-    id: '5',
-    user: { name: 'Lisa Chan', initials: 'LC' },
-    action: 'created',
-    description: 'New client profile: Henderson Properties',
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    icon: Users,
-  },
-]
+// Helper to get user initials
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
 
-const quickActions = [
-  { label: 'New Case', icon: Plus, variant: 'primary' as const, href: '/dashboard/cases/new' },
-  { label: 'Add Client', icon: Users, variant: 'secondary' as const, href: '/dashboard/clients/new' },
-  { label: 'Search Cases', icon: Search, variant: 'secondary' as const, href: '/dashboard/search' },
-  { label: 'View Reports', icon: BarChart3, variant: 'secondary' as const, href: '/dashboard/reports' },
-  { label: 'Schedule Meeting', icon: Calendar, variant: 'secondary' as const, href: '/dashboard/calendar' },
-  { label: 'Upload Documents', icon: Upload, variant: 'secondary' as const, href: '/dashboard/documents/upload' },
-]
+// Fetch dashboard stats from database
+async function getDashboardStats() {
+  try {
+    // Get case statistics
+    const totalCases = await prisma.case.count()
+    const activeCases = await prisma.case.count({ where: { status: 'ACTIVE' } })
+    const pendingCases = await prisma.case.count({ where: { status: 'PENDING' } })
+    const completedCases = await prisma.case.count({ where: { status: 'COMPLETED' } })
+    const archivedCases = await prisma.case.count({ where: { status: 'ARCHIVED' } })
 
-export default function DashboardPage() {
-  return (
-    <motion.div
-      className="space-y-8"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {/* Header */}
-      <motion.div variants={itemVariants}>
-        <h1 className="text-4xl font-serif font-bold text-gradient-gold mb-2">
-          Dashboard
-        </h1>
-        <p className="text-premier-pearl-gray">
-          Welcome back! Here&apos;s an overview of your legal practice.
-        </p>
-      </motion.div>
+    // Get client statistics
+    const totalClients = await prisma.client.count()
 
-      {/* Stats Grid */}
-      <motion.div 
-        className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
-        variants={containerVariants}
-      >
-        <motion.div variants={itemVariants}>
-          <StatCard
-            title="Total Cases"
-            value={42}
-            change={{ value: 12, trend: 'up', label: 'from last month' }}
-            icon={Briefcase}
-          />
-        </motion.div>
-        
-        <motion.div variants={itemVariants}>
-          <StatCard
-            title="Active Clients"
-            value={28}
-            change={{ value: 5, trend: 'up', label: 'from last month' }}
-            icon={Users}
-          />
-        </motion.div>
-        
-        <motion.div variants={itemVariants}>
-          <StatCard
-            title="Pending Reviews"
-            value={8}
-            change={{ value: 3, trend: 'down', label: 'from yesterday' }}
-            icon={FileText}
-          />
-        </motion.div>
-        
-        <motion.div variants={itemVariants}>
-          <StatCard
-            title="Success Rate"
-            value="92%"
-            change={{ value: 8, trend: 'up', label: 'this quarter' }}
-            icon={TrendingUp}
-          />
-        </motion.div>
-      </motion.div>
+    // Get case distribution by status
+    const casesByStatus = [
+      { label: 'Active', value: activeCases, color: '#D4AF37' },
+      { label: 'Pending', value: pendingCases, color: '#4A148C' },
+      { label: 'Completed', value: completedCases, color: '#10b981' },
+      { label: 'Archived', value: archivedCases, color: '#6b7280' },
+    ]
 
-      {/* Quick Actions */}
-      <motion.div variants={itemVariants}>
-        <GlassCard variant="frosted" glow={false}>
-          <GlassCardHeader>
-            <GlassCardTitle>Quick Actions</GlassCardTitle>
-          </GlassCardHeader>
-          <GlassCardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              {quickActions.map((action, index) => (
-                <motion.div
-                  key={action.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
-                >
-                  <PremierButton
-                    variant={action.variant}
-                    icon={action.icon}
-                    className="w-full h-auto py-4 flex-col gap-2"
-                  >
-                    <span className="text-xs">{action.label}</span>
-                  </PremierButton>
-                </motion.div>
-              ))}
-            </div>
-          </GlassCardContent>
-        </GlassCard>
-      </motion.div>
+    // Get recent cases
+    const recentCases = await prisma.case.findMany({
+      take: 5,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    })
 
-      {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Case Progress Overview */}
-        <motion.div variants={itemVariants}>
-          <GlassCard variant="gold" glow>
-            <GlassCardHeader>
-              <GlassCardTitle>Case Distribution</GlassCardTitle>
-            </GlassCardHeader>
-            <GlassCardContent className="flex justify-center py-8">
-              <ProgressRing segments={caseSegments} size={240} strokeWidth={24} />
-            </GlassCardContent>
-          </GlassCard>
-        </motion.div>
+    // Calculate success rate (completed / total non-cancelled)
+    const nonCancelledCases = await prisma.case.count({
+      where: {
+        status: {
+          not: 'CANCELLED',
+        },
+      },
+    })
+    const successRate = nonCancelledCases > 0 
+      ? Math.round((completedCases / nonCancelledCases) * 100) 
+      : 0
 
-        {/* Recent Activity Timeline */}
-        <motion.div variants={itemVariants}>
-          <GlassCard variant="mystery" glow>
-            <GlassCardHeader>
-              <GlassCardTitle>Recent Activity</GlassCardTitle>
-            </GlassCardHeader>
-            <GlassCardContent>
-              <ActivityTimeline 
-                activities={recentActivities}
-                showLoadMore
-                onLoadMore={() => console.log('Load more')}
-              />
-            </GlassCardContent>
-          </GlassCard>
-        </motion.div>
-      </div>
+    return {
+      totalCases,
+      activeCases,
+      pendingCases,
+      totalClients,
+      successRate,
+      casesByStatus,
+      recentCases,
+    }
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error)
+    // Return default values on error
+    return {
+      totalCases: 0,
+      activeCases: 0,
+      pendingCases: 0,
+      totalClients: 0,
+      successRate: 0,
+      casesByStatus: [],
+      recentCases: [],
+    }
+  }
+}
 
-      {/* Recent Cases */}
-      <motion.div variants={itemVariants}>
-        <GlassCard variant="default" glow>
-          <GlassCardHeader>
-            <GlassCardTitle>Recent Cases</GlassCardTitle>
-          </GlassCardHeader>
-          <GlassCardContent>
-            <div className="space-y-4">
-              {[
-                {
-                  id: "1",
-                  caseNumber: "HCA 1234/2024",
-                  title: "Wong v. Chan Property Dispute",
-                  status: "in-progress",
-                  client: "Mr. Wong",
-                },
-                {
-                  id: "2",
-                  caseNumber: "HCA 5678/2024",
-                  title: "Li Family Trust Administration",
-                  status: "open",
-                  client: "Li Family",
-                },
-                {
-                  id: "3",
-                  caseNumber: "HCA 9012/2024",
-                  title: "Corporate Merger - ABC Ltd",
-                  status: "in-progress",
-                  client: "ABC Limited",
-                },
-              ].map((case_, index) => (
-                <motion.div
-                  key={case_.id}
-                  className="flex items-center justify-between border-b border-premier-gold/10 pb-4 last:border-0 last:pb-0 hover:bg-premier-gold/5 -mx-4 px-4 py-2 rounded-premier-md transition-colors cursor-pointer group"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 1 + index * 0.1 }}
-                  whileHover={{ x: 4 }}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-premier-gold/20 to-premier-gold-rose/10 flex items-center justify-center group-hover:from-premier-gold/30 group-hover:to-premier-gold-rose/20 transition-all">
-                      <FolderOpen className="h-5 w-5 text-premier-gold" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-premier-pearl">{case_.title}</div>
-                      <div className="text-sm text-premier-pearl-gray">
-                        {case_.caseNumber} • {case_.client}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        case_.status === "in-progress"
-                          ? "bg-amber-500/20 text-amber-200"
-                          : "bg-blue-500/20 text-blue-200"
-                      }`}
-                    >
-                      {case_.status === "in-progress" ? "In Progress" : "Open"}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </GlassCardContent>
-        </GlassCard>
-      </motion.div>
-    </motion.div>
-  )
+// Fetch recent activities from database
+async function getRecentActivities() {
+  try {
+    // Get activities
+    const activities = await prisma.activity.findMany({
+      take: 5,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        case: {
+          select: {
+            id: true,
+            caseNumber: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
+
+    // Transform to component format
+    const formattedActivities: Activity[] = activities.map((activity) => ({
+      id: activity.id,
+      user: {
+        name: activity.user.name,
+        initials: getInitials(activity.user.name),
+      },
+      action: activity.action,
+      description: activity.description || `${activity.action} - ${activity.case?.title || 'System'}`,
+      timestamp: activity.createdAt,
+      icon: activityIconMap[activity.type] || FileText,
+    }))
+    
+    return formattedActivities
+  } catch (error) {
+    console.error('Error fetching activities:', error)
+    return []
+  }
+}
+
+export default async function DashboardPage() {
+  // Fetch data in parallel
+  const [stats, activities] = await Promise.all([
+    getDashboardStats(),
+    getRecentActivities(),
+  ])
+
+  return <DashboardContent stats={stats} activities={activities} />
 }
 
