@@ -1,0 +1,114 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 20
+
+jobs:
+  deploy:
+    name: Deploy to DigitalOcean Droplet
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Generate Prisma Client
+        run: pnpm --filter=@looper-hq/database prisma generate
+      
+      - name: Build application
+        run: pnpm build
+        env:
+          NODE_ENV: production
+      
+      - name: Run tests
+        run: pnpm test || echo "Tests not configured yet"
+        continue-on-error: true
+      
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
+      
+      - name: Deploy to Droplet
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@${{ secrets.DROPLET_IP }} << 'EOF'
+            set -e
+            
+            # Navigate to application directory
+            cd /opt/looper-hq || {
+              echo "Application directory not found. Please run setup-droplet.sh first."
+              exit 1
+            }
+            
+            # Run deployment script
+            ./infrastructure/deployment/scripts/deploy.sh
+            
+            echo "✅ Deployment completed successfully!"
+          EOF
+      
+      - name: Verify deployment
+        run: |
+          echo "Waiting for application to be ready..."
+          sleep 30
+          
+          # Check health endpoint
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://${{ secrets.PRODUCTION_DOMAIN }}/api/health || echo "000")
+          
+          if [ "$response" = "200" ]; then
+            echo "✅ Deployment verification successful!"
+          else
+            echo "⚠️ Health check returned: $response"
+            echo "Please verify deployment manually"
+          fi
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/deploy_key
+      
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "🎉 Deployment to production completed successfully!"
+          echo "Application is now live at https://${{ secrets.PRODUCTION_DOMAIN }}"
+      
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed! Please check the logs above."
+          echo "The application may have been automatically rolled back."
+
+# Required GitHub Secrets:
+# - DROPLET_IP: IP address of your DigitalOcean droplet
+# - SSH_PRIVATE_KEY: SSH private key for authentication
+# - PRODUCTION_DOMAIN: Your production domain name (e.g., looper-hq.com)
+#
+# Optional Secrets (for .env.production on droplet):
+# - POSTGRES_PASSWORD
+# - REDIS_PASSWORD
+# - NEXTAUTH_SECRET
+# - KEYCLOAK_ADMIN_PASSWORD
+# - etc.

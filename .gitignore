@@ -4,11 +4,19 @@ dist/
 build/
 .env
 .env.local
+.env.production
 .DS_Store
 .turbo/
 *.log
 coverage/
 *.tsbuildinfo
+
+# Deployment artifacts
+infrastructure/deployment/docker/nginx/ssl/*.pem
+infrastructure/deployment/docker/nginx/ssl/*.key
+backups/
+*.sql
+*.sql.gz
 
 # Migration package
 packages/migration/logs/
