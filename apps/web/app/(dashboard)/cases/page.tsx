@@ -47,7 +47,7 @@ interface SearchParams {
 }
 
 interface CasesPageProps {
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }
 
 // Constants
@@ -199,9 +199,12 @@ function formatCategory(category: CaseCategory): string {
 }
 
 export default async function CasesPage({ searchParams }: CasesPageProps) {
+  // Await searchParams (Next.js 15 requirement)
+  const params = await searchParams
+  
   // Fetch data in parallel
   const [{ cases, totalCases, currentPage, totalPages }, stats] = await Promise.all([
-    getCases(searchParams),
+    getCases(params),
     getCaseStats(),
   ])
 
@@ -252,10 +255,10 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
       <GlassCard variant="default">
         <GlassCardContent className="pt-6">
           <CasesFilters
-            initialSearch={searchParams.search}
-            initialStatus={searchParams.status}
-            initialPriority={searchParams.priority}
-            initialCategory={searchParams.category}
+            initialSearch={params.search}
+            initialStatus={params.status}
+            initialPriority={params.priority}
+            initialCategory={params.category}
           />
         </GlassCardContent>
       </GlassCard>
@@ -279,7 +282,7 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
                 No cases found
               </h3>
               <p className="text-sm text-premier-pearl-gray mb-6 text-center max-w-md">
-                {searchParams.search || searchParams.status || searchParams.priority || searchParams.category
+                {params.search || params.status || params.priority || params.category
                   ? 'Try adjusting your filters to find what you\'re looking for.'
                   : 'Get started by creating your first case.'}
               </p>
