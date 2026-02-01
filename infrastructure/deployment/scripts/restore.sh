@@ -19,7 +19,9 @@ TMP_DIR="/tmp/looper-hq-restore"
 
 # Load environment variables
 if [ -f "/opt/looper-hq/.env.production" ]; then
-    export $(cat /opt/looper-hq/.env.production | grep -v '^#' | xargs)
+    set -a
+    source /opt/looper-hq/.env.production
+    set +a
 fi
 
 # Function to list available backups

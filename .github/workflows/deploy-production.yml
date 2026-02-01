@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  NODE_VERSION: 20
+
 jobs:
   deploy:
     name: Deploy to DigitalOcean Droplet
@@ -24,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
       
       - name: Install dependencies

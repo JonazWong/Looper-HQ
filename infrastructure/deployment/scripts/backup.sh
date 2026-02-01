@@ -19,7 +19,9 @@ RETENTION_DAYS=7
 
 # Load environment variables
 if [ -f "/opt/looper-hq/.env.production" ]; then
-    export $(cat /opt/looper-hq/.env.production | grep -v '^#' | xargs)
+    set -a
+    source /opt/looper-hq/.env.production
+    set +a
 fi
 
 # Create backup directory if it doesn't exist

@@ -67,7 +67,7 @@ fi
 
 # Install Node.js 20 and pnpm
 echo -e "${GREEN}[4/10] Installing Node.js 20 and pnpm...${NC}"
-if ! command -v node &> /dev/null; then
+if ! command -v node &> /dev/null || ! node -v | grep -q "^v20"; then
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
     apt-get install -y nodejs
     
@@ -76,7 +76,7 @@ if ! command -v node &> /dev/null; then
     
     echo -e "${GREEN}Node.js $(node -v) and pnpm $(pnpm -v) installed!${NC}"
 else
-    echo -e "${YELLOW}Node.js already installed, skipping...${NC}"
+    echo -e "${YELLOW}Node.js 20 already installed, skipping...${NC}"
 fi
 
 # Install Nginx
