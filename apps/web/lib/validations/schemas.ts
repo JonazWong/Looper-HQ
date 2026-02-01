@@ -66,7 +66,93 @@ export const documentSchema = z.object({
   isConfidential: z.boolean().default(false),
 })
 
+export const updateDocumentSchema = z.object({
+  fileName: z.string().optional(),
+  category: z.enum([
+    'CONTRACT',
+    'EVIDENCE',
+    'COURT_FILING',
+    'CORRESPONDENCE',
+    'INVOICE',
+    'OTHER',
+  ]).optional(),
+  description: z.string().optional(),
+  isConfidential: z.boolean().optional(),
+})
+
+export const documentFilterSchema = z.object({
+  caseId: z.string().optional(),
+  category: z.enum([
+    'CONTRACT',
+    'EVIDENCE',
+    'COURT_FILING',
+    'CORRESPONDENCE',
+    'INVOICE',
+    'OTHER',
+  ]).optional(),
+  search: z.string().optional(),
+})
+
 export type DocumentInput = z.infer<typeof documentSchema>
+export type UpdateDocumentInput = z.infer<typeof updateDocumentSchema>
+export type DocumentFilterInput = z.infer<typeof documentFilterSchema>
+
+// Invoice validation schemas
+export const invoiceSchema = z.object({
+  caseId: z.string(),
+  amount: z.number().positive('Amount must be positive'),
+  currency: z.string().default('HKD'),
+  status: z.enum(['DRAFT', 'PENDING', 'PAID', 'OVERDUE', 'CANCELLED']).default('PENDING'),
+  issueDate: z.string().datetime().optional(),
+  dueDate: z.string().datetime(),
+  paidDate: z.string().datetime().optional(),
+})
+
+export const updateInvoiceSchema = z.object({
+  amount: z.number().positive().optional(),
+  status: z.enum(['DRAFT', 'PENDING', 'PAID', 'OVERDUE', 'CANCELLED']).optional(),
+  issueDate: z.string().datetime().optional(),
+  dueDate: z.string().datetime().optional(),
+  paidDate: z.string().datetime().optional(),
+})
+
+export const invoiceFilterSchema = z.object({
+  status: z.enum(['DRAFT', 'PENDING', 'PAID', 'OVERDUE', 'CANCELLED']).optional(),
+  caseId: z.string().optional(),
+})
+
+export type InvoiceInput = z.infer<typeof invoiceSchema>
+export type UpdateInvoiceInput = z.infer<typeof updateInvoiceSchema>
+export type InvoiceFilterInput = z.infer<typeof invoiceFilterSchema>
+
+// Time log validation schemas
+export const timeLogSchema = z.object({
+  caseId: z.string(),
+  description: z.string().min(1, 'Description cannot be empty'),
+  hours: z.number().positive('Hours must be positive'),
+  hourlyRate: z.number().positive().optional(),
+  billable: z.boolean().default(true),
+  logDate: z.string().datetime(),
+})
+
+export const updateTimeLogSchema = z.object({
+  description: z.string().min(1).optional(),
+  hours: z.number().positive().optional(),
+  hourlyRate: z.number().positive().optional(),
+  billable: z.boolean().optional(),
+  logDate: z.string().datetime().optional(),
+})
+
+export const timeLogFilterSchema = z.object({
+  caseId: z.string().optional(),
+  billable: z.coerce.boolean().optional(),
+  dateFrom: z.string().datetime().optional(),
+  dateTo: z.string().datetime().optional(),
+})
+
+export type TimeLogInput = z.infer<typeof timeLogSchema>
+export type UpdateTimeLogInput = z.infer<typeof updateTimeLogSchema>
+export type TimeLogFilterInput = z.infer<typeof timeLogFilterSchema>
 
 // Case note validation schemas
 export const caseNoteSchema = z.object({
