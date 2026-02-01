@@ -6,11 +6,11 @@
  */
 
 import * as React from 'react'
-import { motion } from 'framer-motion'
+import { motion, HTMLMotionProps } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { cardHoverVariants, cardHoverShadow } from '@/lib/animations'
+import { cardHoverVariants } from '@/lib/animations'
 
-export interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface GlassCardProps extends Omit<HTMLMotionProps<'div'>, 'ref'> {
   variant?: 'default' | 'gold' | 'mystery' | 'frosted'
   glow?: boolean
   animated?: boolean
@@ -37,18 +37,29 @@ export const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
       frosted: 'glass-frosted',
     }
 
-    const Component = animated ? motion.div : 'div'
-    const motionProps = animated
-      ? {
-          initial: 'initial',
-          whileHover: 'hover',
-          variants: cardHoverVariants,
-          whileTap: { scale: 0.99 }
-        }
-      : {}
+    if (animated) {
+      return (
+        <motion.div
+          ref={ref}
+          className={cn(
+            'rounded-premier-lg transition-all duration-300',
+            variantClasses[variant],
+            glow && 'shadow-premier-glow hover:shadow-premier-glow-lg',
+            className
+          )}
+          initial="initial"
+          whileHover="hover"
+          variants={cardHoverVariants}
+          whileTap={{ scale: 0.99 }}
+          {...props}
+        >
+          {children}
+        </motion.div>
+      )
+    }
 
     return (
-      <Component
+      <div
         ref={ref}
         className={cn(
           'rounded-premier-lg transition-all duration-300',
@@ -56,11 +67,10 @@ export const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
           glow && 'shadow-premier-glow hover:shadow-premier-glow-lg',
           className
         )}
-        {...motionProps}
-        {...props}
+        {...(props as React.HTMLAttributes<HTMLDivElement>)}
       >
         {children}
-      </Component>
+      </div>
     )
   }
 )

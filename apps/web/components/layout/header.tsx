@@ -1,7 +1,14 @@
 "use client"
 
+/**
+ * Enhanced Header with Premier Design System
+ */
+
 import Link from "next/link"
-import { Scale, User, LogOut } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { Scale, User, LogOut, Bell } from "lucide-react"
+import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,56 +19,98 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+const navItems = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/dashboard/cases", label: "Cases" },
+  { href: "/dashboard/clients", label: "Clients" },
+  { href: "/dashboard/search", label: "Search" },
+]
+
 export function Header() {
+  const pathname = usePathname()
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background">
+    <header className="sticky top-0 z-40 w-full glass-card border-b border-premier-gold/10 backdrop-blur-lg">
       <div className="container flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2">
-            <Scale className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">Looper HQ</span>
+        <div className="flex items-center gap-8">
+          {/* Logo with glow effect */}
+          <Link href="/" className="flex items-center gap-2 group">
+            <motion.div
+              whileHover={{ rotate: 5, scale: 1.1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Scale className="h-6 w-6 text-premier-gold drop-shadow-premier-glow" />
+            </motion.div>
+            <span className="text-xl font-serif font-bold text-gradient-gold">
+              Looper HQ
+            </span>
           </Link>
-          <nav className="hidden md:flex gap-6">
-            <Link
-              href="/dashboard"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/dashboard/cases"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              Cases
-            </Link>
-            <Link
-              href="/dashboard/clients"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              Clients
-            </Link>
-            <Link
-              href="/dashboard/search"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              Search
-            </Link>
+          
+          {/* Navigation with gold underline */}
+          <nav className="hidden md:flex gap-1">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="relative px-4 py-2 group"
+                >
+                  <span className={cn(
+                    "text-sm font-medium transition-colors",
+                    isActive 
+                      ? "text-premier-gold" 
+                      : "text-premier-pearl-gray hover:text-premier-pearl"
+                  )}>
+                    {item.label}
+                  </span>
+                  {/* Animated underline */}
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-premier-gold to-premier-gold-rose"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: isActive ? 1 : 0 }}
+                    whileHover={{ scaleX: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </Link>
+              )
+            })}
           </nav>
         </div>
-        <div className="flex items-center gap-4">
+        
+        <div className="flex items-center gap-2">
+          {/* Notifications */}
+          <motion.button
+            className="relative p-2 rounded-premier-md text-premier-pearl-gray hover:text-premier-gold hover:bg-premier-gold/10 transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Bell className="h-5 w-5" />
+            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-premier-gold shadow-premier-glow" />
+          </motion.button>
+          
+          {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-              </Button>
+              <motion.button
+                className="h-10 w-10 rounded-full bg-gradient-to-br from-premier-gold to-premier-gold-rose flex items-center justify-center ring-2 ring-premier-gold/20 ring-offset-2 ring-offset-premier-black"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <User className="h-5 w-5 text-premier-black" />
+              </motion.button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
+            <DropdownMenuContent align="end" className="glass-card border-premier-gold/20">
+              <DropdownMenuLabel className="text-premier-pearl">My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-premier-gold/10" />
+              <DropdownMenuItem className="text-premier-pearl-gray hover:text-premier-gold focus:text-premier-gold">
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-premier-pearl-gray hover:text-premier-gold focus:text-premier-gold">
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-premier-gold/10" />
+              <DropdownMenuItem className="text-premier-pearl-gray hover:text-premier-gold focus:text-premier-gold">
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </DropdownMenuItem>

@@ -6,7 +6,7 @@
  */
 
 import * as React from 'react'
-import { motion } from 'framer-motion'
+import { motion, HTMLMotionProps } from 'framer-motion'
 import { LucideIcon, Loader2 } from 'lucide-react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
@@ -38,12 +38,15 @@ const premierButtonVariants = cva(
   }
 )
 
+type MotionButtonProps = Omit<HTMLMotionProps<'button'>, 'ref' | 'children'>
+
 export interface PremierButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends MotionButtonProps,
     VariantProps<typeof premierButtonVariants> {
   icon?: LucideIcon
   iconPosition?: 'left' | 'right'
   loading?: boolean
+  children?: React.ReactNode
 }
 
 /**
