@@ -461,6 +461,24 @@ pnpm docker:up
 9. **Use non-root database users with minimal privileges**
 10. **Keep images updated for security patches**
 
+### Production Deployment
+
+For production deployment on DigitalOcean, see:
+- **[Deployment Guide](deployment/README.md)** - Complete production setup guide
+- **[Quick Deploy](../QUICK_DEPLOY.md)** - Quick reference commands
+- **[Deployment Summary](../DEPLOYMENT_SUMMARY.md)** - Infrastructure overview
+
+Production infrastructure includes:
+- ✅ Zero-downtime deployments with automated rollback
+- ✅ Nginx reverse proxy with SSL/TLS
+- ✅ Automated database backups
+- ✅ Health monitoring with Prometheus & Grafana
+- ✅ CI/CD with GitHub Actions
+- ✅ Rate limiting and security hardening
+- ✅ Comprehensive documentation
+
+See `deployment/` directory for production configurations.
+
 ## 📝 Notes
 
 - All services use `Asia/Hong_Kong` timezone
