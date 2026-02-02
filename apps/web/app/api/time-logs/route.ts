@@ -107,10 +107,10 @@ export async function GET(request: NextRequest) {
     })
 
     const statistics = {
-      totalHours: stats._sum.hours || 0,
+      totalHours: Number(stats._sum.hours || 0),
       totalLogs: stats._count.id || 0,
-      billableHours: billableStats._sum.hours || 0,
-      nonBillableHours: (stats._sum.hours || 0) - (billableStats._sum.hours || 0),
+      billableHours: Number(billableStats._sum.hours || 0),
+      nonBillableHours: Number(stats._sum.hours || 0) - Number(billableStats._sum.hours || 0),
     }
 
     return successResponse(

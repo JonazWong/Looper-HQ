@@ -14,10 +14,11 @@ import { updateDocumentSchema } from '@/lib/validations/schemas'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAuth()
+    const params = await context.params
 
     const document = await prisma.document.findUnique({
       where: { id: params.id },
@@ -55,10 +56,11 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
+    const params = await context.params
     const body = await request.json()
 
     // Validate input
@@ -126,10 +128,11 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
+    const params = await context.params
 
     // Check if document exists
     const document = await prisma.document.findUnique({

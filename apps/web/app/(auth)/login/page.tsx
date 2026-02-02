@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { signIn } from "next-auth/react"
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardFooter, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
@@ -167,5 +167,21 @@ export default function LoginPage() {
         </GlassCardFooter>
       </GlassCard>
     </AuthLayout>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <AuthLayout>
+        <GlassCard variant="gold" glow>
+          <GlassCardHeader>
+            <GlassCardTitle>Loading...</GlassCardTitle>
+          </GlassCardHeader>
+        </GlassCard>
+      </AuthLayout>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
