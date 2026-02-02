@@ -57,7 +57,11 @@ pnpm dev
 Visit:
 - **Web App:** http://localhost:3000
 - **Keycloak Admin:** http://localhost:8080 (admin/admin)
-- **pgAdmin:** http://localhost:5050 (admin@looper-hq.dev/admin)
+- **pgAdmin:** http://localhost:5050 (
+    
+    
+    
+    /admin)
 
 ## 📦 Project Structure
 
