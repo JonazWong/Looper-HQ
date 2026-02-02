@@ -22,6 +22,7 @@ export interface StatCardProps {
   icon?: LucideIcon
   className?: string
   iconClassName?: string
+  variant?: 'success' | 'warning' | 'danger' | 'default'
 }
 
 /**
@@ -44,6 +45,7 @@ export function StatCard({
   icon: Icon,
   className,
   iconClassName,
+  variant = 'default',
 }: StatCardProps) {
   const [displayValue, setDisplayValue] = React.useState(0)
   const controls = useAnimationControls()

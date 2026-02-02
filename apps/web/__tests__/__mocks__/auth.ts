@@ -39,6 +39,11 @@ export const mockRequireAuth = vi.fn(() => Promise.resolve(mockSession))
 
 // Helper to set mock session
 export const setMockSession = (session: Session | null) => {
-  mockAuth.mockResolvedValue(session)
-  mockRequireAuth.mockResolvedValue(session)
+  if (session) {
+    mockAuth.mockResolvedValue(session)
+    mockRequireAuth.mockResolvedValue(session)
+  } else {
+    mockAuth.mockResolvedValue(null)
+    mockRequireAuth.mockRejectedValue(new Error('Unauthorized'))
+  }
 }
