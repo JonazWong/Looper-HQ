@@ -6,6 +6,7 @@
  */
 
 import * as React from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { LucideIcon, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -90,9 +91,11 @@ export function ActivityTimeline({
             <div className="relative flex-shrink-0">
               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-premier-gold to-premier-gold-rose flex items-center justify-center ring-2 ring-premier-gold/20 ring-offset-2 ring-offset-premier-black">
                 {activity.user.avatar ? (
-                  <img
+                  <Image
                     src={activity.user.avatar}
                     alt={activity.user.name}
+                    width={40}
+                    height={40}
                     className="h-full w-full rounded-full object-cover"
                   />
                 ) : (
