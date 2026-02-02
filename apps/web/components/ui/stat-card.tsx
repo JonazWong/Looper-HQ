@@ -22,6 +22,13 @@ export interface StatCardProps {
   icon?: LucideIcon
   className?: string
   iconClassName?: string
+  /**
+   * Visual variant for the card. Applies different accent colors:
+   * - 'default': Gold accent (premier-gold)
+   * - 'success': Green accent for positive metrics
+   * - 'warning': Yellow/amber accent for warnings
+   * - 'danger': Red accent for critical metrics
+   */
   variant?: 'success' | 'warning' | 'danger' | 'default'
 }
 
@@ -35,6 +42,7 @@ export interface StatCardProps {
  *   value={42}
  *   change={{ value: 12, trend: 'up', label: 'from last month' }}
  *   icon={Briefcase}
+ *   variant="success"
  * />
  * ```
  */
@@ -48,6 +56,32 @@ export function StatCard({
   variant = 'default',
 }: StatCardProps) {
   const [displayValue, setDisplayValue] = React.useState(0)
+  
+  // Variant-specific colors
+  const variantStyles = {
+    default: {
+      glow: 'from-premier-gold/20 to-premier-gold-rose/10 group-hover:from-premier-gold/30 group-hover:to-premier-gold-rose/20',
+      icon: 'text-premier-gold',
+      value: 'text-gradient-gold'
+    },
+    success: {
+      glow: 'from-green-500/20 to-green-600/10 group-hover:from-green-500/30 group-hover:to-green-600/20',
+      icon: 'text-green-400',
+      value: 'text-green-400'
+    },
+    warning: {
+      glow: 'from-amber-500/20 to-orange-500/10 group-hover:from-amber-500/30 group-hover:to-orange-500/20',
+      icon: 'text-amber-400',
+      value: 'text-amber-400'
+    },
+    danger: {
+      glow: 'from-red-500/20 to-red-600/10 group-hover:from-red-500/30 group-hover:to-red-600/20',
+      icon: 'text-red-400',
+      value: 'text-red-400'
+    }
+  }
+  
+  const styles = variantStyles[variant]
   const controls = useAnimationControls()
 
   React.useEffect(() => {
@@ -89,18 +123,18 @@ export function StatCard({
           </h3>
           {Icon && (
             <div className={cn(
-              'rounded-lg p-2 bg-gradient-to-br from-premier-gold/20 to-premier-gold-rose/10',
-              'group-hover:from-premier-gold/30 group-hover:to-premier-gold-rose/20',
+              'rounded-lg p-2 bg-gradient-to-br',
+              styles.glow,
               'transition-all duration-300',
               iconClassName
             )}>
-              <Icon className="h-4 w-4 text-premier-gold" />
+              <Icon className={cn('h-4 w-4', styles.icon)} />
             </div>
           )}
         </div>
         <div className="mt-2">
           <motion.div
-            className="text-3xl font-bold text-gradient-gold"
+            className={cn('text-3xl font-bold', styles.value)}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
