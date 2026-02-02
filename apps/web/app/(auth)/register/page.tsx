@@ -3,10 +3,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import { AuthLayout } from "@/components/layout/auth-layout"
-import { Button } from "@/components/ui/button"
+import { PremierButton } from "@/components/ui/premier-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardFooter, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
 
 export default function RegisterPage() {
   const [name, setName] = useState("")
@@ -26,17 +26,17 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout>
-      <Card>
-        <CardHeader>
-          <CardTitle>Create Account</CardTitle>
-          <CardDescription>
+      <GlassCard variant="gold" glow>
+        <GlassCardHeader>
+          <GlassCardTitle>Create Account</GlassCardTitle>
+          <GlassCardDescription>
             Sign up to start managing your legal cases
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </GlassCardDescription>
+        </GlassCardHeader>
+        <GlassCardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name" className="text-premier-pearl">Full Name</Label>
               <Input
                 id="name"
                 type="text"
@@ -44,10 +44,11 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                className="bg-premier-black-light border-premier-gold/20 text-premier-pearl placeholder:text-premier-pearl-gray/50 focus:border-premier-gold"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-premier-pearl">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -55,42 +56,45 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="bg-premier-black-light border-premier-gold/20 text-premier-pearl placeholder:text-premier-pearl-gray/50 focus:border-premier-gold"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-premier-pearl">Password</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="bg-premier-black-light border-premier-gold/20 text-premier-pearl focus:border-premier-gold"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-premier-pearl">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                className="bg-premier-black-light border-premier-gold/20 text-premier-pearl focus:border-premier-gold"
               />
             </div>
-            <Button type="submit" className="w-full">
+            <PremierButton type="submit" className="w-full" variant="primary">
               Create Account
-            </Button>
+            </PremierButton>
           </form>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-2">
-          <div className="text-sm text-muted-foreground">
+        </GlassCardContent>
+        <GlassCardFooter className="flex flex-col gap-2">
+          <div className="text-sm text-premier-pearl-gray">
             Already have an account?{" "}
-            <Link href="/login" className="text-primary hover:underline">
+            <Link href="/login" className="text-premier-gold hover:text-premier-gold-rose transition-colors">
               Sign in
             </Link>
           </div>
-        </CardFooter>
-      </Card>
+        </GlassCardFooter>
+      </GlassCard>
     </AuthLayout>
   )
 }

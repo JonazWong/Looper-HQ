@@ -5,10 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { signIn } from "next-auth/react"
 import { AuthLayout } from "@/components/layout/auth-layout"
-import { Button } from "@/components/ui/button"
+import { PremierButton } from "@/components/ui/premier-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardFooter, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -74,39 +74,39 @@ export default function LoginPage() {
 
   return (
     <AuthLayout>
-      <Card>
-        <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>
+      <GlassCard variant="gold" glow>
+        <GlassCardHeader>
+          <GlassCardTitle>Login</GlassCardTitle>
+          <GlassCardDescription>
             Sign in to your Looper HQ account
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </GlassCardDescription>
+        </GlassCardHeader>
+        <GlassCardContent className="space-y-4">
           {/* Error message */}
           {loginError && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+            <div className="p-3 text-sm text-red-400 bg-red-950/30 border border-red-800/50 rounded-md">
               {loginError}
             </div>
           )}
 
           {/* Keycloak SSO Login (Primary) */}
-          <Button
+          <PremierButton
             type="button"
             onClick={handleKeycloakLogin}
             disabled={isLoading}
             className="w-full"
-            variant="default"
+            variant="primary"
           >
             {isLoading ? "Signing in..." : "Sign in with Keycloak SSO"}
-          </Button>
+          </PremierButton>
 
           {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+              <span className="w-full border-t border-premier-gold/20" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
+              <span className="bg-premier-black-light px-2 text-premier-pearl-gray">
                 Or continue with email
               </span>
             </div>
@@ -115,7 +115,7 @@ export default function LoginPage() {
           {/* Credentials Login Form (Fallback) */}
           <form onSubmit={handleCredentialsLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-premier-pearl">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -124,14 +124,15 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
                 required
+                className="bg-premier-black-light border-premier-gold/20 text-premier-pearl placeholder:text-premier-pearl-gray/50 focus:border-premier-gold"
               />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-premier-pearl">Password</Label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-primary hover:underline"
+                  className="text-sm text-premier-gold hover:text-premier-gold-rose transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -143,27 +144,28 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 required
+                className="bg-premier-black-light border-premier-gold/20 text-premier-pearl focus:border-premier-gold"
               />
             </div>
-            <Button 
+            <PremierButton 
               type="submit" 
               className="w-full" 
-              variant="outline"
+              variant="secondary"
               disabled={isLoading}
             >
               {isLoading ? "Signing in..." : "Sign in with Email"}
-            </Button>
+            </PremierButton>
           </form>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-2">
-          <div className="text-sm text-muted-foreground">
+        </GlassCardContent>
+        <GlassCardFooter className="flex flex-col gap-2">
+          <div className="text-sm text-premier-pearl-gray">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-primary hover:underline">
+            <Link href="/register" className="text-premier-gold hover:text-premier-gold-rose transition-colors">
               Sign up
             </Link>
           </div>
-        </CardFooter>
-      </Card>
+        </GlassCardFooter>
+      </GlassCard>
     </AuthLayout>
   )
 }
