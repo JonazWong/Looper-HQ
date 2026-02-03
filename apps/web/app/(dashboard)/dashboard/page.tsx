@@ -126,7 +126,6 @@ async function getDashboardStats() {
 // Fetch recent activities from database
 async function getRecentActivities() {
   try {
-    // Get activities
     const activities = await prisma.activity.findMany({
       take: 5,
       include: {

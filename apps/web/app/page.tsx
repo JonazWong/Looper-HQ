@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Scale, Shield, Search, Users } from "lucide-react"
+import { ArrowRight, Scale, Shield, Search, Users, Clock, FileText } from "lucide-react"
 import { PremierButton } from "@/components/ui/premier-button"
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
 
@@ -40,7 +40,7 @@ export default function HomePage() {
                 Get Started <ArrowRight className="ml-2 h-4 w-4" />
               </PremierButton>
             </Link>
-            <Link href="/dashboard/search">
+            <Link href="/login">
               <PremierButton size="lg" variant="outline">
                 Search Cases
               </PremierButton>
@@ -94,6 +94,7 @@ export default function HomePage() {
             </GlassCard>
             <GlassCard variant="gold" glow>
               <GlassCardHeader>
+                <Clock className="h-10 w-10 text-premier-gold mb-2" />
                 <GlassCardTitle>Time Tracking</GlassCardTitle>
                 <GlassCardDescription>
                   Track billable hours and generate invoices automatically
@@ -102,6 +103,7 @@ export default function HomePage() {
             </GlassCard>
             <GlassCard variant="gold" glow>
               <GlassCardHeader>
+                <FileText className="h-10 w-10 text-premier-gold mb-2" />
                 <GlassCardTitle>Document Management</GlassCardTitle>
                 <GlassCardDescription>
                   Store and organize all case-related documents securely
