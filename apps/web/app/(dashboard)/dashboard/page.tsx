@@ -126,6 +126,7 @@ async function getDashboardStats() {
 // Fetch recent activities from database
 async function getRecentActivities() {
   try {
+    // Get activities
     const activities = await prisma.activity.findMany({
       take: 5,
       include: {
@@ -149,18 +150,33 @@ async function getRecentActivities() {
       },
     })
 
-    // 🔧 將資料轉換為純物件，移除不可序列化的內容
-    return activities.map(activity => ({
+    // Transform to component format
+    const formattedActivities: Activity[] = activities.map((activity) => ({
       id: activity.id,
-      user: activity.user?.name || 'Unknown',
+      user: {
+        name: activity.user.name || UNKNOWN_USER,
+        initials: getInitials(activity.user.name || UNKNOWN_USER),
+      },
       action: activity.action,
-      description: activity.description,
-      timestamp: activity.createdAt.toISOString(),
-      // ✅ 不要直接傳遞 icon 組件，改用字串
-      // icon: SomeIcon,  // ❌ 錯誤
+      description: activity.description || `${activity.action} - ${activity.case?.title || 'System'}`,
+      timestamp: activity.createdAt,
+      icon: activityIconMap[activity.type] || FileText,
     }))
+    
+    return formattedActivities
   } catch (error) {
     console.error('Error fetching activities:', error)
     return []
   }
 }
+
+export default async function DashboardPage() {
+  // Fetch data in parallel
+  const [stats, activities] = await Promise.all([
+    getDashboardStats(),
+    getRecentActivities(),
+  ])
+
+  return <DashboardContent stats={stats} activities={activities} />
+}
+
