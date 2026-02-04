@@ -43,7 +43,7 @@ export function isValidHKID(hkid: string): boolean {
   // Validate check digit
   const letters = cleaned.match(/[A-Z]+/)?.[0] || '';
   const digits = cleaned.match(/\d+/g) || [];
-  const mainDigits = digits[0];
+  const mainDigits = digits[0] || '';
   const checkDigit = parseInt(digits[1]);
   
   let sum = 0;
