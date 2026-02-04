@@ -1,44 +1,35 @@
-import { headers } from 'next/headers'
+import { auth } from '@/auth'
 import { UnauthorizedError, ForbiddenError } from './errors'
+import type { Session as NextAuthSession } from 'next-auth'
+import { UserRole } from '@prisma/client'
 
-export interface Session {
-  user: {
-    id: string
-    email: string
-    name?: string
-    role: 'ADMIN' | 'LAWYER' | 'CLIENT' | 'STAFF'
-    keycloakId?: string
-  }
-}
+// Re-export Session type from NextAuth
+export type Session = NextAuthSession
 
 /**
- * Get the current session (placeholder until NextAuth is integrated)
- * For now, we'll return a mock session for development
+ * Get the current server session (NextAuth v5)
+ * Use this in Server Components, Server Actions, and API Routes
  */
-export async function getSession(): Promise<Session | null> {
-  // TODO: Integrate with NextAuth
-  // For now, return a mock admin session for development
-  if (process.env.NODE_ENV === 'development') {
-    return {
-      user: {
-        id: 'mock-admin-id',
-        email: 'admin@looperhq.com',
-        name: 'Admin User',
-        role: 'ADMIN',
-      },
-    }
-  }
-  
-  return null
+export async function getServerSession(): Promise<Session | null> {
+  return await auth()
 }
 
 /**
- * Require authentication for API routes
+ * Require authentication for API routes and Server Actions
+ * Throws UnauthorizedError if not authenticated
+ * 
+ * @example
+ * ```ts
+ * export async function GET() {
+ *   const session = await requireAuth()
+ *   // User is authenticated
+ * }
+ * ```
  */
 export async function requireAuth(): Promise<Session> {
-  const session = await getSession()
+  const session = await auth()
   
-  if (!session) {
+  if (!session || !session.user) {
     throw new UnauthorizedError('You must be logged in to access this resource')
   }
   
@@ -46,22 +37,42 @@ export async function requireAuth(): Promise<Session> {
 }
 
 /**
- * Require specific role for API routes
+ * Require specific role(s) for API routes and Server Actions
+ * Throws UnauthorizedError if not authenticated
+ * Throws ForbiddenError if user doesn't have required role
+ * 
+ * @example
+ * ```ts
+ * export async function DELETE() {
+ *   const session = await requireRole('ADMIN', 'LAWYER')
+ *   // User is authenticated and has ADMIN or LAWYER role
+ * }
+ * ```
  */
 export async function requireRole(
-  ...allowedRoles: Array<'ADMIN' | 'LAWYER' | 'CLIENT' | 'STAFF'>
+  ...allowedRoles: UserRole[]
 ): Promise<Session> {
   const session = await requireAuth()
   
   if (!allowedRoles.includes(session.user.role)) {
-    throw new ForbiddenError('You do not have permission to access this resource')
+    throw new ForbiddenError(
+      `Access denied. Required role: ${allowedRoles.join(' or ')}`
+    )
   }
   
   return session
 }
 
 /**
- * Check if user has permission
+ * Check if user has permission based on role
+ * 
+ * @example
+ * ```ts
+ * const session = await requireAuth()
+ * if (hasPermission(session, 'case:delete')) {
+ *   // User can delete cases
+ * }
+ * ```
  */
 export function hasPermission(
   session: Session,
@@ -75,7 +86,8 @@ export function hasPermission(
   }
   
   // Define role-based permissions
-  const permissions: Record<string, string[]> = {
+  const permissions: Record<UserRole, string[]> = {
+    ADMIN: [], // Empty array - ADMIN role is checked above and returns true for all permissions
     LAWYER: [
       'case:read',
       'case:write',
@@ -86,19 +98,59 @@ export function hasPermission(
       'document:write',
       'activity:read',
       'activity:write',
+      'timelog:read',
+      'timelog:write',
+      'invoice:read',
+      'invoice:write',
     ],
     STAFF: [
       'case:read',
       'client:read',
       'document:read',
       'activity:read',
+      'timelog:read',
+      'invoice:read',
     ],
     CLIENT: [
       'case:read:own',
       'document:read:own',
       'activity:read:own',
+      'invoice:read:own',
     ],
   }
   
   return permissions[role]?.includes(permission) || false
+}
+
+/**
+ * Check if user can access a specific resource
+ * Useful for checking ownership of resources
+ * 
+ * @example
+ * ```ts
+ * const session = await requireAuth()
+ * const case = await prisma.case.findUnique({ where: { id } })
+ * 
+ * if (!canAccessResource(session, case.clientId)) {
+ *   throw new ForbiddenError('You cannot access this case')
+ * }
+ * ```
+ */
+export function canAccessResource(
+  session: Session,
+  resourceOwnerId: string
+): boolean {
+  const { id, role } = session.user
+  
+  // Admins and lawyers can access all resources
+  if (role === 'ADMIN' || role === 'LAWYER' || role === 'STAFF') {
+    return true
+  }
+  
+  // Clients can only access their own resources
+  if (role === 'CLIENT') {
+    return id === resourceOwnerId
+  }
+  
+  return false
 }
