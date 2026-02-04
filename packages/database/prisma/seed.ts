@@ -10,13 +10,42 @@ async function main() {
   await prisma.activity.deleteMany();
   await prisma.caseNote.deleteMany();
   await prisma.timeLog.deleteMany();
+  await prisma.timeEntry.deleteMany();
   await prisma.invoice.deleteMany();
+  await prisma.legalDocument.deleteMany();
   await prisma.document.deleteMany();
+  await prisma.message.deleteMany();
   await prisma.case.deleteMany();
+  await prisma.legalClient.deleteMany();
   await prisma.client.deleteMany();
   await prisma.membership.deleteMany();
   await prisma.searchHistory.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.firm.deleteMany();
+
+  // Create Firms
+  console.log('Creating law firms...');
+  const firm1 = await prisma.firm.create({
+    data: {
+      name: 'Wong & Partners Law Firm',
+      email: 'info@wongpartners.hk',
+      phone: '+852 2123 4567',
+      address: '25/F, Central Plaza, 18 Harbour Road, Wan Chai, Hong Kong',
+      website: 'https://wongpartners.hk',
+      subscription: 'PROFESSIONAL',
+    },
+  });
+
+  const firm2 = await prisma.firm.create({
+    data: {
+      name: 'Chen Legal Associates',
+      email: 'contact@chenlegal.hk',
+      phone: '+852 2234 5678',
+      address: '12/F, Bank of China Tower, 1 Garden Road, Central, Hong Kong',
+      website: 'https://chenlegal.hk',
+      subscription: 'ENTERPRISE',
+    },
+  });
 
   // Create Users
   console.log('Creating users...');
@@ -26,6 +55,8 @@ async function main() {
       name: 'Admin User',
       role: 'ADMIN',
       phone: '+852 9123 4567',
+      firmId: firm1.id,
+      firmOwner: true,
     },
   });
 
@@ -35,6 +66,8 @@ async function main() {
       name: 'Sarah Chen',
       role: 'LAWYER',
       phone: '+852 9234 5678',
+      firmId: firm1.id,
+      firmOwner: false,
     },
   });
 
@@ -44,6 +77,8 @@ async function main() {
       name: 'Michael Lee',
       role: 'LAWYER',
       phone: '+852 9345 6789',
+      firmId: firm2.id,
+      firmOwner: true,
     },
   });
 
@@ -167,9 +202,12 @@ async function main() {
       category: 'PROPERTY',
       clientId: client1.id,
       lawyerId: lawyer1.id,
+      firmId: firm1.id,
       startDate: new Date('2024-01-15'),
       courtDate: new Date('2024-03-15'),
       estimatedValue: 2500000,
+      budget: 150000,
+      deadline: new Date('2024-06-30'),
       isPublic: true,
       publicNote: 'Property boundary dispute case',
     },
@@ -185,8 +223,11 @@ async function main() {
       category: 'FAMILY',
       clientId: client2.id,
       lawyerId: lawyer1.id,
+      firmId: firm1.id,
       startDate: new Date('2024-01-20'),
       estimatedValue: 15000000,
+      budget: 100000,
+      deadline: new Date('2024-12-31'),
       isPublic: false,
     },
   });
@@ -201,8 +242,11 @@ async function main() {
       category: 'CORPORATE',
       clientId: client3.id,
       lawyerId: lawyer2.id,
+      firmId: firm1.id,
       startDate: new Date('2024-01-25'),
       estimatedValue: 50000000,
+      budget: 100000,
+      deadline: new Date('2024-12-31'),
       isPublic: true,
       publicNote: 'Corporate merger case',
     },
@@ -218,9 +262,12 @@ async function main() {
       category: 'EMPLOYMENT',
       clientId: client1.id,
       lawyerId: lawyer2.id,
+      firmId: firm1.id,
       startDate: new Date('2024-01-10'),
       endDate: new Date('2024-01-28'),
       estimatedValue: 150000,
+      budget: 100000,
+      deadline: new Date('2024-12-31'),
       isPublic: false,
     },
   });
@@ -235,8 +282,11 @@ async function main() {
       category: 'INTELLECTUAL_PROPERTY',
       clientId: client3.id,
       lawyerId: lawyer1.id,
+      firmId: firm1.id,
       startDate: new Date('2024-02-01'),
       estimatedValue: 800000,
+      budget: 100000,
+      deadline: new Date('2024-12-31'),
       isPublic: true,
       publicNote: 'IP infringement case',
     },
@@ -479,17 +529,149 @@ async function main() {
 
   console.log('✓ Created search history');
 
+  // Create Legal Clients
+  console.log('Creating legal clients...');
+  const legalClient1 = await prisma.legalClient.create({
+    data: {
+      name: 'Anderson Manufacturing Ltd',
+      email: 'legal@anderson-mfg.com',
+      phone: '+852 2345 6789',
+      company: 'Anderson Manufacturing Limited',
+      address: '45/F, One Island East, Taikoo Place, Hong Kong',
+      firmId: firm1.id,
+    },
+  });
+
+  const legalClient2 = await prisma.legalClient.create({
+    data: {
+      name: 'Grace Wong',
+      email: 'grace.wong@email.com',
+      phone: '+852 9876 5432',
+      firmId: firm2.id,
+    },
+  });
+
+  console.log('✓ Created legal clients');
+
+  // Create Time Entries
+  console.log('Creating time entries...');
+  await prisma.timeEntry.createMany({
+    data: [
+      {
+        caseId: case1.id,
+        userId: lawyer1.id,
+        description: 'Initial client consultation and case review',
+        hours: 2.5,
+        rate: 3000,
+        amount: 7500,
+        date: new Date('2024-01-16'),
+        billable: true,
+      },
+      {
+        caseId: case1.id,
+        userId: lawyer1.id,
+        description: 'Legal research on property boundary laws',
+        hours: 4.0,
+        rate: 3000,
+        amount: 12000,
+        date: new Date('2024-01-17'),
+        billable: true,
+      },
+      {
+        caseId: case2.id,
+        userId: lawyer2.id,
+        description: 'Document preparation for family trust',
+        hours: 3.5,
+        rate: 3500,
+        amount: 12250,
+        date: new Date('2024-02-01'),
+        billable: true,
+      },
+      {
+        caseId: case3.id,
+        userId: lawyer1.id,
+        description: 'Corporate merger agreement review',
+        hours: 6.0,
+        rate: 3000,
+        amount: 18000,
+        date: new Date('2024-01-20'),
+        billable: true,
+      },
+    ],
+  });
+
+  console.log('✓ Created time entries');
+
+  // Create Legal Documents
+  console.log('Creating legal documents...');
+  await prisma.legalDocument.createMany({
+    data: [
+      {
+        caseId: case1.id,
+        uploadedById: lawyer1.id,
+        name: 'property_survey_report.pdf',
+        type: 'application/pdf',
+        size: 2456789,
+        url: '/uploads/documents/property_survey_report.pdf',
+      },
+      {
+        caseId: case1.id,
+        uploadedById: lawyer1.id,
+        name: 'boundary_agreement_draft.docx',
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        size: 156234,
+        url: '/uploads/documents/boundary_agreement_draft.docx',
+      },
+      {
+        caseId: case2.id,
+        uploadedById: lawyer2.id,
+        name: 'trust_deed.pdf',
+        type: 'application/pdf',
+        size: 3456789,
+        url: '/uploads/documents/trust_deed.pdf',
+      },
+    ],
+  });
+
+  console.log('✓ Created legal documents');
+
+  // Create Messages
+  console.log('Creating client messages...');
+  await prisma.message.createMany({
+    data: [
+      {
+        clientId: legalClient1.id,
+        subject: 'Inquiry about corporate legal services',
+        content: 'We are interested in your corporate legal services for our upcoming merger. Please contact us to discuss.',
+        isRead: true,
+      },
+      {
+        clientId: legalClient2.id,
+        subject: 'Follow-up on family trust matter',
+        content: 'Thank you for the consultation. I would like to proceed with setting up the family trust as discussed.',
+        isRead: false,
+      },
+    ],
+  });
+
+  console.log('✓ Created client messages');
+
   console.log('\n✅ Database seeded successfully!');
   console.log('\nSummary:');
+  console.log(`- Firms: 2`);
   console.log(`- Users: 7 (1 admin, 2 lawyers, 3 clients, 1 staff)`);
   console.log(`- Cases: 5 (3 active, 1 completed, 1 pending)`);
   console.log(`- Clients: 3`);
+  console.log(`- Legal Clients: 2`);
   console.log(`- Memberships: 3`);
   console.log(`- Documents: 4`);
+  console.log(`- Legal Documents: 3`);
   console.log(`- Activities: 5`);
   console.log(`- Case Notes: 4`);
   console.log(`- Time Logs: 4`);
+  console.log(`- Time Entries: 4`);
   console.log(`- Invoices: 3`);
+  console.log(`- Messages: 2`);
   console.log(`- Search History: 3`);
 }
 
