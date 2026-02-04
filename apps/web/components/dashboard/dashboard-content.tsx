@@ -5,6 +5,7 @@
  */
 
 import { motion } from "framer-motion"
+import Link from "next/link"
 import { 
   Briefcase, 
   Users, 
@@ -25,6 +26,18 @@ import { PremierButton } from "@/components/ui/premier-button"
 import { ProgressRing } from "@/components/ui/progress-ring"
 import { ActivityTimeline, type Activity } from "@/components/ui/activity-timeline"
 import { containerVariants, itemVariants } from "@/lib/animations"
+import { useLocale } from "@/lib/i18n/locale-provider"
+
+// Icon mapping for activity types
+const activityIconMap: Record<string, LucideIcon> = {
+  'CASE_CREATED': Briefcase,
+  'CASE_UPDATED': FileText,
+  'CASE_COMPLETED': TrendingUp,
+  'DOCUMENT_UPLOADED': Upload,
+  'COURT_HEARING': Calendar,
+  'CLIENT_CREATED': Users,
+  'CLIENT_UPDATED': Users,
+}
 
 interface CaseSegment {
   label: string
@@ -53,18 +66,30 @@ interface DashboardStats {
   recentCases: RecentCase[]
 }
 
+interface SerializedActivity {
+  id: string
+  user: {
+    name: string
+    initials: string
+  }
+  action: string
+  description: string
+  timestamp: string
+  iconType: string
+}
+
 interface DashboardContentProps {
   stats: DashboardStats
-  activities: Activity[]
+  activities: SerializedActivity[]
 }
 
 const quickActions = [
   { label: 'New Case', icon: Plus, variant: 'primary' as const, href: '/dashboard/cases/new' },
-  { label: 'Add Client', icon: Users, variant: 'secondary' as const, href: '/dashboard/clients/new' },
+  { label: 'Add Client', icon: Users, variant: 'secondary' as const, href: '/dashboard/clients' },
   { label: 'Search Cases', icon: Search, variant: 'secondary' as const, href: '/dashboard/search' },
-  { label: 'View Reports', icon: BarChart3, variant: 'secondary' as const, href: '/dashboard/reports' },
-  { label: 'Schedule Meeting', icon: Calendar, variant: 'secondary' as const, href: '/dashboard/calendar' },
-  { label: 'Upload Documents', icon: Upload, variant: 'secondary' as const, href: '/dashboard/documents/upload' },
+  { label: 'View Cases', icon: Briefcase, variant: 'secondary' as const, href: '/dashboard/cases' },
+  { label: 'View Clients', icon: Users, variant: 'secondary' as const, href: '/dashboard/clients' },
+  { label: 'Upload Documents', icon: Upload, variant: 'secondary' as const, href: '/dashboard/documents' },
 ]
 
 const getStatusDisplay = (status: string) => {
@@ -78,6 +103,13 @@ const getStatusDisplay = (status: string) => {
 }
 
 export function DashboardContent({ stats, activities }: DashboardContentProps) {
+  // Convert serialized activities to Activity format with icons
+  const activitiesWithIcons: Activity[] = activities.map(activity => ({
+    ...activity,
+    timestamp: new Date(activity.timestamp),
+    icon: activityIconMap[activity.iconType] || FileText,
+  }))
+
   return (
     <motion.div
       className="space-y-8"
@@ -152,13 +184,15 @@ export function DashboardContent({ stats, activities }: DashboardContentProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 + index * 0.1 }}
                 >
-                  <PremierButton
-                    variant={action.variant}
-                    icon={action.icon}
-                    className="w-full h-auto py-4 flex-col gap-2"
-                  >
-                    <span className="text-xs">{action.label}</span>
-                  </PremierButton>
+                  <Link href={action.href}>
+                    <PremierButton
+                      variant={action.variant}
+                      icon={action.icon}
+                      className="w-full h-auto py-4 flex-col gap-2"
+                    >
+                      <span className="text-xs">{action.label}</span>
+                    </PremierButton>
+                  </Link>
                 </motion.div>
               ))}
             </div>
@@ -188,7 +222,7 @@ export function DashboardContent({ stats, activities }: DashboardContentProps) {
             </GlassCardHeader>
             <GlassCardContent>
               <ActivityTimeline 
-                activities={activities}
+                activities={activitiesWithIcons}
                 showLoadMore
                 onLoadMore={() => console.log('Load more')}
               />
@@ -206,16 +240,16 @@ export function DashboardContent({ stats, activities }: DashboardContentProps) {
           <GlassCardContent>
             <div className="space-y-4">
               {stats.recentCases.map((case_, index) => {
-                const statusDisplay = getStatusDisplay(case_.status)
+                const statusDisplay = getStatusDisplay(case_.status);
                 return (
-                  <motion.div
-                    key={case_.id}
-                    className="flex items-center justify-between border-b border-premier-gold/10 pb-4 last:border-0 last:pb-0 hover:bg-premier-gold/5 -mx-4 px-4 py-2 rounded-premier-md transition-colors cursor-pointer group"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1 + index * 0.1 }}
-                    whileHover={{ x: 4 }}
-                  >
+                  <Link key={case_.id} href={`/dashboard/cases/${case_.id}`}>
+                    <motion.div
+                      className="flex items-center justify-between border-b border-premier-gold/10 pb-4 last:border-0 last:pb-0 hover:bg-premier-gold/5 -mx-4 px-4 py-2 rounded-premier-md transition-colors cursor-pointer group"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 1 + index * 0.1 }}
+                      whileHover={{ x: 4 }}
+                    >
                     <div className="flex items-center gap-4">
                       <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-premier-gold/20 to-premier-gold-rose/10 flex items-center justify-center group-hover:from-premier-gold/30 group-hover:to-premier-gold-rose/20 transition-all">
                         <FolderOpen className="h-5 w-5 text-premier-gold" />
@@ -233,6 +267,7 @@ export function DashboardContent({ stats, activities }: DashboardContentProps) {
                       </span>
                     </div>
                   </motion.div>
+                  </Link>
                 )
               })}
             </div>

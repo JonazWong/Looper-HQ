@@ -78,9 +78,10 @@ async function getDashboardStats() {
       },
     })
 
-    // Transform cases to ensure client name is never null
+    // Transform cases to ensure client name is never null and serialize Decimal fields
     const formattedRecentCases = recentCases.map(case_ => ({
       ...case_,
+      estimatedValue: case_.estimatedValue ? Number(case_.estimatedValue) : null,
       client: {
         id: case_.client.id,
         name: case_.client.name || UNKNOWN_CLIENT
@@ -150,8 +151,8 @@ async function getRecentActivities() {
       },
     })
 
-    // Transform to component format
-    const formattedActivities: Activity[] = activities.map((activity) => ({
+    // Transform to component format (serialize icon to string)
+    const formattedActivities = activities.map((activity) => ({
       id: activity.id,
       user: {
         name: activity.user.name || UNKNOWN_USER,
@@ -159,8 +160,8 @@ async function getRecentActivities() {
       },
       action: activity.action,
       description: activity.description || `${activity.action} - ${activity.case?.title || 'System'}`,
-      timestamp: activity.createdAt,
-      icon: activityIconMap[activity.type] || FileText,
+      timestamp: activity.createdAt.toISOString(),
+      iconType: activity.type, // Send icon type instead of component
     }))
     
     return formattedActivities
