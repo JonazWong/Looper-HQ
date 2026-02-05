@@ -49,26 +49,72 @@ export class KeywordFilterService {
   }
 
   /**
-   * Auto-categorize content based on keywords
+   * Auto-categorize content based on keywords with multi-stage validation
    */
-  categorize(text: string): string | null {
-    const lowerText = text.toLowerCase();
+  categorize(text: string, title?: string): string | null {
+    const contentNormalized = text.toLowerCase();
+    const headingNormalized = (title || text).toLowerCase();
     
-    const categories = {
-      'Criminal': ['criminal', 'prosecution', '刑事', '檢控', '罪名'],
-      'Civil': ['civil', 'plaintiff', 'defendant', '民事', '原告', '被告'],
-      'Corporate': ['corporate', 'company', 'merger', '企業', '公司', '合併'],
-      'Family': ['family', 'divorce', 'custody', '家庭', '離婚', '撫養'],
-      'Property': ['property', 'land', 'real estate', '物業', '地產', '土地'],
-      'Employment': ['employment', 'labor', 'dismissal', '僱傭', '勞工', '解僱'],
+    // Validation pipeline: Check if content qualifies as legal news
+    const legalIndicators = ['法庭', '法律', '法院', '審裁處', '裁判法院', '上訴庭', 
+      '上訴委員會', '監管局', '死因裁判庭', '淫穢及不雅物品審裁處', '案件編號', '案件號碼'];
+    
+    const hasLegalContext = legalIndicators.some(term => contentNormalized.includes(term));
+    if (!hasLegalContext) {
+      return 'OTHER';
+    }
+    
+    // Validation pipeline: Verify title contains case-related markers
+    const caseMarkers = ['宗', '案', '開審', '保釋', '勝', '敗', '控方', '被告', 
+      '還押', '押後', '入稟', '原告', '上訴', '申請', '渉嫌', '調查', 
+      '落案', '落案起訴', '合理辯解', '控罪', '罪行'];
+    
+    const hasCaseMarker = caseMarkers.some(marker => headingNormalized.includes(marker));
+    if (!hasCaseMarker) {
+      return 'OTHER';
+    }
+    
+    // Classification logic for criminal cases
+    const indicators = {
+      magistratesCourt: contentNormalized.includes('裁判法院'),
+      appealMention: contentNormalized.includes('上訴'),
+      prosecutionMention: contentNormalized.includes('控方') || contentNormalized.includes('律政司'),
     };
+    
+    // Rule: Prosecution + Appeal = Criminal Appeal
+    if (indicators.prosecutionMention && indicators.appealMention) {
+      return 'CRIMINAL_APPEAL';
+    }
+    
+    // Rule: Magistrates Court without Appeal = Criminal
+    if (indicators.magistratesCourt && !indicators.appealMention) {
+      return 'Criminal';
+    }
+    
+    // Bias check: Strong criminal indicators
+    const criminalBiasTerms = ['調查', '廉署', '廉署起訴', '控罪', '罪行', '落案', '落案起訴', '渉嫌'];
+    const hasCriminalBias = criminalBiasTerms.some(term => contentNormalized.includes(term));
+    
+    if (hasCriminalBias) {
+      return 'Criminal';
+    }
+    
+    // Category mapping for other case types
+    const categoryMap = [
+      { name: 'Civil', terms: ['civil', 'plaintiff', 'defendant', '民事', '原告', '被告'] },
+      { name: 'Corporate', terms: ['corporate', 'company', 'merger', '企業', '公司', '合併'] },
+      { name: 'Family', terms: ['family', 'divorce', 'custody', '家庭', '離婚', '撫養'] },
+      { name: 'Property', terms: ['property', 'land', 'real estate', '物業', '地產', '土地'] },
+      { name: 'Employment', terms: ['employment', 'labor', 'dismissal', '僱傭', '勞工', '解僱'] },
+    ];
 
-    for (const [category, keywords] of Object.entries(categories)) {
-      if (keywords.some(keyword => lowerText.includes(keyword))) {
-        return category;
+    for (const cat of categoryMap) {
+      const matchFound = cat.terms.some(term => contentNormalized.includes(term));
+      if (matchFound) {
+        return cat.name;
       }
     }
 
-    return null;
+    return 'OTHER';
   }
 }

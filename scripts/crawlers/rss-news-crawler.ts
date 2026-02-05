@@ -55,11 +55,13 @@ export async function trackRssNews(): Promise<number> {
           const result = await adapter.fetch({});
           console.log(`  Found ${result.cases.length} articles after filtering`);
 
-          // Upsert each case
+          // Upsert each case with deduplication
           let updated = 0;
           let created = 0;
+          let duplicatesSkipped = 0;
 
           for (const caseData of result.cases) {
+            // Check for existing entry by externalId
             const existing = await prisma.publicCase.findUnique({
               where: {
                 source_externalId: {
@@ -68,6 +70,29 @@ export async function trackRssNews(): Promise<number> {
                 },
               },
             });
+
+            // Check for near-duplicates by title similarity
+            const recentCases = await prisma.publicCase.findMany({
+              where: {
+                source: caseData.source,
+                publishedAt: {
+                  gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
+                },
+              },
+              select: { title: true, id: true },
+            });
+
+            const existingTitles = recentCases.map(c => c.title);
+            const isDuplicate = adapter.checkTitleSimilarity(
+              caseData.title,
+              existingTitles,
+              0.85
+            );
+
+            if (isDuplicate && !existing) {
+              duplicatesSkipped++;
+              continue; // Skip near-duplicate
+            }
 
             await prisma.publicCase.upsert({
               where: {
@@ -117,7 +142,7 @@ export async function trackRssNews(): Promise<number> {
             },
           });
 
-          console.log(`  ✅ ${source.name}: ${created} new, ${updated} updated`);
+          console.log(`  ✅ ${source.name}: ${created} new, ${updated} updated, ${duplicatesSkipped} duplicates skipped`);
           sourceSuccess = true;
           sourceResults.push({ name: source.name, success: true });
         } catch (error: any) {

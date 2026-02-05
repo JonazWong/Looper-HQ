@@ -2,6 +2,41 @@ import { BaseDataSourceAdapter, SearchParams, FetchResult, PublicCaseData } from
 import { CaseSource } from '@looper-hq/database';
 import { RssParserService, RssFeedItem } from '../rss-parser';
 import { KeywordFilterService } from '../keyword-filter';
+import { createHash } from 'crypto';
+
+/**
+ * Compute similarity ratio between two strings using character-based comparison
+ */
+function computeStringSimilarity(str1: string, str2: string): number {
+  if (str1 === str2) return 1.0;
+  if (str1.length === 0 || str2.length === 0) return 0.0;
+  
+  const longer = str1.length > str2.length ? str1 : str2;
+  const shorter = str1.length > str2.length ? str2 : str1;
+  
+  // Simple character overlap ratio
+  const longerLength = longer.length;
+  if (longerLength === 0) return 1.0;
+  
+  // Count matching characters
+  let matches = 0;
+  const shorterChars = new Set(shorter);
+  for (const char of longer) {
+    if (shorterChars.has(char)) {
+      matches++;
+    }
+  }
+  
+  return matches / longerLength;
+}
+
+/**
+ * Generate stable identifier from title and URL
+ */
+function generateStableId(title: string, url: string): string {
+  const normalized = `${title.trim()}|${url.trim()}`;
+  return createHash('sha256').update(normalized, 'utf8').digest('hex');
+}
 
 /**
  * RSS News Adapter
@@ -68,12 +103,15 @@ export class RssNewsAdapter extends BaseDataSourceAdapter {
     // Extract keywords that appear in the content
     const extractedKeywords = this.keywordFilter.extractKeywords(text, this.keywords);
     
-    // Auto-categorize
-    const category = this.keywordFilter.categorize(text);
+    // Auto-categorize with title parameter
+    const category = this.keywordFilter.categorize(text, item.title);
+
+    // Generate stable externalId using hash of title + link
+    const stableId = generateStableId(item.title, item.link);
 
     return {
       source: this.source,
-      externalId: item.guid || item.link,
+      externalId: stableId,
       title: item.title,
       description: item.contentSnippet || item.content,
       category: category || undefined,
@@ -83,5 +121,18 @@ export class RssNewsAdapter extends BaseDataSourceAdapter {
       tags: category ? [category.toLowerCase()] : [],
       sourceUrl: item.link,
     };
+  }
+
+  /**
+   * Check if a title is similar to existing titles
+   */
+  checkTitleSimilarity(newTitle: string, existingTitles: string[], threshold = 0.85): boolean {
+    for (const existing of existingTitles) {
+      const similarity = computeStringSimilarity(newTitle, existing);
+      if (similarity >= threshold) {
+        return true;
+      }
+    }
+    return false;
   }
 }
