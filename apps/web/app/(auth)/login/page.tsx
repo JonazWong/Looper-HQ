@@ -27,7 +27,7 @@ function LoginForm() {
       : null
   )
 
-  // Handle credentials login (fallback)
+  // Handle credentials login
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -46,7 +46,6 @@ function LoginForm() {
         return
       }
 
-      // Redirect on success
       router.push(callbackUrl)
       router.refresh()
     } catch (error) {
@@ -56,7 +55,7 @@ function LoginForm() {
     }
   }
 
-  // Handle Keycloak OAuth login (primary)
+  // Handle Keycloak OAuth login
   const handleKeycloakLogin = async () => {
     setIsLoading(true)
     setLoginError(null)
@@ -82,7 +81,6 @@ function LoginForm() {
           </GlassCardDescription>
         </GlassCardHeader>
         <GlassCardContent className="space-y-4">
-          {/* Error message */}
           {loginError && (
             <div className="p-3 text-sm text-red-400 bg-red-950/30 border border-red-800/50 rounded-md">
               {loginError}

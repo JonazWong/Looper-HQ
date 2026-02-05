@@ -78,9 +78,10 @@ async function getDashboardStats() {
       },
     })
 
-    // Transform cases to ensure client name is never null
+    // Transform cases to ensure client name is never null and serialize Decimal fields
     const formattedRecentCases = recentCases.map(case_ => ({
       ...case_,
+      estimatedValue: case_.estimatedValue ? Number(case_.estimatedValue) : null,
       client: {
         id: case_.client.id,
         name: case_.client.name || UNKNOWN_CLIENT
@@ -126,6 +127,7 @@ async function getDashboardStats() {
 // Fetch recent activities from database
 async function getRecentActivities() {
   try {
+    // Get activities
     const activities = await prisma.activity.findMany({
       take: 5,
       include: {
@@ -149,18 +151,33 @@ async function getRecentActivities() {
       },
     })
 
-    // 🔧 將資料轉換為純物件，移除不可序列化的內容
-    return activities.map(activity => ({
+    // Transform to component format (serialize icon to string)
+    const formattedActivities = activities.map((activity) => ({
       id: activity.id,
-      user: activity.user?.name || 'Unknown',
+      user: {
+        name: activity.user.name || UNKNOWN_USER,
+        initials: getInitials(activity.user.name || UNKNOWN_USER),
+      },
       action: activity.action,
-      description: activity.description,
+      description: activity.description || `${activity.action} - ${activity.case?.title || 'System'}`,
       timestamp: activity.createdAt.toISOString(),
-      // ✅ 不要直接傳遞 icon 組件，改用字串
-      // icon: SomeIcon,  // ❌ 錯誤
+      iconType: activity.type, // Send icon type instead of component
     }))
+    
+    return formattedActivities
   } catch (error) {
     console.error('Error fetching activities:', error)
     return []
   }
 }
+
+export default async function DashboardPage() {
+  // Fetch data in parallel
+  const [stats, activities] = await Promise.all([
+    getDashboardStats(),
+    getRecentActivities(),
+  ])
+
+  return <DashboardContent stats={stats} activities={activities} />
+}
+

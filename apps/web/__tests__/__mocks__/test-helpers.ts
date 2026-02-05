@@ -20,7 +20,7 @@ export function createMockRequest(
     urlObj.searchParams.set(key, value)
   })
 
-  const requestInit: RequestInit & { signal?: AbortSignal } = {
+  const requestInit: RequestInit = {
     method,
     headers: {
       'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export function createMockRequest(
     requestInit.body = JSON.stringify(body)
   }
 
-  return new NextRequest(urlObj.toString(), requestInit as RequestInit)
+  return new NextRequest(urlObj.toString(), requestInit)
 }
 
 /**

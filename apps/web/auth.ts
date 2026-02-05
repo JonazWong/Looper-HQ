@@ -31,18 +31,21 @@ declare module "next-auth/jwt" {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    // Keycloak OAuth provider (primary)
-    Keycloak({
-      clientId: process.env.KEYCLOAK_CLIENT_ID!,
-      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
-      issuer: process.env.KEYCLOAK_ISSUER,
-      // Custom authorization endpoint for specific realm
-      authorization: {
-        params: {
-          scope: "openid email profile",
-        },
-      },
-    }),
+    // Keycloak OAuth provider (disabled until configured)
+    ...(process.env.KEYCLOAK_CLIENT_ID && process.env.KEYCLOAK_ISSUER
+      ? [
+          Keycloak({
+            clientId: process.env.KEYCLOAK_CLIENT_ID,
+            clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
+            issuer: process.env.KEYCLOAK_ISSUER,
+            authorization: {
+              params: {
+                scope: "openid email profile",
+              },
+            },
+          }),
+        ]
+      : []),
     
     // Credentials provider as fallback (for local development/testing)
     Credentials({
@@ -56,8 +59,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
-        // In production, validate against Keycloak or database
-        // For now, this is a placeholder for local development
+        // Find user in database
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string },
         })
@@ -66,8 +68,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
-        // TODO: Implement proper password verification with bcrypt
-        // This is just for development purposes
+        // For development: Accept any password for existing users
+        // In production, this should validate against Keycloak or use bcrypt
+        // Since the database doesn't store passwords (using Keycloak), 
+        // we just verify the user exists
         return {
           id: user.id,
           email: user.email,

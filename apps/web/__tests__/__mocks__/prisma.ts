@@ -54,10 +54,10 @@ export const mockPrismaClient = {
 
 export const resetMockPrisma = () => {
   Object.values(mockPrismaClient).forEach((model) => {
-    if (typeof model === 'object' && model !== null) {
+    if (typeof model === 'object') {
       Object.values(model).forEach((method) => {
-        if (typeof method === 'function' && 'mockReset' in method && typeof (method as any).mockReset === 'function') {
-          (method as any).mockReset()
+        if (typeof method === 'function' && 'mockReset' in method) {
+          method.mockReset()
         }
       })
     }

@@ -12,16 +12,15 @@
   "packageManager": "pnpm@8.15.0",
   "scripts": {
     "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=@looper-hq/web",
+    "dev:legal": "turbo run dev --filter=@looper-hq/legal-case-search",
+    "dev:all": "turbo run dev --parallel",
     "postinstall": "pnpm --filter=@looper-hq/database prisma generate",
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "dev:web": "turbo run dev --filter=web",
-    "dev:admin": "turbo run dev --filter=admin",
-    "db:push": "pnpm --filter=@looper-hq/database db:push",
     "db:migrate": "pnpm --filter=@looper-hq/database migrate",
+    "db:push": "pnpm --filter=@looper-hq/database db:push",
     "db:seed": "pnpm --filter=@looper-hq/database seed",
     "db:studio": "pnpm --filter=@looper-hq/database studio",
     "migrate:all": "pnpm --filter=@looper-hq/migration migrate:all",
@@ -34,15 +33,13 @@
     "migrate:export-legacy": "pnpm --filter=@looper-hq/migration export:legacy",
     "docker:up": "docker compose -f infrastructure/docker/docker-compose.yml up -d",
     "docker:down": "docker compose -f infrastructure/docker/docker-compose.yml down",
-    "docker:logs": "docker compose -f infrastructure/docker/docker-compose.yml logs -f",
-    "docker:clean": "docker compose -f infrastructure/docker/docker-compose.yml down -v --remove-orphans",
-    "docker:ps": "docker compose -f infrastructure/docker/docker-compose.yml ps",
-    "docker:restart": "docker compose -f infrastructure/docker/docker-compose.yml restart"
+    "crawler:all": "tsx scripts/crawlers/unified-tracker.ts",
+    "crawler:judiciary": "tsx scripts/crawlers/hk-judiciary-crawler.ts",
+    "crawler:rss": "tsx scripts/crawlers/rss-news-crawler.ts"
   },
   "devDependencies": {
-    "@types/node": "^20.14.12",
-    "prettier": "^3.3.3",
-    "turbo": "^2.3.3",
-    "typescript": "^5.5.4"
+    "@types/node": "^20.10.6",
+    "turbo": "^1.11.2",
+    "typescript": "^5.3.3"
   }
 }

@@ -1,13 +1,15 @@
 "use client"
 
 /**
- * Enhanced Sidebar with Premier Design System
+ * Enhanced Sidebar with Premier Design System - Collapsible with i18n
  */
 
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/lib/i18n/locale-provider"
 import {
   LayoutDashboard,
   Briefcase,
@@ -16,41 +18,43 @@ import {
   FileText,
   Calendar,
   Settings,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 
 const sidebarItems = [
   {
-    title: "Dashboard",
+    labelKey: "dashboard" as const,
     href: "/dashboard",
     icon: LayoutDashboard,
   },
   {
-    title: "Cases",
+    labelKey: "cases" as const,
     href: "/dashboard/cases",
     icon: Briefcase,
   },
   {
-    title: "Clients",
+    labelKey: "clients" as const,
     href: "/dashboard/clients",
     icon: Users,
   },
   {
-    title: "Search",
+    labelKey: "search" as const,
     href: "/dashboard/search",
     icon: Search,
   },
   {
-    title: "Documents",
+    labelKey: "documents" as const,
     href: "/dashboard/documents",
     icon: FileText,
   },
   {
-    title: "Calendar",
+    labelKey: "calendar" as const,
     href: "/dashboard/calendar",
     icon: Calendar,
   },
   {
-    title: "Settings",
+    labelKey: "settings" as const,
     href: "/dashboard/settings",
     icon: Settings,
   },
@@ -58,14 +62,36 @@ const sidebarItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const { t } = useLocale()
 
   return (
-    <aside className="hidden md:flex w-64 flex-col glass-card border-r border-premier-gold/10">
+    <motion.aside 
+      className="hidden md:flex flex-col glass-card border-r border-premier-gold/10 relative"
+      animate={{ width: isCollapsed ? '80px' : '256px' }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+    >
+      {/* Collapse Toggle Button */}
+      <motion.button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute -right-3 top-8 z-50 h-6 w-6 rounded-full bg-gradient-to-br from-premier-gold to-premier-gold-rose flex items-center justify-center shadow-premier-glow hover:scale-110 transition-transform"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        {isCollapsed ? (
+          <ChevronRight className="h-3 w-3 text-premier-black" />
+        ) : (
+          <ChevronLeft className="h-3 w-3 text-premier-black" />
+        )}
+      </motion.button>
+
       <div className="flex-1 overflow-y-auto py-4">
         <nav className="grid gap-1 px-3">
           {sidebarItems.map((item, index) => {
             const Icon = item.icon
             const isActive = pathname === item.href
+            const label = t.nav[item.labelKey]
+            
             return (
               <motion.div
                 key={item.href}
@@ -79,8 +105,10 @@ export function Sidebar() {
                     "flex items-center gap-3 rounded-premier-md px-3 py-2.5 text-sm font-medium transition-all group relative overflow-hidden",
                     isActive
                       ? "text-premier-gold"
-                      : "text-premier-pearl-gray hover:text-premier-pearl"
+                      : "text-premier-pearl-gray hover:text-premier-pearl",
+                    isCollapsed && "justify-center"
                   )}
+                  title={isCollapsed ? label : undefined}
                 >
                   {/* Active indicator */}
                   {isActive && (
@@ -93,7 +121,7 @@ export function Sidebar() {
                   
                   {/* Icon with gradient background on active/hover */}
                   <div className={cn(
-                    "relative p-1.5 rounded-lg transition-all",
+                    "relative p-1.5 rounded-lg transition-all shrink-0",
                     isActive 
                       ? "bg-gradient-to-br from-premier-gold/20 to-premier-gold-rose/10" 
                       : "group-hover:bg-premier-gold/10"
@@ -104,9 +132,20 @@ export function Sidebar() {
                     )} />
                   </div>
                   
-                  <span className="relative">
-                    {item.title}
-                  </span>
+                  {/* Title - hidden when collapsed */}
+                  <AnimatePresence mode="wait">
+                    {!isCollapsed && (
+                      <motion.span 
+                        className="relative whitespace-nowrap"
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: 'auto' }}
+                        exit={{ opacity: 0, width: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {label}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                   
                   {/* Hover glow effect */}
                   {isActive && (
@@ -121,15 +160,38 @@ export function Sidebar() {
       
       {/* Bottom section */}
       <div className="p-4 border-t border-premier-gold/10">
-        <div className="glass-frosted rounded-premier-md p-3">
-          <p className="text-xs text-premier-pearl-gray">
-            Premier Edition
-          </p>
-          <p className="text-sm font-medium text-gradient-gold mt-1">
-            Professional Plan
-          </p>
-        </div>
+        <AnimatePresence mode="wait">
+          {!isCollapsed ? (
+            <motion.div 
+              key="expanded"
+              className="glass-frosted rounded-premier-md p-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <p className="text-xs text-premier-pearl-gray">
+                {t.footer.premierEdition}
+              </p>
+              <p className="text-sm font-medium text-gradient-gold mt-1">
+                Professional Plan
+              </p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="collapsed"
+              className="flex justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-premier-gold/20 to-premier-gold-rose/10 flex items-center justify-center">
+                <span className="text-xs font-bold text-premier-gold">P</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </aside>
+    </motion.aside>
   )
 }

@@ -31,10 +31,10 @@ const nextConfig = {
       bodySizeLimit: '2mb',
     },
   },
-  
+
   // Production standalone output for Docker
   output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
-  
+
   // Workspace root configuration
   outputFileTracingRoot: require('path').join(__dirname, '../../'),
 }

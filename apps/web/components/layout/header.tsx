@@ -10,6 +10,8 @@ import { Scale, User, LogOut, Bell } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { LanguageSwitcher } from "./language-switcher"
+import { useLocale } from "@/lib/i18n/locale-provider"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,14 +22,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/cases", label: "Cases" },
-  { href: "/dashboard/clients", label: "Clients" },
-  { href: "/dashboard/search", label: "Search" },
+  { href: "/dashboard", labelKey: "dashboard" },
+  { href: "/dashboard/cases", labelKey: "cases" },
+  { href: "/dashboard/clients", labelKey: "clients" },
+  { href: "/dashboard/search", labelKey: "search" },
 ]
 
 export function Header() {
   const pathname = usePathname()
+  const { locale, setLocale, t } = useLocale()
 
   return (
     <header className="sticky top-0 z-40 w-full glass-card border-b border-premier-gold/10 backdrop-blur-lg">
@@ -62,7 +65,7 @@ export function Header() {
                       ? "text-premier-gold" 
                       : "text-premier-pearl-gray hover:text-premier-pearl"
                   )}>
-                    {item.label}
+                    {t.nav[item.labelKey as keyof typeof t.nav]}
                   </span>
                   {/* Animated underline */}
                   <motion.div
@@ -78,7 +81,10 @@ export function Header() {
           </nav>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* Language Switcher */}
+          <LanguageSwitcher currentLocale={locale} onLocaleChange={setLocale} />
+          
           {/* Notifications */}
           <motion.button
             className="relative p-2 rounded-premier-md text-premier-pearl-gray hover:text-premier-gold hover:bg-premier-gold/10 transition-colors"

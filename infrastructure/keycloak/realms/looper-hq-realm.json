@@ -73,9 +73,9 @@
       ]
     },
     {
-      "clientId": "looper-hq-admin",
-      "name": "Looper HQ Admin Portal",
-      "description": "Admin portal client",
+      "clientId": "legal-case-search",
+      "name": "Legal Case Search Application",
+      "description": "Legal case management and search client",
       "enabled": true,
       "publicClient": false,
       "protocol": "openid-connect",
