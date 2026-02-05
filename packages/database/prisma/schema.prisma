@@ -475,3 +475,97 @@ model Message {
   @@index([clientId, createdAt])
   @@map("messages")
 }
+
+// ============================================
+// Public Case Tracking & RSS Integration
+// ============================================
+
+// Public Case from external sources (HK Judiciary, RSS News, etc.)
+model PublicCase {
+  id          String     @id @default(cuid())
+  
+  // Source identification
+  source      CaseSource
+  externalId  String     // External source case ID
+  sourceUrl   String?    // Source URL
+  
+  // Case information
+  caseNumber  String?    // e.g., HCAL 123/2024
+  title       String
+  description String?    @db.Text
+  category    String?    // Case category
+  court       String?    // Court name
+  
+  // Parties
+  parties     Json?      // { plaintiff: [], defendant: [] }
+  
+  // Judge and judgment
+  judge       String?
+  judgmentDate DateTime?
+  judgment    String?    @db.Text
+  
+  // Keywords and tags
+  keywords    String[]
+  tags        String[]
+  
+  // News source additional fields
+  publishedAt DateTime?  // News publish time
+  author      String?    // News author
+  
+  // Metadata
+  crawledAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  @@unique([source, externalId])
+  @@index([source, crawledAt])
+  @@index([caseNumber])
+  @@index([keywords])
+  @@index([publishedAt])
+  @@map("public_cases")
+}
+
+enum CaseSource {
+  HK_JUDICIARY
+  APPLE_DAILY_RSS
+  SCMP_RSS
+  RTHK_RSS
+  HKLII
+}
+
+// RSS Source configuration
+model RssSource {
+  id              String   @id @default(cuid())
+  
+  // Source info
+  name            String
+  source          CaseSource @unique
+  url             String
+  
+  // Status management
+  isActive        Boolean  @default(true)
+  status          RssSourceStatus @default(ACTIVE)
+  lastError       String?  @db.Text
+  lastFetchAt     DateTime?
+  
+  // Fetch strategy
+  fetchInterval   Int      @default(3600)  // seconds
+  maxRetries      Int      @default(3)
+  retryDelay      Int      @default(300)   // seconds
+  
+  // Filter rules
+  keywords        String[]
+  excludeKeywords String[]
+  
+  // Metadata
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("rss_sources")
+}
+
+enum RssSourceStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+  DEPRECATED
+}
