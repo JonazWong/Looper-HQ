@@ -34,8 +34,8 @@ This document tracks the implementation status of RSS feed integration for legal
 
 ### Phase 2: RSS Parser Service
 
-- [ ] Install dependencies (`rss-parser`, `axios`)
-- [ ] Create `lib/services/rss-parser.ts`
+- [x] Install dependencies (`rss-parser`, `axios`)
+- [x] Create `lib/services/rss-parser.ts`
   - [ ] Implement RSS feed fetching
   - [ ] Error handling with retry logic
   - [ ] Timeout configuration

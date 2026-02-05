@@ -63,7 +63,7 @@ export async function trackRssNews(): Promise<number> {
               category: caseData.category,
               keywords: caseData.keywords,
               tags: caseData.tags,
-              updatedAt: new Date(),
+              // updatedAt is automatically managed by Prisma @updatedAt
             },
             create: {
               source: caseData.source,

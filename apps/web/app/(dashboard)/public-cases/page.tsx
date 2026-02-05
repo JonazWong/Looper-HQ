@@ -279,7 +279,7 @@ export default function PublicCasesPage() {
                 <p className="mt-2 text-premier-pearl-gray">
                   {filters.query || filters.source || filters.category || filters.court
                     ? '嘗試調整搜尋條件或篩選器'
-                    : '輸�入關鍵字或使用篩選器來搜尋案件'}
+                    : '輸入關鍵字或使用篩選器來搜尋案件'}
                 </p>
               </div>
             </GlassCardContent>

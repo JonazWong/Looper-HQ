@@ -61,6 +61,7 @@ export class RssParserService {
         console.error(`Attempt ${attempt + 1}/${maxRetries} failed:`, error.message);
 
         if (attempt < maxRetries - 1) {
+          // Exponential backoff: retryDelay is in seconds, convert to ms
           const delay = retryDelay * Math.pow(2, attempt) * 1000;
           console.log(`Retrying in ${delay / 1000} seconds...`);
           await new Promise((resolve) => setTimeout(resolve, delay));
