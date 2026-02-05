@@ -526,9 +526,8 @@ model PublicCase {
 
 enum CaseSource {
   HK_JUDICIARY
-  APPLE_DAILY_RSS
-  SCMP_RSS
-  RTHK_RSS
+  MINGPAO_PNS_RSS
+  MINGPAO_INS_RSS
   HKLII
 }
 

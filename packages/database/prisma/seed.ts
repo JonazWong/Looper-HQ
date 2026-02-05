@@ -663,9 +663,9 @@ async function main() {
   await prisma.rssSource.createMany({
     data: [
       {
-        name: 'South China Morning Post - Legal',
-        source: 'SCMP_RSS',
-        url: 'https://www.scmp.com/rss/2/feed',
+        name: 'Ming Pao Daily News - Legal',
+        source: 'MINGPAO_PNS_RSS',
+        url: 'https://news.mingpao.com/rss/pns/s00001.xml',
         isActive: true,
         status: 'ACTIVE',
         fetchInterval: 3600, // 1 hour
@@ -674,37 +674,29 @@ async function main() {
         keywords: [
           'court', 'law', 'legal', 'judge', 'lawsuit',
           'prosecution', 'trial', 'verdict', 'justice',
-          '法庭', '法院', '法律', '法官', '訴訟'
+          '法庭', '法院', '法律', '法官', '訴訟',
+          '律師', '檢控', '判決', '裁決', '司法',
+          '刑事', '民事', '高院', '終審', '上訴'
         ],
-        excludeKeywords: ['sports', 'entertainment', 'food', 'travel'],
+        excludeKeywords: ['sports', 'entertainment', 'food', 'travel', '體育', '娛樂', '美食', '旅遊'],
       },
       {
-        name: 'RTHK News',
-        source: 'RTHK_RSS',
-        url: 'https://rthk.hk/rss/news.xml',
+        name: 'Ming Pao Instant News - Legal',
+        source: 'MINGPAO_INS_RSS',
+        url: 'https://news.mingpao.com/rss/ins/s00001.xml',
         isActive: true,
         status: 'ACTIVE',
-        fetchInterval: 3600,
+        fetchInterval: 900, // 15 minutes
         maxRetries: 3,
-        retryDelay: 300,
+        retryDelay: 300, // 5 minutes
         keywords: [
-          '法庭', '法院', '律師', '檢控', '判決',
-          '裁決', '司法', '訴訟', '刑事', '民事'
+          'court', 'law', 'legal', 'judge', 'lawsuit',
+          'prosecution', 'trial', 'verdict', 'justice',
+          '法庭', '法院', '法律', '法官', '訴訟',
+          '律師', '檢控', '判決', '裁決', '司法',
+          '刑事', '民事', '高院', '終審', '上訴'
         ],
-        excludeKeywords: ['體育', '娛樂', '美食', '旅遊'],
-      },
-      {
-        name: 'Apple Daily (Archived)',
-        source: 'APPLE_DAILY_RSS',
-        url: 'https://hk.appledaily.com/rss/...',
-        isActive: false,
-        status: 'DEPRECATED',
-        lastError: 'Publication ceased on 2021-06-24',
-        fetchInterval: 3600,
-        maxRetries: 0,
-        retryDelay: 0,
-        keywords: [],
-        excludeKeywords: [],
+        excludeKeywords: ['sports', 'entertainment', 'food', 'travel', '體育', '娛樂', '美食', '旅遊'],
       },
     ],
   });
@@ -734,33 +726,6 @@ async function main() {
         sourceUrl: 'https://legalref.judiciary.hk/lrs/common/ju/...',
         crawledAt: new Date('2024-01-20'),
       },
-      {
-        source: 'SCMP_RSS',
-        externalId: 'https://www.scmp.com/news/hong-kong/law-and-crime/article/...',
-        title: 'Hong Kong court sentences fraud mastermind to 10 years',
-        description: 'A Hong Kong court has sentenced a man to 10 years in prison for masterminding a sophisticated fraud scheme that defrauded investors of HK$50 million.',
-        category: 'Criminal',
-        court: 'District Court',
-        publishedAt: new Date('2024-02-01'),
-        author: 'Legal Reporter',
-        keywords: ['fraud', 'criminal', 'sentence', '詐騙', '刑事'],
-        tags: ['criminal-law', 'fraud'],
-        sourceUrl: 'https://www.scmp.com/news/hong-kong/law-and-crime/article/...',
-        crawledAt: new Date('2024-02-01'),
-      },
-      {
-        source: 'RTHK_RSS',
-        externalId: 'https://news.rthk.hk/rthk/ch/component/...',
-        title: '高等法院頒令 企業清盤案',
-        description: '高等法院今日頒令一家本地企業進入清盤程序，涉及債務約港幣三千萬元。',
-        category: 'Corporate',
-        court: '高等法院',
-        publishedAt: new Date('2024-02-02'),
-        keywords: ['清盤', '企業', '債務', 'liquidation', 'corporate'],
-        tags: ['corporate-law', 'insolvency'],
-        sourceUrl: 'https://news.rthk.hk/rthk/ch/component/...',
-        crawledAt: new Date('2024-02-02'),
-      },
     ],
   });
 
@@ -783,8 +748,8 @@ async function main() {
   console.log(`- Invoices: 3`);
   console.log(`- Messages: 2`);
   console.log(`- Search History: 3`);
-  console.log(`- RSS Sources: 3`);
-  console.log(`- Public Cases: 3`);
+  console.log(`- RSS Sources: 2`);
+  console.log(`- Public Cases: 1`);
 }
 
 main()
