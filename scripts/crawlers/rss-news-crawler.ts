@@ -123,10 +123,10 @@ export async function trackRssNews(): Promise<number> {
         } catch (error: any) {
           lastError = error.message;
           retryCount++;
-          
+
           if (retryCount > source.maxRetries) {
             console.error(`  ❌ ${source.name} failed after ${source.maxRetries} retries: ${error.message}`);
-            
+
             // Update error status
             await prisma.rssSource.update({
               where: { id: source.id },
@@ -135,7 +135,7 @@ export async function trackRssNews(): Promise<number> {
                 lastError: error.message,
               },
             });
-            
+
             sourceResults.push({ name: source.name, success: false });
           }
         }
@@ -146,13 +146,13 @@ export async function trackRssNews(): Promise<number> {
     if (sourceResults.length > 0) {
       const successCount = sourceResults.filter(r => r.success).length;
       const successRate = (successCount / sourceResults.length) * 100;
-      
+
       console.log(`\n📊 Success Rate Summary:`);
       console.log(`  Total sources: ${sourceResults.length}`);
       console.log(`  Successful: ${successCount}`);
       console.log(`  Failed: ${sourceResults.length - successCount}`);
       console.log(`  Success rate: ${successRate.toFixed(1)}%`);
-      
+
       if (successRate < 50) {
         console.warn(`\n⚠️  WARNING: Success rate (${successRate.toFixed(1)}%) is below 50%`);
       }
