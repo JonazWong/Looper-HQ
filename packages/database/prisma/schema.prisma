@@ -121,6 +121,7 @@ enum Priority {
 enum CaseCategory {
   CIVIL
   CRIMINAL
+  CRIMINAL_APPEAL
   CORPORATE
   FAMILY
   PROPERTY

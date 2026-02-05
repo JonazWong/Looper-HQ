@@ -3,11 +3,26 @@ import { RssNewsAdapter } from '../../apps/web/lib/services/data-sources/rss-new
 
 const prisma = new PrismaClient();
 
+// Time window configuration for duplicate detection
+const TIME_WINDOW_CONFIG = {
+  daysToCheck: 7,
+  msInDay: 1000 * 60 * 60 * 24,
+};
+
 /**
  * Sleep utility for retry delays
  */
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Calculate cutoff timestamp for duplicate checking
+ */
+function getCutoffTimestamp(): Date {
+  const now = Date.now();
+  const offset = TIME_WINDOW_CONFIG.daysToCheck * TIME_WINDOW_CONFIG.msInDay;
+  return new Date(now - offset);
 }
 
 /**
@@ -91,19 +106,38 @@ export async function trackRssNews(): Promise<number> {
           const result = await adapter.fetch({});
           console.log(`  Found ${result.cases.length} articles after filtering`);
 
-          // Upsert each case
+          // Fetch recent cases once for similarity checking
+          const recentCases = await prisma.publicCase.findMany({
+            where: {
+              source: source.source as CaseSource,
+              publishedAt: { gte: getCutoffTimestamp() },
+            },
+            select: { title: true, id: true, externalId: true },
+          });
+
+          const existingTitles = recentCases.map(c => c.title);
+          const existingIds = new Set(recentCases.map(c => c.externalId));
+
+          // Upsert each case with deduplication
           let updated = 0;
           let created = 0;
+          let duplicatesSkipped = 0;
 
           for (const caseData of result.cases) {
-            const existing = await prisma.publicCase.findUnique({
-              where: {
-                source_externalId: {
-                  source: caseData.source,
-                  externalId: caseData.externalId,
-                },
-              },
-            });
+            // Check if already exists by externalId
+            const alreadyExists = existingIds.has(caseData.externalId);
+
+            // Check for near-duplicates by title similarity
+            const isDuplicate = adapter.checkTitleSimilarity(
+              caseData.title,
+              existingTitles,
+              0.85
+            );
+
+            if (isDuplicate && !alreadyExists) {
+              duplicatesSkipped++;
+              continue; // Skip near-duplicate
+            }
 
             await prisma.publicCase.upsert({
               where: {
@@ -135,7 +169,7 @@ export async function trackRssNews(): Promise<number> {
               },
             });
 
-            if (existing) {
+            if (alreadyExists) {
               updated++;
             } else {
               created++;
@@ -153,7 +187,7 @@ export async function trackRssNews(): Promise<number> {
             },
           });
 
-          console.log(`  ✅ ${source.name}: ${created} new, ${updated} updated`);
+          console.log(`  ✅ ${source.name}: ${created} new, ${updated} updated, ${duplicatesSkipped} duplicates skipped`);
           sourceSuccess = true;
           sourceResults.push({ name: source.name, success: true });
         } catch (error: any) {
