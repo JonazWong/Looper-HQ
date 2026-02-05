@@ -70,39 +70,35 @@ export async function trackRssNews(): Promise<number> {
           const result = await adapter.fetch({});
           console.log(`  Found ${result.cases.length} articles after filtering`);
 
+          // Fetch recent cases once for similarity checking
+          const recentCases = await prisma.publicCase.findMany({
+            where: {
+              source: source.source as CaseSource,
+              publishedAt: { gte: getCutoffTimestamp() },
+            },
+            select: { title: true, id: true, externalId: true },
+          });
+
+          const existingTitles = recentCases.map(c => c.title);
+          const existingIds = new Set(recentCases.map(c => c.externalId));
+
           // Upsert each case with deduplication
           let updated = 0;
           let created = 0;
           let duplicatesSkipped = 0;
 
           for (const caseData of result.cases) {
-            // Check for existing entry by externalId
-            const existing = await prisma.publicCase.findUnique({
-              where: {
-                source_externalId: {
-                  source: caseData.source,
-                  externalId: caseData.externalId,
-                },
-              },
-            });
+            // Check if already exists by externalId
+            const alreadyExists = existingIds.has(caseData.externalId);
 
             // Check for near-duplicates by title similarity
-            const recentCases = await prisma.publicCase.findMany({
-              where: {
-                source: caseData.source,
-                publishedAt: { gte: getCutoffTimestamp() },
-              },
-              select: { title: true, id: true },
-            });
-
-            const existingTitles = recentCases.map(c => c.title);
             const isDuplicate = adapter.checkTitleSimilarity(
               caseData.title,
               existingTitles,
               0.85
             );
 
-            if (isDuplicate && !existing) {
+            if (isDuplicate && !alreadyExists) {
               duplicatesSkipped++;
               continue; // Skip near-duplicate
             }
@@ -137,7 +133,7 @@ export async function trackRssNews(): Promise<number> {
               },
             });
 
-            if (existing) {
+            if (alreadyExists) {
               updated++;
             } else {
               created++;

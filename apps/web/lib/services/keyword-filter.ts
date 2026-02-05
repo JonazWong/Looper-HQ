@@ -1,6 +1,23 @@
 import { RssFeedItem } from './rss-parser';
 
 export class KeywordFilterService {
+  // Keyword collections for multi-stage filtering
+  private static readonly LEGAL_CONTEXT_TERMS = [
+    '法庭', '法律', '法院', '審裁處', '裁判法院', '上訴庭', 
+    '上訴委員會', '監管局', '死因裁判庭', '淫穢及不雅物品審裁處', 
+    '案件編號', '案件號碼'
+  ];
+
+  private static readonly CASE_RELATED_MARKERS = [
+    '宗', '案', '開審', '保釋', '勝', '敗', '控方', '被告', 
+    '還押', '押後', '入稟', '原告', '上訴', '申請', '涉嫌', '調查', 
+    '落案', '落案起訴', '合理辯解', '控罪', '罪行'
+  ];
+
+  private static readonly CRIMINAL_BIAS_INDICATORS = [
+    '調查', '廉署', '廉署起訴', '控罪', '罪行', '落案', '落案起訴', '涉嫌'
+  ];
+
   /**
    * Check if text contains any of the keywords (case-insensitive)
    */
@@ -56,20 +73,17 @@ export class KeywordFilterService {
     const headingNormalized = (title || text).toLowerCase();
     
     // Validation pipeline: Check if content qualifies as legal news
-    const legalIndicators = ['法庭', '法律', '法院', '審裁處', '裁判法院', '上訴庭', 
-      '上訴委員會', '監管局', '死因裁判庭', '淫穢及不雅物品審裁處', '案件編號', '案件號碼'];
-    
-    const hasLegalContext = legalIndicators.some(term => contentNormalized.includes(term));
+    const hasLegalContext = KeywordFilterService.LEGAL_CONTEXT_TERMS.some(
+      term => contentNormalized.includes(term)
+    );
     if (!hasLegalContext) {
       return 'OTHER';
     }
     
     // Validation pipeline: Verify title contains case-related markers
-    const caseMarkers = ['宗', '案', '開審', '保釋', '勝', '敗', '控方', '被告', 
-      '還押', '押後', '入稟', '原告', '上訴', '申請', '涉嫌', '調查', 
-      '落案', '落案起訴', '合理辯解', '控罪', '罪行'];
-    
-    const hasCaseMarker = caseMarkers.some(marker => headingNormalized.includes(marker));
+    const hasCaseMarker = KeywordFilterService.CASE_RELATED_MARKERS.some(
+      marker => headingNormalized.includes(marker)
+    );
     if (!hasCaseMarker) {
       return 'OTHER';
     }
@@ -92,8 +106,9 @@ export class KeywordFilterService {
     }
     
     // Bias check: Strong criminal indicators
-    const criminalBiasTerms = ['調查', '廉署', '廉署起訴', '控罪', '罪行', '落案', '落案起訴', '涉嫌'];
-    const hasCriminalBias = criminalBiasTerms.some(term => contentNormalized.includes(term));
+    const hasCriminalBias = KeywordFilterService.CRIMINAL_BIAS_INDICATORS.some(
+      term => contentNormalized.includes(term)
+    );
     
     if (hasCriminalBias) {
       return 'CRIMINAL';

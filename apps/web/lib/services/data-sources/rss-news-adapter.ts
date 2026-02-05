@@ -19,16 +19,32 @@ function assessTextSimilarity(textA: string, textB: string): number {
   const tokens1 = Array.from(normalized1);
   const tokens2 = Array.from(normalized2);
   
+  // Build position map for O(1) lookups
+  const positionMap = new Map<string, number[]>();
+  tokens2.forEach((char, idx) => {
+    if (!positionMap.has(char)) {
+      positionMap.set(char, []);
+    }
+    positionMap.get(char)!.push(idx);
+  });
+  
   // Calculate overlap coefficient considering position
   let matchScore = 0;
   const maxLen = Math.max(tokens1.length, tokens2.length);
   
   for (let i = 0; i < tokens1.length; i++) {
     const char = tokens1[i];
-    const idx = tokens2.indexOf(char);
-    if (idx >= 0) {
+    const positions = positionMap.get(char);
+    if (positions && positions.length > 0) {
+      // Find closest position match
+      const closestPos = positions.reduce((closest, pos) => {
+        const currentDiff = Math.abs(i - pos);
+        const closestDiff = Math.abs(i - closest);
+        return currentDiff < closestDiff ? pos : closest;
+      });
+      
       // Weight matches that appear in similar positions higher
-      const positionDiff = Math.abs(i - idx);
+      const positionDiff = Math.abs(i - closestPos);
       const positionWeight = 1 - (positionDiff / maxLen);
       matchScore += positionWeight;
     }
