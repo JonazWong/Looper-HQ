@@ -134,7 +134,7 @@ describe('RssNewsAdapter', () => {
 
       // Should categorize based on both title and content
       expect(result.category).toBeDefined();
-      // With the new logic, this should be CRIMINAL_APPEAL
+      // With the new logic, should return uppercase category names
       expect(result.category).toBe('CRIMINAL_APPEAL');
     });
   });

@@ -29,52 +29,52 @@ describe('KeywordFilterService', () => {
       expect(service.categorize(text, title)).toBe('CRIMINAL_APPEAL');
     });
 
-    it('should categorize as Criminal when magistrates court without appeal', () => {
+    it('should categorize as CRIMINAL when magistrates court without appeal', () => {
       const text = '被告在裁判法院出庭應訊，法庭將案件押後';
       const title = '裁判法院案件押後';
-      expect(service.categorize(text, title)).toBe('Criminal');
+      expect(service.categorize(text, title)).toBe('CRIMINAL');
     });
 
-    it('should categorize as Criminal with criminal bias keywords', () => {
+    it('should categorize as CRIMINAL with criminal bias keywords', () => {
       const text = '廉署起訴三名被告，涉嫌貪污罪行，法院將開審';
       const title = '廉署起訴貪污案';
-      expect(service.categorize(text, title)).toBe('Criminal');
+      expect(service.categorize(text, title)).toBe('CRIMINAL');
     });
 
-    it('should categorize as Criminal with 調查 keyword', () => {
+    it('should categorize as CRIMINAL with 調查 keyword', () => {
       const text = '警方調查案件，法庭將於下月開審';
       const title = '調查案件開審';
-      expect(service.categorize(text, title)).toBe('Criminal');
+      expect(service.categorize(text, title)).toBe('CRIMINAL');
     });
 
     it('should categorize as Civil when civil keywords present', () => {
       const text = '原告入稟法院，指被告違反合約，要求賠償';
       const title = '民事訴訟案開審';
-      expect(service.categorize(text, title)).toBe('Civil');
+      expect(service.categorize(text, title)).toBe('CIVIL');
     });
 
     it('should categorize as Corporate when corporate keywords present', () => {
       const text = '公司合併案件，法院審理企業重組申請';
       const title = '企業合併案';
-      expect(service.categorize(text, title)).toBe('Corporate');
+      expect(service.categorize(text, title)).toBe('CORPORATE');
     });
 
     it('should categorize as Family when family keywords present', () => {
       const text = '離婚案件涉及子女撫養權爭議，法庭將作出裁決';
       const title = '離婚案件開審';
-      expect(service.categorize(text, title)).toBe('Family');
+      expect(service.categorize(text, title)).toBe('FAMILY');
     });
 
     it('should categorize as Property when property keywords present', () => {
       const text = '物業糾紛案件，涉及地產交易問題，法院將審理';
       const title = '物業糾紛案';
-      expect(service.categorize(text, title)).toBe('Property');
+      expect(service.categorize(text, title)).toBe('PROPERTY');
     });
 
     it('should categorize as Employment when employment keywords present', () => {
       const text = '僱傭糾紛案件，涉及不當解僱，勞工法院將開審';
       const title = '僱傭糾紛案開審';
-      expect(service.categorize(text, title)).toBe('Employment');
+      expect(service.categorize(text, title)).toBe('EMPLOYMENT');
     });
 
     it('should return OTHER when only legal keywords but no specific category', () => {

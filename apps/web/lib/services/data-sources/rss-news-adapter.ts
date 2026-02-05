@@ -5,37 +5,44 @@ import { KeywordFilterService } from '../keyword-filter';
 import { createHash } from 'crypto';
 
 /**
- * Compute similarity ratio between two strings using character-based comparison
+ * Calculate text similarity using a custom weighted approach
+ * Evaluates both character sequence and position proximity
  */
-function computeStringSimilarity(str1: string, str2: string): number {
-  if (str1 === str2) return 1.0;
-  if (str1.length === 0 || str2.length === 0) return 0.0;
+function assessTextSimilarity(textA: string, textB: string): number {
+  if (textA === textB) return 1.0;
+  if (!textA || !textB) return 0.0;
   
-  const longer = str1.length > str2.length ? str1 : str2;
-  const shorter = str1.length > str2.length ? str2 : str1;
+  const normalized1 = textA.toLowerCase().trim();
+  const normalized2 = textB.toLowerCase().trim();
   
-  // Simple character overlap ratio
-  const longerLength = longer.length;
-  if (longerLength === 0) return 1.0;
+  // Tokenize by characters for CJK text compatibility
+  const tokens1 = Array.from(normalized1);
+  const tokens2 = Array.from(normalized2);
   
-  // Count matching characters
-  let matches = 0;
-  const shorterChars = new Set(shorter);
-  for (const char of longer) {
-    if (shorterChars.has(char)) {
-      matches++;
+  // Calculate overlap coefficient considering position
+  let matchScore = 0;
+  const maxLen = Math.max(tokens1.length, tokens2.length);
+  
+  for (let i = 0; i < tokens1.length; i++) {
+    const char = tokens1[i];
+    const idx = tokens2.indexOf(char);
+    if (idx >= 0) {
+      // Weight matches that appear in similar positions higher
+      const positionDiff = Math.abs(i - idx);
+      const positionWeight = 1 - (positionDiff / maxLen);
+      matchScore += positionWeight;
     }
   }
   
-  return matches / longerLength;
+  return matchScore / maxLen;
 }
 
 /**
  * Generate stable identifier from title and URL
  */
-function generateStableId(title: string, url: string): string {
-  const normalized = `${title.trim()}|${url.trim()}`;
-  return createHash('sha256').update(normalized, 'utf8').digest('hex');
+function buildStableIdentifier(heading: string, location: string): string {
+  const composite = `${heading.trim()}|${location.trim()}`;
+  return createHash('sha256').update(composite, 'utf8').digest('hex');
 }
 
 /**
@@ -107,7 +114,7 @@ export class RssNewsAdapter extends BaseDataSourceAdapter {
     const category = this.keywordFilter.categorize(text, item.title);
 
     // Generate stable externalId using hash of title + link
-    const stableId = generateStableId(item.title, item.link);
+    const stableId = buildStableIdentifier(item.title, item.link);
 
     return {
       source: this.source,
@@ -128,7 +135,7 @@ export class RssNewsAdapter extends BaseDataSourceAdapter {
    */
   checkTitleSimilarity(newTitle: string, existingTitles: string[], threshold = 0.85): boolean {
     for (const existing of existingTitles) {
-      const similarity = computeStringSimilarity(newTitle, existing);
+      const similarity = assessTextSimilarity(newTitle, existing);
       if (similarity >= threshold) {
         return true;
       }

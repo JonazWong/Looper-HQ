@@ -66,7 +66,7 @@ export class KeywordFilterService {
     
     // Validation pipeline: Verify title contains case-related markers
     const caseMarkers = ['宗', '案', '開審', '保釋', '勝', '敗', '控方', '被告', 
-      '還押', '押後', '入稟', '原告', '上訴', '申請', '渉嫌', '調查', 
+      '還押', '押後', '入稟', '原告', '上訴', '申請', '涉嫌', '調查', 
       '落案', '落案起訴', '合理辯解', '控罪', '罪行'];
     
     const hasCaseMarker = caseMarkers.some(marker => headingNormalized.includes(marker));
@@ -88,24 +88,24 @@ export class KeywordFilterService {
     
     // Rule: Magistrates Court without Appeal = Criminal
     if (indicators.magistratesCourt && !indicators.appealMention) {
-      return 'Criminal';
+      return 'CRIMINAL';
     }
     
     // Bias check: Strong criminal indicators
-    const criminalBiasTerms = ['調查', '廉署', '廉署起訴', '控罪', '罪行', '落案', '落案起訴', '渉嫌'];
+    const criminalBiasTerms = ['調查', '廉署', '廉署起訴', '控罪', '罪行', '落案', '落案起訴', '涉嫌'];
     const hasCriminalBias = criminalBiasTerms.some(term => contentNormalized.includes(term));
     
     if (hasCriminalBias) {
-      return 'Criminal';
+      return 'CRIMINAL';
     }
     
     // Category mapping for other case types
     const categoryMap = [
-      { name: 'Civil', terms: ['civil', 'plaintiff', 'defendant', '民事', '原告', '被告'] },
-      { name: 'Corporate', terms: ['corporate', 'company', 'merger', '企業', '公司', '合併'] },
-      { name: 'Family', terms: ['family', 'divorce', 'custody', '家庭', '離婚', '撫養'] },
-      { name: 'Property', terms: ['property', 'land', 'real estate', '物業', '地產', '土地'] },
-      { name: 'Employment', terms: ['employment', 'labor', 'dismissal', '僱傭', '勞工', '解僱'] },
+      { name: 'CIVIL', terms: ['civil', 'plaintiff', 'defendant', '民事', '原告', '被告'] },
+      { name: 'CORPORATE', terms: ['corporate', 'company', 'merger', '企業', '公司', '合併'] },
+      { name: 'FAMILY', terms: ['family', 'divorce', 'custody', '家庭', '離婚', '撫養'] },
+      { name: 'PROPERTY', terms: ['property', 'land', 'real estate', '物業', '地產', '土地'] },
+      { name: 'EMPLOYMENT', terms: ['employment', 'labor', 'dismissal', '僱傭', '勞工', '解僱'] },
     ];
 
     for (const cat of categoryMap) {

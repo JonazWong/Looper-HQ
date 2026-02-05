@@ -3,11 +3,26 @@ import { RssNewsAdapter } from '../../apps/web/lib/services/data-sources/rss-new
 
 const prisma = new PrismaClient();
 
+// Time window configuration for duplicate detection
+const TIME_WINDOW_CONFIG = {
+  daysToCheck: 7,
+  msInDay: 1000 * 60 * 60 * 24,
+};
+
 /**
  * Sleep utility for retry delays
  */
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Calculate cutoff timestamp for duplicate checking
+ */
+function getCutoffTimestamp(): Date {
+  const now = Date.now();
+  const offset = TIME_WINDOW_CONFIG.daysToCheck * TIME_WINDOW_CONFIG.msInDay;
+  return new Date(now - offset);
 }
 
 /**
@@ -75,9 +90,7 @@ export async function trackRssNews(): Promise<number> {
             const recentCases = await prisma.publicCase.findMany({
               where: {
                 source: caseData.source,
-                publishedAt: {
-                  gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
-                },
+                publishedAt: { gte: getCutoffTimestamp() },
               },
               select: { title: true, id: true },
             });
