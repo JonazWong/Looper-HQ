@@ -50,22 +50,23 @@ export class KeywordFilterService {
 
   /**
    * Auto-categorize content based on keywords
+   * Returns CaseCategory enum value (uppercase)
    */
   categorize(text: string): string | null {
     const lowerText = text.toLowerCase();
     
     const categories = {
-      'Criminal': ['criminal', 'prosecution', '刑事', '檢控', '罪名'],
-      'Civil': ['civil', 'plaintiff', 'defendant', '民事', '原告', '被告'],
-      'Corporate': ['corporate', 'company', 'merger', '企業', '公司', '合併'],
-      'Family': ['family', 'divorce', 'custody', '家庭', '離婚', '撫養'],
-      'Property': ['property', 'land', 'real estate', '物業', '地產', '土地'],
-      'Employment': ['employment', 'labor', 'dismissal', '僱傭', '勞工', '解僱'],
+      'CRIMINAL': ['criminal', 'prosecution', '刑事', '檢控', '罪名'],
+      'CIVIL': ['civil', 'plaintiff', 'defendant', '民事', '原告', '被告'],
+      'CORPORATE': ['corporate', 'company', 'merger', '企業', '公司', '合併'],
+      'FAMILY': ['family', 'divorce', 'custody', '家庭', '離婚', '撫養'],
+      'PROPERTY': ['property', 'land', 'real estate', '物業', '地產', '土地'],
+      'EMPLOYMENT': ['employment', 'labor', 'dismissal', '僱傭', '勞工', '解僱'],
     };
 
     for (const [category, keywords] of Object.entries(categories)) {
       if (keywords.some(keyword => lowerText.includes(keyword))) {
-        return category;
+        return category; // Returns: CRIMINAL, CIVIL, CORPORATE, FAMILY, PROPERTY, EMPLOYMENT
       }
     }
 

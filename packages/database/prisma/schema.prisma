@@ -490,11 +490,11 @@ model PublicCase {
   sourceUrl   String?    // Source URL
   
   // Case information
-  caseNumber  String?    // e.g., HCAL 123/2024
+  caseNumber  String?       // e.g., HCAL 123/2024
   title       String
-  description String?    @db.Text
-  category    String?    // Case category
-  court       String?    // Court name
+  description String?       @db.Text
+  category    CaseCategory? // Case category (enum)
+  court       String?       // Court name
   
   // Parties
   parties     Json?      // { plaintiff: [], defendant: [] }

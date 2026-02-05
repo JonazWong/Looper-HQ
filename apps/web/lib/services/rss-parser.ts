@@ -10,6 +10,25 @@ export interface RssFeedItem {
   guid?: string;
 }
 
+/**
+ * Get time-aware delay based on Hong Kong business hours
+ * Deep night (00:00-06:00): 1s
+ * Off-peak (06:00-09:00, 18:00-00:00): 2s  
+ * Peak hours (09:00-18:00): 3s
+ */
+function getTimeAwareDelay(): number {
+  const now = new Date();
+  const hour = now.getHours();
+  
+  if (hour >= 0 && hour < 6) {
+    return 1000; // Deep night: 1s
+  } else if ((hour >= 6 && hour < 9) || (hour >= 18 && hour < 24)) {
+    return 2000; // Off-peak: 2s
+  } else {
+    return 3000; // Peak hours: 3s
+  }
+}
+
 export class RssParserService {
   private parser: Parser;
   private timeout = 30000; // 30 seconds
@@ -18,7 +37,16 @@ export class RssParserService {
     this.parser = new Parser({
       timeout: this.timeout,
       headers: {
-        'User-Agent': 'Looper-HQ/1.0',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+        'Accept-Language': 'zh-HK,zh-TW;q=0.9,zh;q=0.8,en;q=0.7',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Referer': 'https://news.mingpao.com/',
+      },
+      requestOptions: {
+        rejectUnauthorized: false,
       },
     });
   }

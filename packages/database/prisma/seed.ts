@@ -663,12 +663,12 @@ async function main() {
   await prisma.rssSource.createMany({
     data: [
       {
-        name: 'Ming Pao Daily News - Legal',
+        name: 'Ming Pao Daily News - Hong Kong News',
         source: 'MINGPAO_PNS_RSS',
-        url: 'https://news.mingpao.com/rss/pns/s00001.xml',
-        isActive: true,
-        status: 'ACTIVE',
-        fetchInterval: 3600, // 1 hour
+        url: 'https://news.mingpao.com/rss/pns/s00002.xml',
+        isActive: false, // 暫時禁用，避免403錯誤
+        status: 'INACTIVE',
+        fetchInterval: 7200, // 2 hours (daily news, less frequent)
         maxRetries: 3,
         retryDelay: 300, // 5 minutes
         keywords: [
@@ -713,7 +713,7 @@ async function main() {
         caseNumber: 'HCAL 123/2024',
         title: 'Wong Tai Man v. Chan Siu Ming',
         description: 'Property boundary dispute regarding land at Lot 123, New Territories',
-        category: 'Civil',
+        category: 'CIVIL',
         court: 'High Court',
         judge: 'Hon. Mr Justice Lee',
         judgmentDate: new Date('2024-01-15'),

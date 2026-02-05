@@ -1,4 +1,4 @@
-import { PrismaClient, CaseSource } from '@looper-hq/database';
+import { PrismaClient, CaseSource } from '../../packages/database';
 import { RssNewsAdapter } from '../../apps/web/lib/services/data-sources/rss-news-adapter';
 
 const prisma = new PrismaClient();
@@ -19,21 +19,57 @@ export async function trackRssNews(): Promise<number> {
 
   try {
     // Load active RSS sources from database
-    const sources = await prisma.rssSource.findMany({
+    const allSources = await prisma.rssSource.findMany({
       where: {
         isActive: true,
         status: { in: ['ACTIVE', 'ERROR'] },
       },
     });
 
-    console.log(`📰 Found ${sources.length} RSS sources to track`);
+    console.log(`📰 Found ${allSources.length} RSS sources in database`);
 
-    for (const source of sources) {
+    // Filter sources that need to be fetched based on fetchInterval
+    const now = new Date();
+    const sources = allSources.filter(source => {
+      if (!source.lastFetchAt) {
+        console.log(`  ✓ ${source.name}: Never fetched before`);
+        return true;
+      }
+      
+      const nextFetchTime = new Date(source.lastFetchAt.getTime() + source.fetchInterval * 1000);
+      const shouldFetch = now >= nextFetchTime;
+      
+      if (shouldFetch) {
+        const minutesSince = Math.floor((now.getTime() - source.lastFetchAt.getTime()) / 60000);
+        console.log(`  ✓ ${source.name}: Last fetched ${minutesSince}m ago (interval: ${source.fetchInterval / 60}m)`);
+        return true;
+      } else {
+        const minutesUntilNext = Math.ceil((nextFetchTime.getTime() - now.getTime()) / 60000);
+        console.log(`  ⏭ ${source.name}: Skip - next fetch in ${minutesUntilNext}m`);
+        return false;
+      }
+    });
+
+    if (sources.length === 0) {
+      console.log(`\n⏸️  No sources need fetching at this time`);
+      return 0;
+    }
+
+    console.log(`\n🚀 Processing ${sources.length} sources...\n`);
+
+    for (let i = 0; i < sources.length; i++) {
+      const source = sources[i];
       let retryCount = 0;
       let lastError: string | null = null;
       let sourceSuccess = false;
 
-      console.log(`\nProcessing: ${source.name}...`);
+      // Add 2-second delay between sources to avoid server pressure
+      if (i > 0) {
+        console.log('  ⏳ Waiting 2s before next source...');
+        await sleep(2000);
+      }
+
+      console.log(`\nProcessing [${i + 1}/${sources.length}]: ${source.name}...`);
 
       // Retry loop
       while (retryCount <= source.maxRetries && !sourceSuccess) {
