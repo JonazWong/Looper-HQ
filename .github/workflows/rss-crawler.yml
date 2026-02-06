@@ -13,35 +13,38 @@ jobs:
     permissions:
       contents: read
       issues: write  # Required for creating issues on failure
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8.15.0
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
-      
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
-      - name: Generate Prisma Client
+
+      - name: Generate Prisma Client (package)
         run: pnpm --filter=@looper-hq/database prisma generate
-      
+
+      - name: Generate Prisma Client (root)
+        run: pnpm prisma generate --schema packages/database/prisma/schema.prisma
+
       - name: Run RSS Crawler
         run: pnpm run crawler:rss
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NODE_ENV: production
         timeout-minutes: 10
-      
+
       - name: Create issue on failure
         if: failure()
         uses: actions/github-script@v7
@@ -55,7 +58,7 @@ jobs:
               body: `🚨 RSS news crawler job has failed.\n\n**Workflow Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n\n**Timestamp:** ${date}\n\n**Possible Causes:**\n- RSS source returned 403/404 errors\n- Database connection issues\n- Network timeout\n\nPlease check the logs for details.`,
               labels: ['bug', 'rss-crawler', 'automated']
             });
-      
+
       - name: Summary
         if: success()
         run: |
