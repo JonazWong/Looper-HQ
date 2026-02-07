@@ -22,6 +22,7 @@ import {
   GlassCardDescription, 
   GlassCardContent 
 } from "@/components/ui/glass-card";
+import { AutoLinkText, CaseLinksList } from "@/lib/case-linking/use-case-linking";
 
 interface PublicCase {
   id: string;
@@ -305,11 +306,11 @@ export default function PublicCasesPage() {
                         )}
                       </div>
                       <GlassCardTitle className="text-xl mb-1">
-                        {caseItem.title}
+                        <AutoLinkText text={caseItem.title} />
                       </GlassCardTitle>
                       {caseItem.caseNumber && (
                         <p className="text-sm text-premier-gold">
-                          案件編號: {caseItem.caseNumber}
+                          案件編號: <AutoLinkText text={caseItem.caseNumber} />
                         </p>
                       )}
                     </div>
@@ -319,8 +320,17 @@ export default function PublicCasesPage() {
                 <GlassCardContent className="space-y-4">
                   {caseItem.description && (
                     <p className="text-premier-pearl-gray">
-                      {caseItem.description}
+                      <AutoLinkText text={caseItem.description} />
                     </p>
+                  )}
+
+                  {/* 相關案件連結清單 */}
+                  {caseItem.description && (
+                    <CaseLinksList 
+                      text={`${caseItem.title} ${caseItem.description}`} 
+                      showJudiciary={true}
+                      showLegalRef={true}
+                    />
                   )}
 
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">

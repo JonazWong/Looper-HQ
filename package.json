@@ -1,8 +1,8 @@
 {
-  "name": "looper-hq",
-  "version": "1.0.0",
+  "name": "looper-hq-nexus-l",
+  "version": "2.0.0",
   "private": true,
-  "description": "Unified legal case management and inquiry platform for Hong Kong",
+  "description": "Looper HQ Nexus-L - Enterprise-grade legal case management platform for Hong Kong",
   "author": "JonazWong",
   "license": "MIT",
   "engines": {
@@ -35,10 +35,13 @@
     "docker:down": "docker compose -f infrastructure/docker/docker-compose.yml down",
     "crawler:all": "tsx scripts/crawlers/unified-tracker.ts",
     "crawler:judiciary": "tsx scripts/crawlers/hk-judiciary-crawler.ts",
-    "crawler:rss": "tsx scripts/crawlers/rss-news-crawler.ts"
+    "crawler:rss": "tsx scripts/crawlers/rss-news-crawler.ts",
+    "crawler:health": "tsx scripts/crawlers/health-check.ts",
+    "test:rss": "tsx scripts/test-rss-sources.ts"
   },
   "devDependencies": {
     "@types/node": "^20.10.6",
+    "rss-parser": "^3.13.0",
     "tsx": "^4.7.0",
     "turbo": "^1.11.2",
     "typescript": "^5.3.3"

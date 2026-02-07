@@ -115,6 +115,7 @@ const config: Config = {
         'premier-md': ['1.125rem', { lineHeight: '1.6' }],
       },
       backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'premier-dark': 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
         'premier-gold': 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
         'premier-mystery': 'linear-gradient(135deg, #4A148C 0%, #1A237E 100%)',

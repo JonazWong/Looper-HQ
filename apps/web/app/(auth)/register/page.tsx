@@ -5,58 +5,30 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { AuthLayout } from "@/components/layout/auth-layout"
 import { PremierButton } from "@/components/ui/premier-button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardFooter, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
+import { Shield, UserPlus, ArrowRight } from "lucide-react"
 
 export default function RegisterPage() {
   const router = useRouter()
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    
-    if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      return
-    }
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters")
-      return
-    }
-
+  // Redirect to Keycloak registration
+  const handleKeycloakRegister = () => {
     setIsLoading(true)
+    // Redirect to Keycloak registration page
+    const keycloakUrl = process.env.NEXT_PUBLIC_KEYCLOAK_URL || "http://localhost:8080"
+    const realm = "looper-hq"
+    const clientId = "looper-hq-web"
+    const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/callback/keycloak`)
+    
+    const registrationUrl = `${keycloakUrl}/realms/${realm}/protocol/openid-connect/registrations?client_id=${clientId}&response_type=code&scope=openid%20email%20profile&redirect_uri=${redirectUri}`
+    
+    window.location.href = registrationUrl
+  }
 
-    try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error?.message || "Registration failed")
-        return
-      }
-
-      // Registration successful, redirect to login
-      alert(data.data?.message || "Account created successfully! Please sign in.")
-      router.push("/login")
-    } catch (err) {
-      setError("Something went wrong. Please try again.")
-      console.error("Registration error:", err)
-    } finally {
-      setIsLoading(false)
-    }
+  const handleDemoAccount = () => {
+    setIsLoading(true)
+    router.push("/login?demo=true")
   }
 
   return (
@@ -65,71 +37,60 @@ export default function RegisterPage() {
         <GlassCardHeader>
           <GlassCardTitle>Create Account</GlassCardTitle>
           <GlassCardDescription>
-            Sign up to start managing your legal cases
+            Sign up to access Looper HQ case management system
           </GlassCardDescription>
         </GlassCardHeader>
-        <GlassCardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="p-3 text-sm text-red-400 bg-red-950/30 border border-red-800/50 rounded-md">
-                {error}
-              </div>
-            )}
+        <GlassCardContent className="space-y-6">
+          {/* Keycloak SSO Registration (Primary) */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm text-premier-pearl/70 mb-4">
+              <Shield className="w-4 h-4 text-premier-gold" />
+              <span>Secure authentication via Keycloak SSO</span>
+            </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-premier-pearl">Full Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                disabled={isLoading}
-                className="bg-premier-black-light border-premier-gold/20 text-premier-pearl placeholder:text-premier-pearl-gray/50 focus:border-premier-gold"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-premier-pearl">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-                className="bg-premier-black-light border-premier-gold/20 text-premier-pearl placeholder:text-premier-pearl-gray/50 focus:border-premier-gold"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-premier-pearl">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                className="bg-premier-black-light border-premier-gold/20 text-premier-pearl focus:border-premier-gold"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-premier-pearl">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                className="bg-premier-black-light border-premier-gold/20 text-premier-pearl focus:border-premier-gold"
-              />
-            </div>
-            <PremierButton type="submit" className="w-full" variant="primary" disabled={isLoading}>
-              {isLoading ? "Creating Account..." : "Create Account"}
+            <PremierButton
+              type="button"
+              onClick={handleKeycloakRegister}
+              disabled={isLoading}
+              className="w-full group"
+              variant="primary"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              {isLoading ? "Redirecting..." : "Register with Keycloak SSO"}
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </PremierButton>
-          </form>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-premier-gold/20"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-premier-black text-premier-pearl/50">OR</span>
+            </div>
+          </div>
+
+          {/* Demo Account Access */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-premier-pearl">Try Demo Account</h3>
+            <div className="p-4 bg-premier-mystery/10 border border-premier-mystery/30 rounded-lg space-y-2">
+              <p className="text-xs text-premier-pearl/70">Use these credentials to test the system:</p>
+              <div className="grid gap-1 text-xs font-mono">
+                <div><span className="text-premier-gold">Admin:</span> admin@looper-hq.local / admin123</div>
+                <div><span className="text-premier-gold">Lawyer:</span> lawyer@looper-hq.local / lawyer123</div>
+                <div><span className="text-premier-gold">Client:</span> client@looper-hq.local / client123</div>
+              </div>
+            </div>
+            <PremierButton
+              type="button"
+              onClick={handleDemoAccount}
+              disabled={isLoading}
+              className="w-full"
+              variant="secondary"
+            >
+              Login with Demo Account
+            </PremierButton>
+          </div>
         </GlassCardContent>
         <GlassCardFooter className="flex flex-col gap-2">
           <div className="text-sm text-premier-pearl-gray">
@@ -137,6 +98,9 @@ export default function RegisterPage() {
             <Link href="/login" className="text-premier-gold hover:text-premier-gold-rose transition-colors">
               Sign in
             </Link>
+          </div>
+          <div className="text-xs text-premier-pearl/50 text-center">
+            Registration is managed through Keycloak SSO for enhanced security
           </div>
         </GlassCardFooter>
       </GlassCard>

@@ -28,8 +28,12 @@ export default auth((req) => {
     pathname === "/" ||
     pathname === "/login" ||
     pathname === "/register" ||
+    pathname === "/case-search" ||
+    pathname === "/landing" ||
+    pathname === "/sitemap" ||
     pathname.startsWith("/api/auth") ||
     pathname === "/api/health" ||
+    pathname === "/api/public-cases" ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/static") ||
     pathname.includes(".")

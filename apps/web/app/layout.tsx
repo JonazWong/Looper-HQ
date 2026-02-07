@@ -2,8 +2,8 @@ import type { Metadata } from "next"
 import "../styles/globals.css"
 
 export const metadata: Metadata = {
-  title: "Looper HQ - Legal Case Management",
-  description: "Unified Legal Case Management & Inquiry Platform for Hong Kong",
+  title: "Looper HQ Nexus-L - Legal Case Management Platform",
+  description: "Nexus Legal - Unified enterprise-grade legal case management system for Hong Kong",
 }
 
 export default function RootLayout({

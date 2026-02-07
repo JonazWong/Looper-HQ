@@ -40,7 +40,7 @@ export default function LandingPage() {
                 Get Started <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/dashboard/search">
+            <Link href="/case-search">
               <Button size="lg" variant="outline">
                 Search Cases
               </Button>
