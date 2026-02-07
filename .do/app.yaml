@@ -27,7 +27,7 @@ services:
   # Web Application
   - name: web
     github:
-      repo: JonazWong/Looper-HQ-Nexus-L
+      repo: JonazWong/Looper-HQ
       branch: main
       deploy_on_push: true
     
