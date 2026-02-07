@@ -1,5 +1,6 @@
 /**
- * Enhanced Dashboard Page with Premier Design System
+ * Looper HQ Nexus-L Dashboard Page
+ * Nexus Legal - Core Legal Case Management Platform
  * Server Component - fetches real data from database
  */
 
@@ -15,6 +16,8 @@ import {
 import { DashboardContent } from "@/components/dashboard/dashboard-content"
 import { type Activity } from "@/components/ui/activity-timeline"
 import { prisma } from "@/lib/db"
+import { requireAuth } from "@/lib/api/auth"
+import type { MembershipTier } from "@prisma/client"
 
 // Icon mapping for activities
 const activityIconMap: Record<string, LucideIcon> = {
@@ -172,12 +175,28 @@ async function getRecentActivities() {
 }
 
 export default async function DashboardPage() {
+  // Get authenticated user
+  const session = await requireAuth()
+  
+  // Fetch user's membership tier from memberships relation
+  const userMemberships = await prisma.membership.findFirst({
+    where: { userId: session.user.id },
+    orderBy: { startDate: 'desc' },
+    select: { tier: true }
+  })
+  
+  const membershipTier = userMemberships?.tier || 'BASIC'
+  
   // Fetch data in parallel
   const [stats, activities] = await Promise.all([
     getDashboardStats(),
     getRecentActivities(),
   ])
 
-  return <DashboardContent stats={stats} activities={activities} />
+  return <DashboardContent 
+    stats={stats} 
+    activities={activities} 
+    membershipTier={membershipTier}
+  />
 }
 

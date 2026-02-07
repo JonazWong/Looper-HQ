@@ -4,7 +4,7 @@
   "displayName": "Looper HQ",
   "displayNameHtml": "<div class=\"kc-logo-text\"><span>Looper HQ</span></div>",
   "sslRequired": "external",
-  "registrationAllowed": false,
+  "registrationAllowed": true,
   "registrationEmailAsUsername": false,
   "rememberMe": true,
   "verifyEmail": false,

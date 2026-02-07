@@ -27,6 +27,9 @@ function LoginForm() {
       : null
   )
 
+  // Check for demo mode
+  const isDemoMode = searchParams.get("demo") === "true"
+
   // Handle credentials login
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -84,6 +87,17 @@ function LoginForm() {
           {loginError && (
             <div className="p-3 text-sm text-red-400 bg-red-950/30 border border-red-800/50 rounded-md">
               {loginError}
+            </div>
+          )}
+
+          {isDemoMode && (
+            <div className="p-4 bg-premier-mystery/10 border border-premier-mystery/30 rounded-lg space-y-2">
+              <p className="text-sm font-medium text-premier-gold">Demo Accounts</p>
+              <div className="grid gap-1 text-xs font-mono">
+                <div><span className="text-premier-pearl/70">Admin:</span> admin@looperhq.com / demo123</div>
+                <div><span className="text-premier-pearl/70">Lawyer:</span> sarah.chen@looperhq.com / demo123</div>
+                <div><span className="text-premier-pearl/70">Client:</span> wong.client@example.com / demo123</div>
+              </div>
             </div>
           )}
 

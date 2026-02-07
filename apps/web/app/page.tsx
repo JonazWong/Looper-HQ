@@ -40,7 +40,7 @@ export default function HomePage() {
                 Get Started <ArrowRight className="ml-2 h-4 w-4" />
               </PremierButton>
             </Link>
-            <Link href="/login">
+            <Link href="/case-search">
               <PremierButton size="lg" variant="outline">
                 Search Cases
               </PremierButton>
@@ -77,11 +77,18 @@ export default function HomePage() {
             <GlassCard variant="gold" glow>
               <GlassCardHeader>
                 <Search className="h-10 w-10 text-premier-gold mb-2" />
-                <GlassCardTitle>Public Case Search</GlassCardTitle>
+                <GlassCardTitle>公開案件搜尋</GlassCardTitle>
                 <GlassCardDescription>
-                  Enable public search of case records with privacy controls
+                  每日自動更新香港法律案件資料，公眾可免費搜尋查閱
                 </GlassCardDescription>
               </GlassCardHeader>
+              <GlassCardContent className="pt-4">
+                <Link href="/case-search">
+                  <PremierButton variant="outline" size="sm" className="w-full">
+                    立即搜尋案件 <ArrowRight className="ml-2 h-3 w-3" />
+                  </PremierButton>
+                </Link>
+              </GlassCardContent>
             </GlassCard>
             <GlassCard variant="gold" glow>
               <GlassCardHeader>

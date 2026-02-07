@@ -28,6 +28,7 @@ const sidebarItems = [
     href: "/dashboard",
     icon: LayoutDashboard,
   },
+  // === NEXUS LEGAL CORE FUNCTIONS ===
   {
     labelKey: "cases" as const,
     href: "/dashboard/cases",
@@ -43,6 +44,7 @@ const sidebarItems = [
     href: "/dashboard/search",
     icon: Search,
   },
+  // === SUPPORTING FEATURES ===
   {
     labelKey: "documents" as const,
     href: "/dashboard/documents",

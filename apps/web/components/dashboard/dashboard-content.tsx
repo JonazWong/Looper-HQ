@@ -27,6 +27,8 @@ import { ProgressRing } from "@/components/ui/progress-ring"
 import { ActivityTimeline, type Activity } from "@/components/ui/activity-timeline"
 import { containerVariants, itemVariants } from "@/lib/animations"
 import { useLocale } from "@/lib/i18n/locale-provider"
+import { PremierSearchCard } from "./premier-search-card"
+import type { MembershipTier } from "@prisma/client"
 
 // Icon mapping for activity types
 const activityIconMap: Record<string, LucideIcon> = {
@@ -81,6 +83,7 @@ interface SerializedActivity {
 interface DashboardContentProps {
   stats: DashboardStats
   activities: SerializedActivity[]
+  membershipTier: MembershipTier
 }
 
 const quickActions = [
@@ -101,14 +104,16 @@ const getStatusDisplay = (status: string) => {
   }
   return statusMap[status] || { label: status, className: 'bg-gray-500/20 text-gray-200' }
 }
-
-export function DashboardContent({ stats, activities }: DashboardContentProps) {
+export function DashboardContent({ stats, activities, membershipTier }: DashboardContentProps) {
   // Convert serialized activities to Activity format with icons
   const activitiesWithIcons: Activity[] = activities.map(activity => ({
     ...activity,
     timestamp: new Date(activity.timestamp),
     icon: activityIconMap[activity.iconType] || FileText,
   }))
+  
+  // Check if user has premium access
+  const hasPremiumAccess = membershipTier === 'PREMIUM' || membershipTier === 'PREMIER'
 
   return (
     <motion.div
@@ -120,10 +125,10 @@ export function DashboardContent({ stats, activities }: DashboardContentProps) {
       {/* Header */}
       <motion.div variants={itemVariants}>
         <h1 className="text-4xl font-serif font-bold text-gradient-gold mb-2">
-          Dashboard
+          Nexus Legal
         </h1>
         <p className="text-premier-pearl-gray">
-          Welcome back! Here&apos;s an overview of your legal practice.
+          香港法律案件管理系統 - 專業高效的案件與客戶管理平台
         </p>
       </motion.div>
 
@@ -199,6 +204,11 @@ export function DashboardContent({ stats, activities }: DashboardContentProps) {
           </GlassCardContent>
         </GlassCard>
       </motion.div>
+
+      {/* Premier Exclusive: Public Case Search - Only for PREMIUM/PREMIER members */}
+      {hasPremiumAccess && (
+        <PremierSearchCard membershipTier={membershipTier as 'PREMIUM' | 'PREMIER'} />
+      )}
 
       {/* Main Content Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
