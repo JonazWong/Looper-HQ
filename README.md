@@ -1,30 +1,33 @@
-# 🔄 Looper HQ
+# 🏛️ Looper HQ Nexus-L
 
-> **Unified Legal Case Management & Inquiry Platform for Hong Kong**
+> **AI-Powered Legal Case Database & Intelligent Search Platform for Hong Kong**  
+> Professional legal case management with comprehensive database and advanced search algorithms
 
-## 🌟 Features
+[![Deploy to DigitalOcean](https://img.shields.io/badge/Deploy-DigitalOcean-0080FF?logo=digitalocean)](https://cloud.digitalocean.com/apps)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=next.js)](https://nextjs.org/)
 
-### Main Application (Web)
-- Case Management
-- Client Portal
-- Time Tracking & Billing
-- Document Management
-- **Public Case Search** - Search internal public cases
-- **Public Cases** - Hong Kong legal case tracking & RSS news aggregation
-- Multi-tenancy Support
-- OAuth/OIDC Authentication
-- **Daily Case Tracking** - Automated crawler for HK legal news
+## 🌟 Platform Architecture
 
-### Legal Case Search Application
-- Comprehensive Case Management System
-- Client Management with Communication Portal
-- Time Tracking & Billing
-- Document Management System
-- Invoice Generation & Management
-- Multi-language Support (EN/繁中)
-- Subscription Tiers (Starter, Professional, Enterprise, Custom)
+### Nexus Legal (Core Functions)
+**Primary Legal Case Management System**
+- 💼 **Cases Management** - Comprehensive case lifecycle management
+- 👥 **Clients Management** - Client records & communication portal
+- 🔍 **Smart Search** - Intelligent case & document search
+- 📊 **Analytics Dashboard** - Real-time insights & reporting
+
+### Looper HQ (Supporting Infrastructure)
+**Enterprise Platform Features**
+- 📄 **Document Management** - Secure file storage & version control
+- 📅 **Calendar** - Court dates & deadline tracking
+- ⏱️ **Time Tracking** - Billable hours management
+- 💰 **Billing** - Invoice generation & management
+- 🔐 **Auth** - OAuth/OIDC authentication
+- 🏢 **Multi-Tenancy** - Firm-based data isolation
 
 ## 🚀 Quick Start
+
+### Local Development
 
 ```bash
 git clone https://github.com/JonazWong/Looper-HQ.git
@@ -42,6 +45,29 @@ pnpm dev:all
 pnpm dev:web    # Main app on http://localhost:3000
 pnpm dev:legal  # Legal case search on http://localhost:3001
 ```
+
+### Production Deployment
+
+**Quick Deploy to DigitalOcean (15 minutes):**
+
+```bash
+# 1. Push to GitHub
+git push origin main
+
+# 2. Create App on DigitalOcean
+# Visit: https://cloud.digitalocean.com/apps
+# Connect GitHub repo: JonazWong/Looper-HQ
+# App Platform auto-reads .do/app.yaml
+
+# 3. Set environment variables (see .env.production.example)
+# Required: NEXTAUTH_SECRET, NEXTAUTH_URL, NEXT_PUBLIC_APP_URL
+
+# 4. Deploy!
+```
+
+📖 **Deployment Guides:**
+- [QUICKSTART_DEPLOY.md](./QUICKSTART_DEPLOY.md) - 5-step quick guide
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - Complete deployment guide with troubleshooting
 
 ## 📦 Structure
 
@@ -163,6 +189,8 @@ For more details, see:
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Quick Start](docs/QUICKSTART.md)
+- [**Production Deployment**](DEPLOYMENT.md) - Complete deployment guide
+- [**Quick Deploy**](QUICKSTART_DEPLOY.md) - 5-step simplified guide
 - [Migration Guide](docs/migration/README.md)
 - [Legal Case Search](apps/legal-case-search/README.md)
 - [**HK Legal Case Agency Integration**](docs/香港法律案件搜尋器與自動追蹤系統.md)
