@@ -1,0 +1,135 @@
+#
+# DigitalOcean App Platform Configuration
+# Looper HQ Nexus-L - Legal Case Management System
+#
+# 部署說明：
+# 1. 將此專案推送到 GitHub
+# 2. 在 DigitalOcean App Platform 連接 GitHub repo
+# 3. App Platform 會自動讀取此配置文件
+# 4. 設置環境變數（參考 DEPLOYMENT.md）
+#
+
+name: looper-hq-nexus-l
+region: sgp  # Singapore region (最接近香港)
+
+# Database - PostgreSQL
+databases:
+  - name: looper-hq-db
+    engine: PG
+    version: "16"
+    production: true
+    cluster_name: looper-hq-production
+    db_name: looper_hq
+    db_user: looper_hq_user
+
+# Services
+services:
+  # Web Application
+  - name: web
+    github:
+      repo: JonazWong/Looper-HQ-Nexus-L
+      branch: main
+      deploy_on_push: true
+    
+    build_command: |
+      cd apps/web
+      pnpm install
+      pnpm build
+    
+    run_command: |
+      cd apps/web
+      pnpm start
+    
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: professional-xs  # 512 MB RAM, 可升級
+    
+    http_port: 3000
+    
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 20
+      period_seconds: 10
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 3
+    
+    # 環境變數（敏感資料需在 App Platform UI 設置）
+    envs:
+      - key: NODE_ENV
+        value: production
+      
+      - key: PORT
+        value: "3000"
+      
+      # Database - 自動注入
+      - key: DATABASE_URL
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      
+      # NextAuth.js
+      - key: NEXTAUTH_URL
+        value: https://looperhq.hk
+        scope: RUN_TIME
+      
+      - key: NEXTAUTH_SECRET
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+        # 在 App Platform UI 設置，使用: openssl rand -base64 32
+      
+      # 其他環境變數在 UI 設置
+      - key: GOOGLE_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+      
+      - key: GOOGLE_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+    
+    routes:
+      - path: /
+    
+    # 自動 HTTPS
+    cors:
+      allow_origins:
+        - prefix: https://
+          regex: .*looperhq\.hk
+      allow_methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      allow_headers:
+        - Content-Type
+        - Authorization
+        - X-Requested-With
+
+# 靜態站點（可選 - 如需 CDN 加速）
+# static_sites:
+#   - name: web-static
+#     github:
+#       repo: JonazWong/HK-Legal-Case-Agency
+#       branch: main
+#       deploy_on_push: true
+#     build_command: cd apps/web && pnpm build
+#     output_dir: apps/web/.next/static
+
+# 自定義域名
+domains:
+  - domain: looperhq.hk
+    type: PRIMARY
+    zone: looperhq.hk
+  - domain: www.looperhq.hk
+    type: ALIAS
+    zone: looperhq.hk
+
+# 告警設置
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
+  - rule: CPU_UTILIZATION
+    value: 80
+  - rule: MEM_UTILIZATION
+    value: 80
