@@ -1,140 +1,35 @@
-#
-# DigitalOcean App Platform Configuration
-# Looper HQ Nexus-L - Legal Case Management System
-#
-# 部署說明：
-# 1. 將此專案推送到 GitHub
-# 2. 在 DigitalOcean App Platform 連接 GitHub repo
-# 3. App Platform 會自動讀取此配置文件
-# 4. 設置環境變數（參考 DEPLOYMENT.md 和 .env.production.example）
-#
+name: looper-hq
+region: sgp
 
-name: looper-hq-platform
-region: sgp  # Singapore region (最接近香港)
-
-# 環境變數（全局）
-envs:
-  - key: NODE_ENV
-    value: production
-  - key: OPENAI_BASE_URL
-    value: https://openrouter.ai/api/v1
-  - key: OPENAI_MODEL
-    value: anthropic/claude-3.5-sonnet
-  - key: DATABASE_URL
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-  - key: NEXTAUTH_SECRET
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-  - key: NEXTAUTH_URL
-    scope: RUN_AND_BUILD_TIME
-    type: SECRET
-  - key: OPENAI_API_KEY
-    scope: RUN_TIME
-    type: SECRET
-  - key: KEYCLOAK_CLIENT_ID
-    scope: RUN_TIME
-    type: SECRET
-  - key: KEYCLOAK_CLIENT_SECRET
-    scope: RUN_TIME
-    type: SECRET
-  - key: KEYCLOAK_ISSUER
-    scope: RUN_TIME
-    type: SECRET
-
-# 數據庫
-databases:
-  - name: looper-hq-db
-    engine: PG
-    version: "15"
-    production: true
-    cluster_name: looper-hq-cluster
-    db_name: looper_hq
-    db_user: looper_admin
-
-# 服務定義
 services:
-  # Web 應用
   - name: web
     github:
       repo: JonazWong/Looper-HQ
       branch: main
       deploy_on_push: true
-    
-    source_dir: /
-    
-    build_command: |
-      pnpm install --frozen-lockfile
-      pnpm build --filter=@looper-hq/web
-    
-    run_command: |
-      cd apps/web && pnpm start
-    
-    instance_count: 2
-    instance_size_slug: professional-xs
-    
+    build_command: pnpm install && pnpm build --filter=@looper-hq/web
+    run_command: cd apps/web && pnpm start
     http_port: 3000
-    
+    instance_count: 1
+    instance_size_slug: basic-xs
+
     health_check:
       http_path: /api/health
-      initial_delay_seconds: 60
+      initial_delay_seconds: 30
       period_seconds: 10
-      timeout_seconds: 5
-      success_threshold: 1
-      failure_threshold: 3
-    
-    routes:
-      - path: /
-    
+
     envs:
-      - key: PORT
-        value: "3000"
+      - key: DATABASE_URL
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: NEXTAUTH_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: OPENAI_API_KEY
+        scope: RUN_TIME
+        type: SECRET
 
-  # Legal Case Search 應用（如果需要獨立部署）
-  - name: legal-case-search
-    github:
-      repo: JonazWong/Looper-HQ
-      branch: main
-      deploy_on_push: true
-    
-    source_dir: /
-    
-    build_command: |
-      pnpm install --frozen-lockfile
-      pnpm build --filter=@looper-hq/legal-case-search
-    
-    run_command: |
-      cd apps/legal-case-search && pnpm start
-    
-    instance_count: 1
-    instance_size_slug: basic-xxs
-    
-    http_port: 3001
-    
-    routes:
-      - path: /search
-
-# 靜態資源 CDN
-static_sites:
-  - name: static-assets
-    github:
-      repo: JonazWong/Looper-HQ
-      branch: main
-    source_dir: apps/web/public
-    output_dir: /
-    routes:
-      - path: /static
-
-# Worker（後台任務）
-workers:
-  - name: crawler-worker
-    github:
-      repo: JonazWong/Looper-HQ
-      branch: main
-    source_dir: /
-    build_command: |
-      pnpm install --frozen-lockfile
-    run_command: |
-      cd apps/web && node scripts/crawler-worker.js
-    instance_count: 1
-    instance_size_slug: basic-xxs
+databases:
+  - name: db
+    engine: PG
+    version: "15"
