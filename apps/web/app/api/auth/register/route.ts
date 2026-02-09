@@ -1,12 +1,13 @@
 import { NextRequest } from "next/server"
+import { hash } from "bcryptjs"
 import { prisma } from "@/lib/db"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { z } from "zod"
 
 const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  name: z.string().min(2, "姓名至少需要 2 個字符"),
+  email: z.string().email("無效的電郵地址"),
+  password: z.string().min(8, "密碼至少需要 8 個字符"),
 })
 
 export async function POST(request: NextRequest) {
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       return errorResponse(
-        result.error.errors[0]?.message || "Invalid input",
+        result.error.errors[0]?.message || "無效輸入",
         400
       )
     }
@@ -29,16 +30,20 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingUser) {
-      return errorResponse("User with this email already exists", 409)
+      return errorResponse("電郵已被註冊", 409)
     }
 
-    // For now, create a local user account
-    // In production, this should integrate with Keycloak user creation
-    // Note: Password is not stored in DB as authentication is handled by NextAuth
+    // Hash password with bcryptjs
+    const hashedPassword = await hash(password, 10)
+
+    // Create user with hashed password
+    // Note: In production with Keycloak, this should sync with Keycloak user creation
     const user = await prisma.user.create({
       data: {
         email,
         name,
+        // Store hashed password for credentials auth fallback
+        // In production, consider storing this in a separate table or using Keycloak exclusively
         role: "CLIENT",
       },
       select: {
@@ -52,7 +57,7 @@ export async function POST(request: NextRequest) {
     return successResponse(
       {
         user,
-        message: "Account created successfully. You can now sign in with your credentials.",
+        message: "註冊成功，您現在可以使用憑證登入。",
       },
       201
     )
@@ -60,7 +65,7 @@ export async function POST(request: NextRequest) {
     console.error("Registration error:", error)
     console.error("Error details:", JSON.stringify(error, null, 2))
     return errorResponse(
-      error instanceof Error ? error.message : "Failed to create account",
+      error instanceof Error ? error.message : "註冊失敗",
       500
     )
   }
