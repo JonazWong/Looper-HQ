@@ -169,6 +169,18 @@ pnpm crawler:judiciary # Run HK Judiciary crawler only
 pnpm crawler:rss      # Run RSS news crawler only
 ```
 
+## 🔧 Maintenance Notes
+
+### RSS Crawler (Currently Disabled)
+
+⚠️ **The automated RSS news crawler is currently disabled** due to source failures.
+
+See [docs/archive/rss-crawler-disabled.md](./docs/archive/rss-crawler-disabled.md) for details.
+
+To re-enable, update `.github/workflows/rss-crawler.yml` with working RSS sources.
+
+---
+
 ## 📰 Public Case Tracking
 
 The system automatically tracks and aggregates legal cases from multiple sources:
