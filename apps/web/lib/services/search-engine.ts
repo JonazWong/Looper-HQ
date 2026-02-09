@@ -5,7 +5,7 @@
  */
 
 import { prisma } from '@/lib/db';
-import { Prisma } from '@prisma/client';
+import { CaseSource, CaseCategory } from '@prisma/client';
 
 export interface SearchOptions {
   query: string;
@@ -74,12 +74,7 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
     ? `AND ${filterConditions.join(' AND ')}`
     : '';
   
-  // Convert search query to tsquery format (words joined by &)
-  const searchQuery = query
-    .split(/\s+/)
-    .filter(word => word.length > 0)
-    .join(' & ');
-  
+  // Use plainto_tsquery for safe handling of user input (no syntax errors)
   // Execute full-text search with ranking
   const [cases, countResult] = await Promise.all([
     prisma.$queryRawUnsafe<any[]>(
@@ -88,14 +83,14 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
         id, source, "externalId", "sourceUrl", "caseNumber",
         title, description, category, court, judge, 
         "judgmentDate", keywords, tags, "crawledAt",
-        ts_rank(search_vector, to_tsquery('chinese', $1)) as rank
-      FROM "PublicCase"
-      WHERE search_vector @@ to_tsquery('chinese', $1)
+        ts_rank(search_vector, plainto_tsquery('chinese', $1)) as rank
+      FROM "public_cases"
+      WHERE search_vector @@ plainto_tsquery('chinese', $1)
         ${whereClause}
       ORDER BY rank DESC, "crawledAt" DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
       `,
-      searchQuery,
+      query,
       ...filterParams,
       limit,
       skip
@@ -103,11 +98,11 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
     prisma.$queryRawUnsafe<[{ count: bigint }]>(
       `
       SELECT COUNT(*) as count
-      FROM "PublicCase"
-      WHERE search_vector @@ to_tsquery('chinese', $1)
+      FROM "public_cases"
+      WHERE search_vector @@ plainto_tsquery('chinese', $1)
         ${whereClause}
       `,
-      searchQuery,
+      query,
       ...filterParams
     ),
   ]);
@@ -127,7 +122,8 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
  */
 export async function semanticSearch(options: SearchOptions): Promise<SearchResult> {
   const startTime = Date.now();
-  const { query, source, category, court, dateFrom, dateTo, limit = 20 } = options;
+  const { query, source, category, court, dateFrom, dateTo, page = 1, limit = 20 } = options;
+  const skip = (page - 1) * limit;
   
   // Extract keywords from query
   const keywords = query.toLowerCase().split(/\s+/).filter(k => k.length > 1);
@@ -135,9 +131,19 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
   // Build WHERE clause
   const where: any = {};
   
-  if (source) where.source = source;
-  if (category) where.category = { equals: category as any };
-  if (court) where.court = { contains: court, mode: 'insensitive' };
+  // Validate source against enum
+  if (source && Object.values(CaseSource).includes(source as CaseSource)) {
+    where.source = source as CaseSource;
+  }
+  
+  // Use ILIKE for category (not strict enum matching)
+  if (category) {
+    where.category = { contains: category, mode: 'insensitive' };
+  }
+  
+  if (court) {
+    where.court = { contains: court, mode: 'insensitive' };
+  }
   
   if (dateFrom || dateTo) {
     where.crawledAt = {};
@@ -154,17 +160,21 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
     ]);
   }
   
-  const cases = await prisma.publicCase.findMany({
-    where,
-    take: limit,
-    orderBy: { crawledAt: 'desc' },
-  });
+  const [cases, total] = await Promise.all([
+    prisma.publicCase.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { crawledAt: 'desc' },
+    }),
+    prisma.publicCase.count({ where }),
+  ]);
   
   const took = Date.now() - startTime;
   
   return {
     cases,
-    total: cases.length,
+    total,
     took,
   };
 }
@@ -175,11 +185,16 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
  */
 export async function hybridSearch(options: SearchOptions): Promise<SearchResult> {
   const startTime = Date.now();
+  const { page = 1, limit = 20 } = options;
+  
+  // Calculate split for parallel searches
+  const fulltextLimit = Math.ceil(limit * 0.6);
+  const semanticLimit = Math.ceil(limit * 0.4);
   
   // Execute both searches in parallel
   const [fulltextResults, semanticResults] = await Promise.all([
-    fulltextSearch({ ...options, limit: 15 }),
-    semanticSearch({ ...options, limit: 10 }),
+    fulltextSearch({ ...options, page, limit: fulltextLimit }),
+    semanticSearch({ ...options, page, limit: semanticLimit }),
   ]);
   
   // Merge results and deduplicate by ID
@@ -195,9 +210,10 @@ export async function hybridSearch(options: SearchOptions): Promise<SearchResult
   
   const took = Date.now() - startTime;
   
+  // For hybrid, use fulltext total as primary (more accurate)
   return {
-    cases: mergedCases.slice(0, options.limit || 20),
-    total: fulltextResults.total + semanticResults.total,
+    cases: mergedCases.slice(0, limit),
+    total: fulltextResults.total,
     took,
   };
 }
@@ -222,20 +238,21 @@ export async function search(options: SearchOptions): Promise<SearchResult> {
 
 /**
  * Get search suggestions for autocomplete
- * Returns matching titles based on partial query
+ * Returns matching titles based on prefix query
  */
 export async function searchSuggestions(query: string, limit = 5): Promise<string[]> {
   if (query.length < 2) return [];
   
+  // Use prefix matching for better performance
   const results = await prisma.$queryRawUnsafe<Array<{ title: string }>>(
     `
     SELECT DISTINCT title
-    FROM "PublicCase"
+    FROM "public_cases"
     WHERE title ILIKE $1
     ORDER BY "crawledAt" DESC
     LIMIT $2
     `,
-    `%${query}%`,
+    `${query}%`,
     limit
   );
   

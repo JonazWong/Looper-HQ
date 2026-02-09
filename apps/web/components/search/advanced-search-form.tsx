@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Loader2, TrendingUp } from 'lucide-react';
+import { Search, TrendingUp } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { PremierButton } from '@/components/ui/premier-button';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,6 @@ export function AdvancedSearchForm() {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [trending, setTrending] = useState<Array<{ query: string; count: number }>>([]);
-  const [loading, setLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   
   // Fetch search suggestions with debounce
@@ -55,7 +54,6 @@ export function AdvancedSearchForm() {
   }, []);
   
   const handleSearch = (searchQuery: string) => {
-    setLoading(true);
     setShowSuggestions(false);
     router.push(`/search?q=${encodeURIComponent(searchQuery)}&mode=fulltext`);
   };
@@ -85,8 +83,8 @@ export function AdvancedSearchForm() {
             type="submit"
             variant="primary"
             size="sm"
-            icon={loading ? Loader2 : Search}
-            disabled={loading || !query.trim()}
+            icon={Search}
+            disabled={!query.trim()}
             className="absolute right-2 top-1/2 -translate-y-1/2"
           >
             搜索
