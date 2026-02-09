@@ -1,10 +1,16 @@
-name: RSS News Crawler
+name: RSS News Crawler (DISABLED)
 
-on:
-  schedule:
-    # Every 15 minutes - crawler will check each source's fetchInterval
-    - cron: '*/15 * * * *'
-  workflow_dispatch: # Allow manual trigger
+# DISABLED: RSS sources are currently failing (Cloudflare blocks, XML errors, 404s)
+# See docs/archive/rss-crawler-disabled.md for details
+# To re-enable: uncomment the 'on:' section below
+
+# on:
+#   schedule:
+#     # Every 15 minutes - crawler will check each source's fetchInterval
+#     - cron: '*/15 * * * *'
+#   workflow_dispatch: # Allow manual trigger
+
+on: []  # Empty trigger = completely disabled
 
 jobs:
   rss-crawler:
