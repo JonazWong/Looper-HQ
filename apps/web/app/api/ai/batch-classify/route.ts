@@ -2,9 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { batchClassifyCases } from '@/lib/services/ai-classifier';
 
+// Helper function to validate and parse date strings
+function safeParseDate(dateString: string | undefined): Date | null {
+  if (!dateString) return null;
+  
+  try {
+    const date = new Date(dateString);
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      console.warn(`Invalid date string: ${dateString}`);
+      return null;
+    }
+    return date;
+  } catch (error) {
+    console.warn(`Failed to parse date: ${dateString}`, error);
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // 獲取未分類的案例（category 為空或為 'OTHER'）
+    // Get unclassified cases (category is null or 'OTHER')
     const unclassifiedCases = await prisma.publicCase.findMany({
       where: {
         OR: [
@@ -12,7 +30,7 @@ export async function POST(request: NextRequest) {
           { category: 'OTHER' },
         ],
       },
-      take: 50, // 每次處理 50 個
+      take: 50, // Process 50 cases at a time
       select: {
         id: true,
         title: true,
@@ -28,7 +46,7 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // 批量分類
+    // Batch classification
     const casesToClassify = unclassifiedCases.map(c => ({
       id: c.id,
       title: c.title,
@@ -36,7 +54,7 @@ export async function POST(request: NextRequest) {
     }));
     const results = await batchClassifyCases(casesToClassify);
     
-    // 更新資料庫
+    // Update database
     const updates = [];
     for (const [caseId, classification] of results) {
       updates.push(
@@ -46,9 +64,7 @@ export async function POST(request: NextRequest) {
             category: classification.category,
             court: classification.extractedInfo.court,
             judge: classification.extractedInfo.judge,
-            judgmentDate: classification.extractedInfo.judgmentDate ? 
-              new Date(classification.extractedInfo.judgmentDate) : 
-              null,
+            judgmentDate: safeParseDate(classification.extractedInfo.judgmentDate),
             keywords: classification.keywords,
             tags: classification.relatedCases || [],
           },

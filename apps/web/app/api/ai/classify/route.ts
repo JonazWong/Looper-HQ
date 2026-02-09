@@ -10,15 +10,33 @@ const classifySchema = z.object({
   autoUpdate: z.boolean().default(false),
 });
 
+// Helper function to validate and parse date strings
+function safeParseDate(dateString: string | undefined): Date | null {
+  if (!dateString) return null;
+  
+  try {
+    const date = new Date(dateString);
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      console.warn(`Invalid date string: ${dateString}`);
+      return null;
+    }
+    return date;
+  } catch (error) {
+    console.warn(`Failed to parse date: ${dateString}`, error);
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { publicCaseId, title, content, autoUpdate } = classifySchema.parse(body);
     
-    // AI 分類
+    // AI classification
     const classification = await classifyCase(title, content || '');
     
-    // 自動更新資料庫（如果 autoUpdate=true）
+    // Auto-update database if autoUpdate=true
     if (autoUpdate && publicCaseId) {
       await prisma.publicCase.update({
         where: { id: publicCaseId },
@@ -26,9 +44,7 @@ export async function POST(request: NextRequest) {
           category: classification.category,
           court: classification.extractedInfo.court,
           judge: classification.extractedInfo.judge,
-          judgmentDate: classification.extractedInfo.judgmentDate ? 
-            new Date(classification.extractedInfo.judgmentDate) : 
-            null,
+          judgmentDate: safeParseDate(classification.extractedInfo.judgmentDate),
           keywords: classification.keywords,
           tags: classification.relatedCases || [],
         },

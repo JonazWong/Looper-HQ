@@ -1,5 +1,21 @@
 import OpenAI from 'openai';
 import { CaseCategory } from '@prisma/client';
+import { z } from 'zod';
+
+// Validation schema for AI classification result
+const classificationResultSchema = z.object({
+  category: z.nativeEnum(CaseCategory),
+  confidence: z.number().min(0).max(1),
+  keywords: z.array(z.string()),
+  extractedInfo: z.object({
+    parties: z.array(z.string()).optional(),
+    judge: z.string().optional(),
+    court: z.string().optional(),
+    judgmentDate: z.string().optional(),
+  }),
+  summary: z.string().optional(),
+  relatedCases: z.array(z.string()).optional(),
+});
 
 interface ClassificationResult {
   category: CaseCategory;
@@ -15,19 +31,33 @@ interface ClassificationResult {
   relatedCases?: string[];
 }
 
+// Singleton OpenAI client instance for better performance
+let openaiClient: OpenAI | null = null;
+
+function getOpenAIClient(): OpenAI {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({ 
+      apiKey: process.env.OPENAI_API_KEY 
+    });
+  }
+  return openaiClient;
+}
+
 export async function classifyCase(
   title: string, 
   content: string
 ): Promise<ClassificationResult> {
-  const openai = new OpenAI({ 
-    apiKey: process.env.OPENAI_API_KEY 
-  });
+  const openai = getOpenAIClient();
+  
+  // Limit content to 2000 characters to stay within token limits
+  // GPT-4o-mini has better performance with concise inputs
+  const contentSnippet = content.slice(0, 2000);
   
   const prompt = `
 分析以下香港法律案例，並提供詳細分類資訊：
 
 標題: ${title}
-內容摘要: ${content.slice(0, 2000)}
+內容摘要: ${contentSnippet}
 
 請分類為以下類別之一:
 - CIVIL (民事)
@@ -72,15 +102,19 @@ export async function classifyCase(
       temperature: 0.3,
     });
     
-    const result = JSON.parse(response.choices[0].message.content || '{}');
-    return result as ClassificationResult;
+    const rawResult = JSON.parse(response.choices[0].message.content || '{}');
+    
+    // Validate the result against our schema
+    const validatedResult = classificationResultSchema.parse(rawResult);
+    
+    return validatedResult as ClassificationResult;
   } catch (error) {
     console.error('AI classification error:', error);
     throw error;
   }
 }
 
-// 批量分類
+// Batch classification
 export async function batchClassifyCases(
   cases: Array<{ id: string; title: string; description?: string }>
 ): Promise<Map<string, ClassificationResult>> {
@@ -94,7 +128,7 @@ export async function batchClassifyCases(
       );
       results.set(case_.id, classification);
       
-      // Rate limiting: 等待 1 秒避免 API 限制
+      // Rate limiting: Wait 1 second to avoid API limits
       await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (error) {
       console.error(`Failed to classify case ${case_.id}:`, error);
