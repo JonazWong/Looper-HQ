@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { search, searchSuggestions } from '@/lib/services/search-engine';
 import { z } from 'zod';
+import { CaseSource } from '@prisma/client';
 
 const searchSchema = z.object({
   q: z.string().min(1, 'Search query is required'),
-  source: z.string().optional(),
+  source: z.nativeEnum(CaseSource).optional(),
   category: z.string().optional(),
   court: z.string().optional(),
   dateFrom: z.string().datetime().optional(),
