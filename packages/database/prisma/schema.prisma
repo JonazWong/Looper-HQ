@@ -514,7 +514,7 @@ model PublicCase {
   author      String?    // News author
   
   // Full-text search vector
-  searchVector Unsupported("tsvector")?
+  searchVector Unsupported("tsvector")? @map("search_vector")
   
   // Metadata
   crawledAt   DateTime   @default(now())
