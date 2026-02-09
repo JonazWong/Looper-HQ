@@ -67,10 +67,9 @@ git push origin main
 ```
 
 📖 **Deployment Guides:**
-- [DIGITAL_OCEAN_DEPLOYMENT_SUMMARY.md](./DIGITAL_OCEAN_DEPLOYMENT_SUMMARY.md) - Complete implementation overview
-- [docs/deployment.md](./docs/deployment.md) - Detailed deployment and troubleshooting guide
-- [QUICKSTART_DEPLOY.md](./QUICKSTART_DEPLOY.md) - 5-step quick guide
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - Complete deployment guide
+- [Quick Start](./docs/deployment/quickstart.md) - 5-minute deployment guide
+- [Digital Ocean Setup](./docs/deployment/digitalocean.md) - Complete DO implementation
+- [Full Deployment Guide](./docs/deployment/README.md) - Comprehensive deployment documentation
 
 ### 🔄 CI/CD Pipeline
 
@@ -132,10 +131,13 @@ looper-hq/
 
 ## 📖 Documentation
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [Quick Start](docs/QUICKSTART.md)
-- [Migration Guide](docs/migration/README.md)
-- [Legal Case Search](apps/legal-case-search/README.md)
+- [Documentation Index](./docs/README.md) - Complete documentation guide
+- [Architecture](./docs/ARCHITECTURE.md) - System architecture
+- [Quick Start](./docs/QUICKSTART.md) - Development quick start
+- [Deployment Guide](./docs/deployment/README.md) - Production deployment
+- [Testing Guide](./docs/guides/testing.md) - Testing infrastructure
+- [Demo Guide](./docs/guides/demo-guide.md) - Product demonstration
+- [Migration Guide](./docs/migration/README.md) - Database migrations
 
 ## 🔧 Development Scripts
 
@@ -217,17 +219,6 @@ For more details, see:
 - [香港法律案件搜尋器與自動追蹤系統](docs/香港法律案件搜尋器與自動追蹤系統.md)
 - [RSS Implementation Status](docs/RSS_IMPLEMENTATION_STATUS.md)
 - [Engineer Task Breakdown](docs/HK%20Legal%20Case%20Agency工程師任務分解與實現指南.md)
-
-## 📖 Documentation
-
-- [Architecture](docs/ARCHITECTURE.md)
-- [Quick Start](docs/QUICKSTART.md)
-- [**Production Deployment**](DEPLOYMENT.md) - Complete deployment guide
-- [**Quick Deploy**](QUICKSTART_DEPLOY.md) - 5-step simplified guide
-- [Migration Guide](docs/migration/README.md)
-- [Legal Case Search](apps/legal-case-search/README.md)
-- [**HK Legal Case Agency Integration**](docs/香港法律案件搜尋器與自動追蹤系統.md)
-- [**RSS Implementation Status**](docs/RSS_IMPLEMENTATION_STATUS.md)
 
 ## 📄 License
 
