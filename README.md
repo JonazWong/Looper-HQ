@@ -60,14 +60,47 @@ git push origin main
 # App Platform auto-reads .do/app.yaml
 
 # 3. Set environment variables (see .env.production.example)
-# Required: NEXTAUTH_SECRET, NEXTAUTH_URL, NEXT_PUBLIC_APP_URL
+# Required: NEXTAUTH_SECRET, NEXTAUTH_URL, DATABASE_URL
+# Optional: OPENAI_API_KEY, KEYCLOAK_CLIENT_ID, SLACK_WEBHOOK
 
 # 4. Deploy!
 ```
 
 📖 **Deployment Guides:**
+- [DIGITAL_OCEAN_DEPLOYMENT_SUMMARY.md](./DIGITAL_OCEAN_DEPLOYMENT_SUMMARY.md) - Complete implementation overview
+- [docs/deployment.md](./docs/deployment.md) - Detailed deployment and troubleshooting guide
 - [QUICKSTART_DEPLOY.md](./QUICKSTART_DEPLOY.md) - 5-step quick guide
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - Complete deployment guide with troubleshooting
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - Complete deployment guide
+
+### 🔄 CI/CD Pipeline
+
+Automated deployment pipeline with GitHub Actions:
+
+- ✅ **Test Stage**: Type-check, lint, unit tests
+- ✅ **Build Stage**: Production build with artifacts
+- ✅ **Deploy Stage**: Automated Digital Ocean deployment
+- ✅ **Health Checks**: Automated verification after deployment
+- ✅ **Notifications**: Slack alerts for deployment status
+
+Workflow triggers on push to `main` or `production` branches.
+
+### 🏥 Health Monitoring
+
+Real-time system health monitoring at `/api/health`:
+
+- **Database**: Connectivity and response time (<1000ms)
+- **OpenAI/OpenRouter**: API configuration validation
+- **Memory**: Usage monitoring (warns at >90%)
+- **Status Levels**: healthy (200) | degraded (200) | unhealthy (503)
+
+### 🔧 Self-Healing System
+
+Automated repair for common issues:
+
+- Database connection recovery
+- Stale connection cleanup (>1hr idle)
+- Runs every 5 minutes automatically
+- Manual execution: `tsx scripts/auto-repair.ts`
 
 ## 📦 Structure
 
