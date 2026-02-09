@@ -2,6 +2,10 @@
  * Bulk close automated RSS crawler issues
  * Usage: node scripts/close-automated-issues.js
  * Requires: GITHUB_TOKEN environment variable
+ * 
+ * Note: GitHub API limits to 100 issues per request.
+ * If you have more than 100 issues, run this script multiple times
+ * until all automated issues are closed.
  */
 
 const { Octokit } = require('@octokit/rest');
