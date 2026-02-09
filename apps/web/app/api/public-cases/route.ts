@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { search } from '@/lib/services/search-engine';
 import { z } from 'zod';
 
 const searchSchema = z.object({
   query: z.string().optional(),
-  source: z.enum(['HK_JUDICIARY', 'SCMP_RSS', 'RTHK_RSS', 'APPLE_DAILY_RSS', 'HKLII']).optional(),
+  source: z.enum(['HK_JUDICIARY', 'MINGPAO_PNS_RSS', 'MINGPAO_INS_RSS', 'HKLII']).optional(),
   category: z.string().optional(),
   court: z.string().optional(),
   dateFrom: z.string().datetime().optional(),
   dateTo: z.string().datetime().optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),
+  mode: z.enum(['fulltext', 'semantic', 'hybrid']).default('fulltext'),
 });
 
 export async function GET(request: NextRequest) {
@@ -18,59 +20,73 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const params = searchSchema.parse(Object.fromEntries(searchParams));
 
-    const { query, source, category, court, dateFrom, dateTo, page, limit } = params;
-    const skip = (page - 1) * limit;
+    const { query, source, category, court, dateFrom, dateTo, page, limit, mode } = params;
 
-    // Build where clause
-    const where: any = {};
+    // If no query, use simple Prisma query for better performance
+    if (!query) {
+      const skip = (page - 1) * limit;
+      const where: any = {};
 
-    if (query) {
-      where.OR = [
-        { title: { contains: query, mode: 'insensitive' } },
-        { description: { contains: query, mode: 'insensitive' } },
-        { keywords: { has: query } },
-      ];
+      if (source) where.source = source;
+      if (category) where.category = { contains: category, mode: 'insensitive' };
+      if (court) where.court = { contains: court, mode: 'insensitive' };
+      if (dateFrom || dateTo) {
+        where.crawledAt = {};
+        if (dateFrom) where.crawledAt.gte = new Date(dateFrom);
+        if (dateTo) where.crawledAt.lte = new Date(dateTo);
+      }
+
+      const [cases, total] = await Promise.all([
+        prisma.publicCase.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { crawledAt: 'desc' },
+        }),
+        prisma.publicCase.count({ where }),
+      ]);
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          cases,
+          pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+          },
+          took: 0,
+          mode: 'simple',
+        },
+      });
     }
 
-    if (source) {
-      where.source = source;
-    }
-
-    if (category) {
-      where.category = { contains: category, mode: 'insensitive' };
-    }
-
-    if (court) {
-      where.court = { contains: court, mode: 'insensitive' };
-    }
-
-    if (dateFrom || dateTo) {
-      where.crawledAt = {};
-      if (dateFrom) where.crawledAt.gte = new Date(dateFrom);
-      if (dateTo) where.crawledAt.lte = new Date(dateTo);
-    }
-
-    // Fetch data
-    const [cases, total] = await Promise.all([
-      prisma.publicCase.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { crawledAt: 'desc' },
-      }),
-      prisma.publicCase.count({ where }),
-    ]);
+    // Use full-text search engine for queries
+    const results = await search({
+      query,
+      source,
+      category,
+      court,
+      dateFrom: dateFrom ? new Date(dateFrom) : undefined,
+      dateTo: dateTo ? new Date(dateTo) : undefined,
+      page,
+      limit,
+      searchMode: mode,
+    });
 
     return NextResponse.json({
       success: true,
       data: {
-        cases,
+        cases: results.cases,
         pagination: {
           page,
           limit,
-          total,
-          totalPages: Math.ceil(total / limit),
+          total: results.total,
+          totalPages: Math.ceil(results.total / limit),
         },
+        took: results.took,
+        mode,
       },
     });
   } catch (error: any) {
@@ -78,6 +94,17 @@ export async function GET(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
+        { success: false, error: 'Invalid parameters', details: error.errors },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: false, error: error.message || 'Search failed' },
+      { status: 500 }
+    );
+  }
+}
         { success: false, error: 'Invalid parameters', details: error.errors },
         { status: 400 }
       );
