@@ -1,81 +1,118 @@
 /**
- * NextAuth.js v5 Middleware
+ * Combined Middleware - next-intl + NextAuth.js v5
  * 
- * Protects routes and handles authentication redirects.
+ * Handles both internationalization and authentication:
+ * 
+ * i18n routes:
+ * - /zh/* - Chinese locale
+ * - /en/* - English locale
  * 
  * Protected routes:
- * - /dashboard/* - Requires authentication
+ * - /[locale]/dashboard/* - Requires authentication
  * - /api/* (except /api/auth/*) - Requires authentication
  * 
  * Public routes:
- * - / - Home page
- * - /login - Login page
- * - /register - Registration page
+ * - /[locale]/ - Home page
+ * - /[locale]/login - Login page
+ * - /[locale]/register - Registration page
  * - /api/auth/* - NextAuth API routes
- * - /api/health - Health check endpoint
  */
 
 import { auth } from "@/auth"
+import createIntlMiddleware from 'next-intl/middleware';
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { locales, defaultLocale } from './i18n';
+
+// Create next-intl middleware
+const intlMiddleware = createIntlMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: 'always',
+  localeDetection: true,
+});
+
+// Public paths that don't need authentication (without locale prefix)
+const publicPaths = [
+  '/',
+  '/login',
+  '/register',
+  '/case-search',
+  '/landing',
+  '/sitemap',
+];
+
+// Helper to check if path is public
+function isPublicPath(pathname: string): boolean {
+  // Remove locale prefix to check the base path
+  const pathWithoutLocale = pathname.replace(/^\/(zh|en)/, '') || '/';
+  
+  return (
+    publicPaths.includes(pathWithoutLocale) ||
+    pathname.startsWith('/api/auth') ||
+    pathname === '/api/health' ||
+    pathname === '/api/public-cases' ||
+    pathname === '/api/translate' ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/static') ||
+    pathname.includes('.')
+  );
+}
 
 export default auth((req) => {
-  const { pathname } = req.nextUrl
-  const isLoggedIn = !!req.auth
+  const { pathname } = req.nextUrl;
+  const isLoggedIn = !!req.auth;
 
-  // Define route patterns
-  const isPublicRoute = 
-    pathname === "/" ||
-    pathname === "/login" ||
-    pathname === "/register" ||
-    pathname === "/case-search" ||
-    pathname === "/landing" ||
-    pathname === "/sitemap" ||
-    pathname.startsWith("/api/auth") ||
-    pathname === "/api/health" ||
-    pathname === "/api/public-cases" ||
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/static") ||
-    pathname.includes(".")
+  // Skip middleware for API routes (except those requiring auth)
+  if (pathname.startsWith('/api')) {
+    const isAuthApi = pathname.startsWith('/api/auth');
+    const isPublicApi = pathname === '/api/health' || 
+                        pathname === '/api/public-cases' ||
+                        pathname === '/api/translate';
+    
+    if (!isAuthApi && !isPublicApi && !isLoggedIn) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: "You must be logged in to access this resource" },
+        { status: 401 }
+      );
+    }
+    return NextResponse.next();
+  }
 
-  const isDashboardRoute = pathname.startsWith("/dashboard")
-  const isApiRoute = pathname.startsWith("/api") && !pathname.startsWith("/api/auth")
-  const isAuthRoute = pathname === "/login" || pathname === "/register"
+  // Apply internationalization middleware for non-API routes
+  const response = intlMiddleware(req);
+
+  // Get the pathname after intl middleware processes it
+  const newPathname = response.headers.get('x-middleware-request-x-nexturl-pathname') || pathname;
+  
+  // Remove locale prefix for auth checks
+  const pathWithoutLocale = newPathname.replace(/^\/(zh|en)/, '') || '/';
+  
+  const isDashboardRoute = pathWithoutLocale.startsWith('/dashboard');
+  const isAuthRoute = pathWithoutLocale === '/login' || pathWithoutLocale === '/register';
+  const isPublic = isPublicPath(newPathname);
 
   // Redirect authenticated users away from auth pages
   if (isLoggedIn && isAuthRoute) {
-    return NextResponse.redirect(new URL("/dashboard", req.url))
+    const locale = newPathname.split('/')[1];
+    return NextResponse.redirect(new URL(`/${locale}/dashboard`, req.url));
   }
 
   // Require authentication for dashboard routes
   if (isDashboardRoute && !isLoggedIn) {
-    const loginUrl = new URL("/login", req.url)
-    loginUrl.searchParams.set("callbackUrl", pathname)
-    return NextResponse.redirect(loginUrl)
+    const locale = newPathname.split('/')[1] || defaultLocale;
+    const loginUrl = new URL(`/${locale}/login`, req.url);
+    loginUrl.searchParams.set("callbackUrl", newPathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Require authentication for API routes (except auth routes)
-  if (isApiRoute && !isLoggedIn) {
-    return NextResponse.json(
-      { error: "Unauthorized", message: "You must be logged in to access this resource" },
-      { status: 401 }
-    )
-  }
-
-  // Allow the request to proceed
-  return NextResponse.next()
-})
+  return response;
+});
 
 // Configure which routes to run middleware on
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public folder)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\..*|public).*)",
+    // Match all paths except static files and images
+    '/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)',
   ],
-}
+};

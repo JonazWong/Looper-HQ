@@ -1,0 +1,192 @@
+{
+  "common": {
+    "appName": "Looper HQ",
+    "appDescription": "Hong Kong Legal Case Intelligent Search Platform",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "language": "Language",
+    "view": "View",
+    "filter": "Filter",
+    "reset": "Reset",
+    "add": "Add",
+    "remove": "Remove",
+    "upload": "Upload",
+    "download": "Download"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "cases": "Cases",
+    "clients": "Clients",
+    "search": "Public Search",
+    "documents": "Documents",
+    "calendar": "Calendar",
+    "settings": "Settings",
+    "billing": "Billing",
+    "timeTracking": "Time Tracking",
+    "logout": "Logout"
+  },
+  "search": {
+    "title": "Hong Kong Legal Case Search Engine",
+    "placeholder": "Search legal cases, case numbers, keywords...",
+    "results": "Found {count} results",
+    "noResults": "No results found",
+    "trending": "Trending",
+    "suggestions": "Suggestions",
+    "modes": {
+      "fulltext": "Full-Text Search",
+      "semantic": "Semantic Search",
+      "hybrid": "Hybrid Search"
+    },
+    "filters": {
+      "source": "Source",
+      "category": "Category",
+      "court": "Court",
+      "dateRange": "Date Range"
+    }
+  },
+  "case": {
+    "title": "Case Title",
+    "caseNumber": "Case Number",
+    "caseTitle": "Case Title",
+    "category": "Category",
+    "status": "Status",
+    "priority": "Priority",
+    "client": "Client",
+    "lawyer": "Lawyer",
+    "court": "Court",
+    "judge": "Judge",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "courtDate": "Court Date",
+    "description": "Description",
+    "estimatedValue": "Estimated Value",
+    "categories": {
+      "CIVIL": "Civil",
+      "CRIMINAL": "Criminal",
+      "CORPORATE": "Corporate",
+      "FAMILY": "Family",
+      "PROPERTY": "Property",
+      "EMPLOYMENT": "Employment",
+      "INTELLECTUAL_PROPERTY": "Intellectual Property",
+      "IMMIGRATION": "Immigration",
+      "OTHER": "Other"
+    },
+    "statuses": {
+      "ACTIVE": "Active",
+      "PENDING": "Pending",
+      "COMPLETED": "Completed",
+      "ARCHIVED": "Archived",
+      "CANCELLED": "Cancelled"
+    },
+    "priorities": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "URGENT": "Urgent"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginWithGoogle": "Login with Google",
+    "loginWithGitHub": "Login with GitHub",
+    "loginWithKeycloak": "Sign in with Keycloak SSO",
+    "orContinueWith": "Or continue with email",
+    "welcomeBack": "Welcome back",
+    "createAccount": "Create your account"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Welcome back! Here's an overview of your legal practice.",
+    "totalCases": "Total Cases",
+    "activeClients": "Active Clients",
+    "pendingReviews": "Pending Reviews",
+    "successRate": "Success Rate",
+    "quickActions": "Quick Actions",
+    "recentCases": "Recent Cases",
+    "recentActivity": "Recent Activity",
+    "casesByStatus": "Cases by Status",
+    "newCase": "New Case",
+    "addClient": "Add Client",
+    "searchCases": "Search Cases",
+    "viewCases": "View Cases",
+    "viewClients": "View Clients",
+    "uploadDocuments": "Upload Documents"
+  },
+  "clients": {
+    "title": "Clients",
+    "subtitle": "Manage your client relationships",
+    "clientName": "Client Name",
+    "email": "Email",
+    "phone": "Phone",
+    "type": "Type",
+    "tier": "Membership Tier",
+    "individual": "Individual",
+    "corporate": "Corporate",
+    "basic": "Basic",
+    "premium": "Premium",
+    "enterprise": "Enterprise"
+  },
+  "documents": {
+    "title": "Documents",
+    "subtitle": "Manage case documents and files",
+    "fileName": "File Name",
+    "fileSize": "File Size",
+    "uploadDate": "Upload Date",
+    "category": "Category"
+  },
+  "billing": {
+    "title": "Billing",
+    "subtitle": "Manage invoices and payments",
+    "invoiceNumber": "Invoice Number",
+    "amount": "Amount",
+    "status": "Status",
+    "dueDate": "Due Date",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "overdue": "Overdue",
+    "totalRevenue": "Total Revenue",
+    "pendingRevenue": "Pending Revenue"
+  },
+  "timeTracking": {
+    "title": "Time Tracking",
+    "subtitle": "Track billable hours and activities",
+    "hours": "Hours",
+    "hourlyRate": "Hourly Rate",
+    "totalAmount": "Total Amount",
+    "billable": "Billable",
+    "nonBillable": "Non-Billable"
+  },
+  "ai": {
+    "classify": "AI Classification",
+    "classifying": "AI Classifying...",
+    "classified": "Classification Successful",
+    "classifyError": "Classification Failed",
+    "translate": "Translate",
+    "translating": "Translating...",
+    "translated": "Translation Completed"
+  },
+  "footer": {
+    "copyright": "© 2026 Looper HQ. All rights reserved.",
+    "premierEdition": "Premier Edition"
+  }
+}
