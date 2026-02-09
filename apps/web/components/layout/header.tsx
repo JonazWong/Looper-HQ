@@ -2,16 +2,17 @@
 
 /**
  * Enhanced Header with Premier Design System
+ * Updated with next-intl for internationalization
  */
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useLocale, useTranslations } from 'next-intl'
 import { Scale, User, LogOut, Bell } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { LanguageSwitcher } from "./language-switcher"
-import { useLocale } from "@/lib/i18n/locale-provider"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,23 +22,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-const navItems = [
-  { href: "/dashboard", labelKey: "dashboard" },
-  { href: "/dashboard/cases", labelKey: "cases" },
-  { href: "/dashboard/clients", labelKey: "clients" },
-  { href: "/dashboard/search", labelKey: "search" },
-]
-
 export function Header() {
   const pathname = usePathname()
-  const { locale, setLocale, t } = useLocale()
+  const locale = useLocale()
+  const t = useTranslations()
+  
+  // Nav items with locale prefix
+  const navItems = [
+    { href: `/${locale}/dashboard`, labelKey: "dashboard" },
+    { href: `/${locale}/dashboard/cases`, labelKey: "cases" },
+    { href: `/${locale}/dashboard/clients`, labelKey: "clients" },
+    { href: `/${locale}/dashboard/search`, labelKey: "search" },
+  ]
 
   return (
     <header className="sticky top-0 z-40 w-full glass-card border-b border-premier-gold/10 backdrop-blur-lg">
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-8">
           {/* Logo with glow effect */}
-          <Link href="/" className="flex items-center gap-2 group">
+          <Link href={`/${locale}`} className="flex items-center gap-2 group">
             <motion.div
               whileHover={{ rotate: 5, scale: 1.1 }}
               transition={{ duration: 0.3 }}
@@ -45,7 +48,7 @@ export function Header() {
               <Scale className="h-6 w-6 text-premier-gold drop-shadow-premier-glow" />
             </motion.div>
             <span className="text-xl font-serif font-bold text-gradient-gold">
-              Looper HQ
+              {t('common.appName')}
             </span>
           </Link>
           
@@ -65,7 +68,7 @@ export function Header() {
                       ? "text-premier-gold" 
                       : "text-premier-pearl-gray hover:text-premier-pearl"
                   )}>
-                    {t.nav[item.labelKey as keyof typeof t.nav]}
+                    {t(`nav.${item.labelKey}`)}
                   </span>
                   {/* Animated underline */}
                   <motion.div
@@ -83,7 +86,7 @@ export function Header() {
         
         <div className="flex items-center gap-3">
           {/* Language Switcher */}
-          <LanguageSwitcher currentLocale={locale} onLocaleChange={setLocale} />
+          <LanguageSwitcher />
           
           {/* Notifications */}
           <motion.button
@@ -107,18 +110,15 @@ export function Header() {
               </motion.button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="glass-card border-premier-gold/20">
-              <DropdownMenuLabel className="text-premier-pearl">My Account</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-premier-pearl">{t('common.appName')}</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-premier-gold/10" />
               <DropdownMenuItem className="text-premier-pearl-gray hover:text-premier-gold focus:text-premier-gold">
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-premier-pearl-gray hover:text-premier-gold focus:text-premier-gold">
-                Settings
+                {t('nav.settings')}
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-premier-gold/10" />
               <DropdownMenuItem className="text-premier-pearl-gray hover:text-premier-gold focus:text-premier-gold">
                 <LogOut className="mr-2 h-4 w-4" />
-                Logout
+                {t('nav.logout')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

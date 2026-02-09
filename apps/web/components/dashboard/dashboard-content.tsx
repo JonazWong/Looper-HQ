@@ -6,6 +6,7 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { useLocale, useTranslations } from 'next-intl'
 import { 
   Briefcase, 
   Users, 
@@ -26,7 +27,6 @@ import { PremierButton } from "@/components/ui/premier-button"
 import { ProgressRing } from "@/components/ui/progress-ring"
 import { ActivityTimeline, type Activity } from "@/components/ui/activity-timeline"
 import { containerVariants, itemVariants } from "@/lib/animations"
-import { useLocale } from "@/lib/i18n/locale-provider"
 import { PremierSearchCard } from "./premier-search-card"
 import type { MembershipTier } from "@prisma/client"
 
