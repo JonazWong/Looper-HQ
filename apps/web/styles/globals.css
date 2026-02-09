@@ -131,3 +131,22 @@
     @apply bg-clip-text text-transparent bg-gradient-to-r from-premier-mystery-violet via-premier-mystery-purple to-premier-mystery-indigo;
   }
 }
+
+/* Premier Button Utilities */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 h-10 px-6 py-2 rounded-premier-md text-sm font-medium bg-gradient-to-r from-premier-gold to-premier-gold-rose text-premier-black shadow-premier-glow hover:shadow-premier-glow-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-premier-gold disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 h-10 px-6 py-2 rounded-premier-md text-sm font-medium glass-card text-premier-pearl hover:bg-premier-gold/10 border border-premier-gold/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-premier-gold disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  .btn-violet {
+    @apply inline-flex items-center justify-center gap-2 h-10 px-6 py-2 rounded-premier-md text-sm font-medium bg-gradient-to-r from-premier-mystery-violet to-premier-mystery-purple text-premier-pearl shadow-premier-md hover:shadow-premier-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-premier-mystery-violet disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  .input-premier {
+    @apply w-full h-10 px-4 rounded-premier-md bg-premier-black-light/60 border border-premier-gold/20 text-premier-pearl placeholder:text-premier-pearl-gray/50 focus:border-premier-gold focus:ring-2 focus:ring-premier-gold/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+}

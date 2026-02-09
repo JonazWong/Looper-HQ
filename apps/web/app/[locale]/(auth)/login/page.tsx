@@ -9,6 +9,7 @@ import { PremierButton } from "@/components/ui/premier-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardFooter, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
+import { Chrome, Github } from "lucide-react"
 
 function LoginForm() {
   const router = useRouter()
@@ -21,9 +22,9 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [loginError, setLoginError] = useState<string | null>(
     error === "CredentialsSignin" 
-      ? "Invalid email or password" 
+      ? "電郵或密碼不正確" 
       : error 
-      ? "An error occurred during sign in" 
+      ? "登入時發生錯誤" 
       : null
   )
 
@@ -44,7 +45,7 @@ function LoginForm() {
       })
 
       if (result?.error) {
-        setLoginError("Invalid email or password")
+        setLoginError("電郵或密碼不正確")
         setIsLoading(false)
         return
       }
@@ -53,7 +54,23 @@ function LoginForm() {
       router.refresh()
     } catch (error) {
       console.error("Login error:", error)
-      setLoginError("An unexpected error occurred")
+      setLoginError("發生意外錯誤")
+      setIsLoading(false)
+    }
+  }
+
+  // Handle OAuth login (Google/GitHub)
+  const handleOAuthLogin = async (provider: 'google' | 'github') => {
+    setIsLoading(true)
+    setLoginError(null)
+
+    try {
+      await signIn(provider, {
+        callbackUrl,
+      })
+    } catch (error) {
+      console.error(`${provider} login error:`, error)
+      setLoginError(`無法連接到 ${provider}`)
       setIsLoading(false)
     }
   }
@@ -69,7 +86,7 @@ function LoginForm() {
       })
     } catch (error) {
       console.error("Keycloak login error:", error)
-      setLoginError("Failed to connect to Keycloak")
+      setLoginError("無法連接到 Keycloak")
       setIsLoading(false)
     }
   }
@@ -78,9 +95,9 @@ function LoginForm() {
     <AuthLayout>
       <GlassCard variant="gold" glow>
         <GlassCardHeader>
-          <GlassCardTitle>Login</GlassCardTitle>
-          <GlassCardDescription>
-            Sign in to your Looper HQ account
+          <GlassCardTitle className="text-3xl text-gradient-gold text-center">會員登入</GlassCardTitle>
+          <GlassCardDescription className="text-center">
+            登入您的 Looper HQ 帳號
           </GlassCardDescription>
         </GlassCardHeader>
         <GlassCardContent className="space-y-4">
@@ -92,25 +109,38 @@ function LoginForm() {
 
           {isDemoMode && (
             <div className="p-4 bg-premier-mystery/10 border border-premier-mystery/30 rounded-lg space-y-2">
-              <p className="text-sm font-medium text-premier-gold">Demo Accounts</p>
+              <p className="text-sm font-medium text-premier-gold">示範帳號</p>
               <div className="grid gap-1 text-xs font-mono">
-                <div><span className="text-premier-pearl/70">Admin:</span> admin@looperhq.com / demo123</div>
-                <div><span className="text-premier-pearl/70">Lawyer:</span> sarah.chen@looperhq.com / demo123</div>
-                <div><span className="text-premier-pearl/70">Client:</span> wong.client@example.com / demo123</div>
+                <div><span className="text-premier-pearl/70">管理員:</span> admin@looperhq.com / demo123</div>
+                <div><span className="text-premier-pearl/70">律師:</span> sarah.chen@looperhq.com / demo123</div>
+                <div><span className="text-premier-pearl/70">客戶:</span> wong.client@example.com / demo123</div>
               </div>
             </div>
           )}
 
-          {/* Keycloak SSO Login (Primary) */}
-          <PremierButton
-            type="button"
-            onClick={handleKeycloakLogin}
-            disabled={isLoading}
-            className="w-full"
-            variant="primary"
-          >
-            {isLoading ? "Signing in..." : "Sign in with Keycloak SSO"}
-          </PremierButton>
+          {/* OAuth Login Options */}
+          <div className="space-y-3">
+            <PremierButton
+              type="button"
+              onClick={() => handleOAuthLogin('google')}
+              disabled={isLoading}
+              className="w-full"
+              variant="ghost"
+            >
+              <Chrome className="h-4 w-4" />
+              使用 Google 登入
+            </PremierButton>
+            <PremierButton
+              type="button"
+              onClick={() => handleOAuthLogin('github')}
+              disabled={isLoading}
+              className="w-full"
+              variant="ghost"
+            >
+              <Github className="h-4 w-4" />
+              使用 GitHub 登入
+            </PremierButton>
+          </div>
 
           {/* Divider */}
           <div className="relative">
@@ -119,7 +149,7 @@ function LoginForm() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-premier-black-light px-2 text-premier-pearl-gray">
-                Or continue with email
+                或使用電郵
               </span>
             </div>
           </div>
@@ -127,7 +157,7 @@ function LoginForm() {
           {/* Credentials Login Form (Fallback) */}
           <form onSubmit={handleCredentialsLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-premier-pearl">Email</Label>
+              <Label htmlFor="email" className="text-premier-pearl">電郵</Label>
               <Input
                 id="email"
                 type="email"
@@ -141,12 +171,12 @@ function LoginForm() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-premier-pearl">Password</Label>
+                <Label htmlFor="password" className="text-premier-pearl">密碼</Label>
                 <Link
                   href="/forgot-password"
                   className="text-sm text-premier-gold hover:text-premier-gold-rose transition-colors"
                 >
-                  Forgot password?
+                  忘記密碼？
                 </Link>
               </div>
               <Input
@@ -162,18 +192,18 @@ function LoginForm() {
             <PremierButton 
               type="submit" 
               className="w-full" 
-              variant="secondary"
+              variant="primary"
               disabled={isLoading}
             >
-              {isLoading ? "Signing in..." : "Sign in with Email"}
+              {isLoading ? "登入中..." : "登入"}
             </PremierButton>
           </form>
         </GlassCardContent>
         <GlassCardFooter className="flex flex-col gap-2">
-          <div className="text-sm text-premier-pearl-gray">
-            Don&apos;t have an account?{" "}
+          <div className="text-sm text-premier-pearl-gray text-center">
+            還沒有帳號？{" "}
             <Link href="/register" className="text-premier-gold hover:text-premier-gold-rose transition-colors">
-              Sign up
+              立即註冊
             </Link>
           </div>
         </GlassCardFooter>
