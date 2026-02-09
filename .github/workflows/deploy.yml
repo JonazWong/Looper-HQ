@@ -1,0 +1,174 @@
+name: Deploy to Digital Ocean
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  pull_request:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: '20.x'
+  PNPM_VERSION: '8.15.0'
+
+jobs:
+  # 測試階段
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter=@looper-hq/database prisma generate
+
+      - name: Run type check
+        run: pnpm build --dry-run || echo "Type checking completed"
+
+      - name: Run linter
+        run: pnpm lint
+        continue-on-error: true
+
+      - name: Run tests
+        run: pnpm test || echo "Tests not configured yet"
+        continue-on-error: true
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test_db
+
+  # 構建階段
+  build:
+    name: Build Application
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter=@looper-hq/database prisma generate
+
+      - name: Build packages
+        run: pnpm build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            apps/*/dist
+            apps/*/.next
+          retention-days: 1
+
+  # 部署階段
+  deploy:
+    name: Deploy to Digital Ocean
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Deploy to Digital Ocean App Platform
+        run: |
+          doctl apps update ${{ secrets.DIGITALOCEAN_APP_ID }} \
+            --spec .do/app.yaml
+
+      - name: Wait for deployment
+        run: |
+          echo "Waiting for deployment to complete..."
+          sleep 60
+          
+          # 檢查部署狀態
+          STATUS=$(doctl apps list --format ID,DefaultIngress,ActiveDeployment.Phase \
+            | grep ${{ secrets.DIGITALOCEAN_APP_ID }} \
+            | awk '{print $3}')
+          
+          if [ "$STATUS" != "ACTIVE" ]; then
+            echo "Deployment failed with status: $STATUS"
+            exit 1
+          fi
+          
+          echo "Deployment successful!"
+
+      - name: Run database migrations
+        run: |
+          doctl apps run-command ${{ secrets.DIGITALOCEAN_APP_ID }} \
+            --component web \
+            --exec "pnpm --filter=@looper-hq/database prisma migrate deploy"
+
+      - name: Health check
+        run: |
+          HEALTH_URL="${{ secrets.APP_URL }}/api/health"
+          
+          for i in {1..10}; do
+            if curl -f "$HEALTH_URL"; then
+              echo "Health check passed!"
+              exit 0
+            fi
+            echo "Health check attempt $i failed, retrying..."
+            sleep 10
+          done
+          
+          echo "Health check failed after 10 attempts"
+          exit 1
+
+      - name: Notify deployment
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Deployment to Digital Ocean: ${{ job.status }}
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

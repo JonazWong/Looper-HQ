@@ -6,131 +6,135 @@
 # 1. 將此專案推送到 GitHub
 # 2. 在 DigitalOcean App Platform 連接 GitHub repo
 # 3. App Platform 會自動讀取此配置文件
-# 4. 設置環境變數（參考 DEPLOYMENT.md）
+# 4. 設置環境變數（參考 DEPLOYMENT.md 和 .env.production.example）
 #
 
-name: looper-hq-nexus-l
+name: looper-hq-platform
 region: sgp  # Singapore region (最接近香港)
 
-# Database - PostgreSQL
+# 環境變數（全局）
+envs:
+  - key: NODE_ENV
+    value: production
+  - key: OPENAI_BASE_URL
+    value: https://openrouter.ai/api/v1
+  - key: OPENAI_MODEL
+    value: anthropic/claude-3.5-sonnet
+  - key: DATABASE_URL
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: NEXTAUTH_SECRET
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: NEXTAUTH_URL
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+  - key: OPENAI_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+  - key: KEYCLOAK_CLIENT_ID
+    scope: RUN_TIME
+    type: SECRET
+  - key: KEYCLOAK_CLIENT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+  - key: KEYCLOAK_ISSUER
+    scope: RUN_TIME
+    type: SECRET
+
+# 數據庫
 databases:
   - name: looper-hq-db
     engine: PG
-    version: "16"
+    version: "15"
     production: true
-    cluster_name: looper-hq-production
+    cluster_name: looper-hq-cluster
     db_name: looper_hq
-    db_user: looper_hq_user
+    db_user: looper_admin
 
-# Services
+# 服務定義
 services:
-  # Web Application
+  # Web 應用
   - name: web
     github:
       repo: JonazWong/Looper-HQ
       branch: main
       deploy_on_push: true
     
+    source_dir: /
+    
     build_command: |
-      cd apps/web
-      pnpm install
-      pnpm build
+      pnpm install --frozen-lockfile
+      pnpm build --filter=@looper-hq/web
     
     run_command: |
-      cd apps/web
-      pnpm start
+      cd apps/web && pnpm start
     
-    environment_slug: node-js
-    engine: nodejs:20  # 明確指定 Node.js 20 runtime (與 GitHub Actions 一致)
-    instance_count: 1
-    instance_size_slug: professional-xs  # 512 MB RAM, 可升級
+    instance_count: 2
+    instance_size_slug: professional-xs
     
     http_port: 3000
     
     health_check:
       http_path: /api/health
-      initial_delay_seconds: 20
+      initial_delay_seconds: 60
       period_seconds: 10
       timeout_seconds: 5
       success_threshold: 1
       failure_threshold: 3
     
-    # 環境變數（敏感資料需在 App Platform UI 設置）
-    envs:
-      - key: NODE_ENV
-        value: production
-      
-      - key: PORT
-        value: "3000"
-      
-      # Database - 自動注入
-      - key: DATABASE_URL
-        scope: RUN_AND_BUILD_TIME
-        type: SECRET
-      
-      # NextAuth.js
-      - key: NEXTAUTH_URL
-        value: https://looperhq.hk
-        scope: RUN_TIME
-      
-      - key: NEXTAUTH_SECRET
-        scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        # 在 App Platform UI 設置，使用: openssl rand -base64 32
-      
-      # 其他環境變數在 UI 設置
-      - key: GOOGLE_CLIENT_ID
-        scope: RUN_TIME
-        type: SECRET
-      
-      - key: GOOGLE_CLIENT_SECRET
-        scope: RUN_TIME
-        type: SECRET
-    
     routes:
       - path: /
     
-    # 自動 HTTPS
-    cors:
-      allow_origins:
-        - prefix: https://
-          regex: .*looperhq\.hk
-      allow_methods:
-        - GET
-        - POST
-        - PUT
-        - PATCH
-        - DELETE
-        - OPTIONS
-      allow_headers:
-        - Content-Type
-        - Authorization
-        - X-Requested-With
+    envs:
+      - key: PORT
+        value: "3000"
 
-# 靜態站點（可選 - 如需 CDN 加速）
-# static_sites:
-#   - name: web-static
-#     github:
-#       repo: JonazWong/HK-Legal-Case-Agency
-#       branch: main
-#       deploy_on_push: true
-#     build_command: cd apps/web && pnpm build
-#     output_dir: apps/web/.next/static
+  # Legal Case Search 應用（如果需要獨立部署）
+  - name: legal-case-search
+    github:
+      repo: JonazWong/Looper-HQ
+      branch: main
+      deploy_on_push: true
+    
+    source_dir: /
+    
+    build_command: |
+      pnpm install --frozen-lockfile
+      pnpm build --filter=@looper-hq/legal-case-search
+    
+    run_command: |
+      cd apps/legal-case-search && pnpm start
+    
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    
+    http_port: 3001
+    
+    routes:
+      - path: /search
 
-# 自定義域名
-domains:
-  - domain: looperhq.hk
-    type: PRIMARY
-    zone: looperhq.hk
-  - domain: www.looperhq.hk
-    type: ALIAS
-    zone: looperhq.hk
+# 靜態資源 CDN
+static_sites:
+  - name: static-assets
+    github:
+      repo: JonazWong/Looper-HQ
+      branch: main
+    source_dir: apps/web/public
+    output_dir: /
+    routes:
+      - path: /static
 
-# 告警設置
-alerts:
-  - rule: DEPLOYMENT_FAILED
-  - rule: DOMAIN_FAILED
-  - rule: CPU_UTILIZATION
-    value: 80
-  - rule: MEM_UTILIZATION
-    value: 80
+# Worker（後台任務）
+workers:
+  - name: crawler-worker
+    github:
+      repo: JonazWong/Looper-HQ
+      branch: main
+    source_dir: /
+    build_command: |
+      pnpm install --frozen-lockfile
+    run_command: |
+      cd apps/web && node scripts/crawler-worker.js
+    instance_count: 1
+    instance_size_slug: basic-xxs
