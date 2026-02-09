@@ -11,6 +11,7 @@ export async function GET() {
       database: 'connected',
     });
   } catch (error) {
+    // Error intentionally not logged to avoid exposing internal details
     return NextResponse.json(
       {
         status: 'unhealthy',
