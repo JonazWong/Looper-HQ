@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { CaseSource, CaseCategory } from '@prisma/client';
+import { CaseCategory } from '@prisma/client';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -62,8 +62,8 @@ export async function classifyCase(
     } : undefined,
   });
 
-  const content = response.choices[0].message.content || '{}';
-  const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+  const responseContent = response.choices[0].message.content || '{}';
+  const cleaned = responseContent.replace(/```json\n?/g, '').replace(/```\n?/g, '');
   const result = JSON.parse(cleaned);
 
   return {
