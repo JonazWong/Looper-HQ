@@ -27,6 +27,7 @@
     "next": "^15.0.8",
     "next-auth": "^5.0.0-beta.30",
     "next-intl": "^4.8.1",
+    "openai": "^4.28.0",
     "prisma": "^5.22.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
