@@ -1,0 +1,192 @@
+{
+  "common": {
+    "appName": "Looper HQ",
+    "appDescription": "香港法律案例智能搜尋平台",
+    "search": "搜尋",
+    "loading": "載入中...",
+    "error": "錯誤",
+    "success": "成功",
+    "cancel": "取消",
+    "confirm": "確認",
+    "save": "儲存",
+    "delete": "刪除",
+    "edit": "編輯",
+    "create": "新增",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "language": "語言",
+    "view": "檢視",
+    "filter": "篩選",
+    "reset": "重設",
+    "add": "新增",
+    "remove": "移除",
+    "upload": "上傳",
+    "download": "下載"
+  },
+  "nav": {
+    "home": "首頁",
+    "dashboard": "儀表板",
+    "cases": "案例管理",
+    "clients": "客戶管理",
+    "search": "公開搜尋",
+    "documents": "文件",
+    "calendar": "日曆",
+    "settings": "設定",
+    "billing": "帳單",
+    "timeTracking": "時間追蹤",
+    "logout": "登出"
+  },
+  "search": {
+    "title": "香港法律案例搜尋引擎",
+    "placeholder": "搜尋法律案例、案號、關鍵詞...",
+    "results": "找到 {count} 個結果",
+    "noResults": "沒有找到結果",
+    "trending": "熱門搜尋",
+    "suggestions": "搜尋建議",
+    "modes": {
+      "fulltext": "全文搜尋",
+      "semantic": "語義搜尋",
+      "hybrid": "混合搜尋"
+    },
+    "filters": {
+      "source": "來源",
+      "category": "類別",
+      "court": "法院",
+      "dateRange": "日期範圍"
+    }
+  },
+  "case": {
+    "title": "案例標題",
+    "caseNumber": "案號",
+    "caseTitle": "案件標題",
+    "category": "類別",
+    "status": "狀態",
+    "priority": "優先級",
+    "client": "客戶",
+    "lawyer": "律師",
+    "court": "法院",
+    "judge": "法官",
+    "startDate": "開始日期",
+    "endDate": "結束日期",
+    "courtDate": "開庭日期",
+    "description": "描述",
+    "estimatedValue": "預估金額",
+    "categories": {
+      "CIVIL": "民事",
+      "CRIMINAL": "刑事",
+      "CORPORATE": "公司",
+      "FAMILY": "家事",
+      "PROPERTY": "物業",
+      "EMPLOYMENT": "勞工",
+      "INTELLECTUAL_PROPERTY": "知識產權",
+      "IMMIGRATION": "移民",
+      "OTHER": "其他"
+    },
+    "statuses": {
+      "ACTIVE": "進行中",
+      "PENDING": "待處理",
+      "COMPLETED": "已完成",
+      "ARCHIVED": "已封存",
+      "CANCELLED": "已取消"
+    },
+    "priorities": {
+      "LOW": "低",
+      "MEDIUM": "中",
+      "HIGH": "高",
+      "URGENT": "緊急"
+    }
+  },
+  "auth": {
+    "login": "登入",
+    "register": "註冊",
+    "logout": "登出",
+    "email": "電郵",
+    "password": "密碼",
+    "name": "姓名",
+    "forgotPassword": "忘記密碼？",
+    "noAccount": "還沒有帳號？",
+    "hasAccount": "已有帳號？",
+    "loginWithGoogle": "使用 Google 登入",
+    "loginWithGitHub": "使用 GitHub 登入",
+    "loginWithKeycloak": "使用 Keycloak SSO 登入",
+    "orContinueWith": "或使用電郵繼續",
+    "welcomeBack": "歡迎回來",
+    "createAccount": "建立您的帳戶"
+  },
+  "dashboard": {
+    "title": "主控台",
+    "subtitle": "歡迎回來！這是您法律事務的概覽。",
+    "totalCases": "總案件數",
+    "activeClients": "活躍客戶",
+    "pendingReviews": "待審核",
+    "successRate": "成功率",
+    "quickActions": "快速操作",
+    "recentCases": "最近案件",
+    "recentActivity": "最近活動",
+    "casesByStatus": "案件狀態分佈",
+    "newCase": "新案件",
+    "addClient": "新增客戶",
+    "searchCases": "搜尋案件",
+    "viewCases": "檢視案件",
+    "viewClients": "檢視客戶",
+    "uploadDocuments": "上傳文檔"
+  },
+  "clients": {
+    "title": "客戶",
+    "subtitle": "管理您的客戶關係",
+    "clientName": "客戶名稱",
+    "email": "電郵",
+    "phone": "電話",
+    "type": "類型",
+    "tier": "會員等級",
+    "individual": "個人",
+    "corporate": "企業",
+    "basic": "基本",
+    "premium": "進階",
+    "enterprise": "企業"
+  },
+  "documents": {
+    "title": "文檔",
+    "subtitle": "管理案件文檔及檔案",
+    "fileName": "檔案名稱",
+    "fileSize": "檔案大小",
+    "uploadDate": "上傳日期",
+    "category": "類別"
+  },
+  "billing": {
+    "title": "帳單",
+    "subtitle": "管理發票及付款",
+    "invoiceNumber": "發票編號",
+    "amount": "金額",
+    "status": "狀態",
+    "dueDate": "到期日",
+    "paid": "已付款",
+    "unpaid": "未付款",
+    "overdue": "逾期",
+    "totalRevenue": "總收入",
+    "pendingRevenue": "待收收入"
+  },
+  "timeTracking": {
+    "title": "時間追蹤",
+    "subtitle": "追蹤計費時數及活動",
+    "hours": "時數",
+    "hourlyRate": "時薪",
+    "totalAmount": "總金額",
+    "billable": "可計費",
+    "nonBillable": "不可計費"
+  },
+  "ai": {
+    "classify": "AI 智能分類",
+    "classifying": "AI 分類中...",
+    "classified": "分類成功",
+    "classifyError": "分類失敗",
+    "translate": "翻譯",
+    "translating": "翻譯中...",
+    "translated": "翻譯完成"
+  },
+  "footer": {
+    "copyright": "© 2026 Looper HQ. 版權所有。",
+    "premierEdition": "尊爵版"
+  }
+}
