@@ -66,7 +66,7 @@ export default function HomePage() {
                 <Search className="h-12 w-12 text-premier-mystery-violet mb-4" />
                 <GlassCardTitle className="text-xl">全文搜索</GlassCardTitle>
                 <GlassCardDescription>
-                  中英文混合查詢，&lt;200ms 響應
+                  中英文混合查詢，{'<'}200ms 響應
                 </GlassCardDescription>
               </GlassCardHeader>
             </GlassCard>

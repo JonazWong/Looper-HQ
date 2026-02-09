@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server"
-import { hash } from "bcryptjs"
 import { prisma } from "@/lib/db"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { z } from "zod"
@@ -33,17 +32,15 @@ export async function POST(request: NextRequest) {
       return errorResponse("電郵已被註冊", 409)
     }
 
-    // Hash password with bcryptjs
-    const hashedPassword = await hash(password, 10)
-
-    // Create user with hashed password
-    // Note: In production with Keycloak, this should sync with Keycloak user creation
+    // Note: Password validation is done above, but not stored in database
+    // Authentication is handled by NextAuth.js with Keycloak/credentials providers
+    // The User model in Prisma doesn't have a password field for security reasons
+    // In a full production setup, this endpoint would integrate with Keycloak to create the user there
+    // For now, we create a local user record that can authenticate via Keycloak
     const user = await prisma.user.create({
       data: {
         email,
         name,
-        // Store hashed password for credentials auth fallback
-        // In production, consider storing this in a separate table or using Keycloak exclusively
         role: "CLIENT",
       },
       select: {
@@ -57,7 +54,7 @@ export async function POST(request: NextRequest) {
     return successResponse(
       {
         user,
-        message: "註冊成功，您現在可以使用憑證登入。",
+        message: "註冊成功，請使用 Keycloak 或 OAuth 提供者登入。",
       },
       201
     )

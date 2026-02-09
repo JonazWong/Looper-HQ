@@ -43,7 +43,12 @@ export default function RegisterPage() {
       router.push('/login?registered=true')
     } catch (error) {
       console.error('Registration error:', error)
-      setError('發生意外錯誤')
+      // Distinguish between network errors and other errors
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        setError('網絡連接失敗，請檢查您的網絡連接')
+      } else {
+        setError('發生意外錯誤，請稍後再試')
+      }
       setIsLoading(false)
     }
   }
