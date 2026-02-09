@@ -4,7 +4,6 @@
  */
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import { prisma } from '@/lib/db';
 import {
   fulltextSearch,
   semanticSearch,
