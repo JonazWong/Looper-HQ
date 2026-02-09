@@ -29,7 +29,12 @@ export async function POST(request: NextRequest) {
     }
     
     // 批量分類
-    const results = await batchClassifyCases(unclassifiedCases);
+    const casesToClassify = unclassifiedCases.map(c => ({
+      id: c.id,
+      title: c.title,
+      description: c.description || undefined,
+    }));
+    const results = await batchClassifyCases(casesToClassify);
     
     // 更新資料庫
     const updates = [];
