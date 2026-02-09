@@ -3,7 +3,7 @@
  * Tests for full-text search, semantic search, and hybrid search functionality
  */
 
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   fulltextSearch,
   semanticSearch,
