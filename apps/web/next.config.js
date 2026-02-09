@@ -1,3 +1,8 @@
+const createNextIntlPlugin = require('next-intl/plugin');
+
+// Point to the i18n configuration file
+const withNextIntl = createNextIntlPlugin('./i18n.ts');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Turborepo optimization
@@ -14,12 +19,6 @@ const nextConfig = {
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
-  
-  // i18n preparation
-  // i18n: {
-  //   locales: ['en', 'zh-HK'],
-  //   defaultLocale: 'en',
-  // },
   
   // Strict mode for better development
   reactStrictMode: true,
@@ -39,4 +38,4 @@ const nextConfig = {
   outputFileTracingRoot: require('path').join(__dirname, '../../'),
 }
 
-module.exports = nextConfig
+module.exports = withNextIntl(nextConfig)

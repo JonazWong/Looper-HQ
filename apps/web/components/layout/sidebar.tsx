@@ -2,14 +2,15 @@
 
 /**
  * Enhanced Sidebar with Premier Design System - Collapsible with i18n
+ * Updated with next-intl for internationalization
  */
 
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useLocale, useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { useLocale } from "@/lib/i18n/locale-provider"
 import {
   LayoutDashboard,
   Briefcase,
@@ -22,50 +23,51 @@ import {
   ChevronRight,
 } from "lucide-react"
 
-const sidebarItems = [
-  {
-    labelKey: "dashboard" as const,
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  // === NEXUS LEGAL CORE FUNCTIONS ===
-  {
-    labelKey: "cases" as const,
-    href: "/dashboard/cases",
-    icon: Briefcase,
-  },
-  {
-    labelKey: "clients" as const,
-    href: "/dashboard/clients",
-    icon: Users,
-  },
-  {
-    labelKey: "search" as const,
-    href: "/dashboard/search",
-    icon: Search,
-  },
-  // === SUPPORTING FEATURES ===
-  {
-    labelKey: "documents" as const,
-    href: "/dashboard/documents",
-    icon: FileText,
-  },
-  {
-    labelKey: "calendar" as const,
-    href: "/dashboard/calendar",
-    icon: Calendar,
-  },
-  {
-    labelKey: "settings" as const,
-    href: "/dashboard/settings",
-    icon: Settings,
-  },
-]
-
 export function Sidebar() {
   const pathname = usePathname()
+  const locale = useLocale()
+  const t = useTranslations()
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const { t } = useLocale()
+
+  const sidebarItems = [
+    {
+      labelKey: "dashboard" as const,
+      href: `/${locale}/dashboard`,
+      icon: LayoutDashboard,
+    },
+    // === NEXUS LEGAL CORE FUNCTIONS ===
+    {
+      labelKey: "cases" as const,
+      href: `/${locale}/dashboard/cases`,
+      icon: Briefcase,
+    },
+    {
+      labelKey: "clients" as const,
+      href: `/${locale}/dashboard/clients`,
+      icon: Users,
+    },
+    {
+      labelKey: "search" as const,
+      href: `/${locale}/dashboard/search`,
+      icon: Search,
+    },
+    // === SUPPORTING FEATURES ===
+    {
+      labelKey: "documents" as const,
+      href: `/${locale}/dashboard/documents`,
+      icon: FileText,
+    },
+    {
+      labelKey: "calendar" as const,
+      href: `/${locale}/dashboard/calendar`,
+      icon: Calendar,
+    },
+    {
+      labelKey: "settings" as const,
+      href: `/${locale}/dashboard/settings`,
+      icon: Settings,
+    },
+  ]
 
   return (
     <motion.aside 
@@ -92,7 +94,7 @@ export function Sidebar() {
           {sidebarItems.map((item, index) => {
             const Icon = item.icon
             const isActive = pathname === item.href
-            const label = t.nav[item.labelKey]
+            const label = t(`nav.${item.labelKey}`)
             
             return (
               <motion.div
@@ -173,7 +175,7 @@ export function Sidebar() {
               transition={{ duration: 0.2 }}
             >
               <p className="text-xs text-premier-pearl-gray">
-                {t.footer.premierEdition}
+                {t('footer.premierEdition')}
               </p>
               <p className="text-sm font-medium text-gradient-gold mt-1">
                 Professional Plan
