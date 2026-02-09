@@ -8,7 +8,16 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';
-    const limit = parseInt(searchParams.get('limit') || '5');
+
+    const rawLimit = searchParams.get('limit');
+    const DEFAULT_LIMIT = 5;
+    const MAX_LIMIT = 50;
+
+    let limit = Number.parseInt(rawLimit ?? '', 10);
+    if (Number.isNaN(limit) || limit <= 0) {
+      limit = DEFAULT_LIMIT;
+    }
+    limit = Math.min(limit, MAX_LIMIT);
     
     if (query.length < 2) {
       return NextResponse.json({
