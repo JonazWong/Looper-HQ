@@ -43,7 +43,7 @@ echo ""
 echo "🔍 Verifying migration..."
 
 # Verify search_vector column exists
-psql "$DB_URL" -t -c "SELECT column_name FROM information_schema.columns WHERE table_name = 'PublicCase' AND column_name = 'search_vector';" | grep -q "search_vector"
+psql "$DB_URL" -t -c "SELECT column_name FROM information_schema.columns WHERE table_name = 'public_cases' AND column_name = 'search_vector';" | grep -q "search_vector"
 if [ $? -eq 0 ]; then
     echo "✓ search_vector column created"
 else
@@ -52,7 +52,7 @@ else
 fi
 
 # Verify GIN index exists
-psql "$DB_URL" -t -c "SELECT indexname FROM pg_indexes WHERE tablename = 'PublicCase' AND indexname = 'public_case_search_idx';" | grep -q "public_case_search_idx"
+psql "$DB_URL" -t -c "SELECT indexname FROM pg_indexes WHERE tablename = 'public_cases' AND indexname = 'public_case_search_idx';" | grep -q "public_case_search_idx"
 if [ $? -eq 0 ]; then
     echo "✓ GIN index created"
 else
@@ -61,7 +61,7 @@ else
 fi
 
 # Verify trigger exists
-psql "$DB_URL" -t -c "SELECT tgname FROM pg_trigger WHERE tgrelid = '\"PublicCase\"'::regclass AND tgname = 'public_case_search_vector_trigger';" | grep -q "public_case_search_vector_trigger"
+psql "$DB_URL" -t -c "SELECT tgname FROM pg_trigger WHERE tgrelid = '\"public_cases\"'::regclass AND tgname = 'public_case_search_vector_trigger';" | grep -q "public_case_search_vector_trigger"
 if [ $? -eq 0 ]; then
     echo "✓ Trigger created"
 else
@@ -70,8 +70,8 @@ else
 fi
 
 # Count records with search_vector populated
-TOTAL_RECORDS=$(psql "$DB_URL" -t -c "SELECT COUNT(*) FROM \"PublicCase\";")
-INDEXED_RECORDS=$(psql "$DB_URL" -t -c "SELECT COUNT(*) FROM \"PublicCase\" WHERE search_vector IS NOT NULL;")
+TOTAL_RECORDS=$(psql "$DB_URL" -t -c "SELECT COUNT(*) FROM \"public_cases\";")
+INDEXED_RECORDS=$(psql "$DB_URL" -t -c "SELECT COUNT(*) FROM \"public_cases\" WHERE search_vector IS NOT NULL;")
 
 echo "✓ Search vectors populated: $INDEXED_RECORDS / $TOTAL_RECORDS records"
 

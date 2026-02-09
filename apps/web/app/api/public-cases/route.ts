@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { search } from '@/lib/services/search-engine';
+import { CaseSource } from '@prisma/client';
 import { z } from 'zod';
 
 const searchSchema = z.object({
   query: z.string().optional(),
-  source: z.enum(['HK_JUDICIARY', 'MINGPAO_PNS_RSS', 'MINGPAO_INS_RSS', 'HKLII']).optional(),
+  source: z.nativeEnum(CaseSource).optional(),
   category: z.string().optional(),
   court: z.string().optional(),
   dateFrom: z.string().datetime().optional(),
   dateTo: z.string().datetime().optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),
-  mode: z.enum(['fulltext', 'semantic', 'hybrid']).default('fulltext'),
+  mode: z.enum(['fulltext', 'semantic', 'hybrid']).optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -57,7 +58,6 @@ export async function GET(request: NextRequest) {
             totalPages: Math.ceil(total / limit),
           },
           took: 0,
-          mode: 'simple',
         },
       });
     }
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       dateTo: dateTo ? new Date(dateTo) : undefined,
       page,
       limit,
-      searchMode: mode,
+      searchMode: mode || 'fulltext',
     });
 
     return NextResponse.json({
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
           totalPages: Math.ceil(results.total / limit),
         },
         took: results.took,
-        mode,
+        mode: mode || 'fulltext',
       },
     });
   } catch (error: any) {

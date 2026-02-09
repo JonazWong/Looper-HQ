@@ -104,8 +104,12 @@ export default function PublicCasesPage() {
         ...(filters.court && { court: filters.court }),
         page: page.toString(),
         limit: '20',
-        mode: filters.query ? 'fulltext' : 'simple', // Use fulltext when query exists
       });
+      
+      // Only add mode when there's a query
+      if (filters.query) {
+        params.append('mode', 'fulltext');
+      }
       
       const response = await fetch(`/api/public-cases?${params}`);
       const data = await response.json();
