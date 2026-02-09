@@ -4,12 +4,27 @@ import { useState } from 'react';
 import { Brain, Loader2 } from 'lucide-react';
 import { PremierButton } from '@/components/ui/premier-button';
 import { useToast } from '@/hooks/use-toast';
+import { ClassificationResult } from '@/lib/services/ai-classifier';
+import { CaseCategory } from '@prisma/client';
+
+// Category name mapping for user-friendly display
+const CATEGORY_NAMES: Record<CaseCategory, string> = {
+  CIVIL: '民事',
+  CRIMINAL: '刑事',
+  CRIMINAL_APPEAL: '刑事上訴',
+  CORPORATE: '公司',
+  FAMILY: '家事',
+  PROPERTY: '物業',
+  EMPLOYMENT: '勞工',
+  INTELLECTUAL_PROPERTY: '知識產權',
+  OTHER: '其他',
+};
 
 interface Props {
   caseId: string;
   title: string;
   content: string;
-  onClassified?: (result: any) => void;
+  onClassified?: (result: ClassificationResult) => void;
 }
 
 export function AIClassifyButton({ caseId, title, content, onClassified }: Props) {
@@ -28,11 +43,13 @@ export function AIClassifyButton({ caseId, title, content, onClassified }: Props
 
       if (!response.ok) throw new Error('分類失敗');
 
-      const result = await response.json();
+      const result: ClassificationResult = await response.json();
+      
+      const categoryName = CATEGORY_NAMES[result.category] || result.category;
       
       toast({
         title: 'AI 分類完成',
-        description: `類別: ${result.category}, 信心度: ${(result.confidence * 100).toFixed(0)}%`,
+        description: `類別: ${categoryName}, 信心度: ${(result.confidence * 100).toFixed(0)}%`,
       });
 
       onClassified?.(result);

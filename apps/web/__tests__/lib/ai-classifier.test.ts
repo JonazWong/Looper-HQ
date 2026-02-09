@@ -167,7 +167,8 @@ describe('AI Classifier Service', () => {
 
   it('should limit content to 2000 characters', async () => {
     // Arrange
-    const longContent = 'A'.repeat(3000)
+    const LONG_CONTENT = 'A'.repeat(3000);
+    const EXPECTED_TRUNCATED = 'A'.repeat(2000);
     const mockResponse = {
       choices: [
         {
@@ -184,12 +185,12 @@ describe('AI Classifier Service', () => {
     mockCreate.mockResolvedValue(mockResponse)
 
     // Act
-    await classifyCase('勞工糾紛', longContent)
+    await classifyCase('勞工糾紛', LONG_CONTENT)
 
     // Assert - Check that the prompt contains truncated content
     const callArgs = mockCreate.mock.calls[0][0]
     const userMessage = callArgs.messages.find((m: any) => m.role === 'user')
-    expect(userMessage.content).toContain('A'.repeat(2000).substring(0, 100))
+    expect(userMessage.content).toContain(EXPECTED_TRUNCATED.substring(0, 100))
     expect(userMessage.content).not.toContain('A'.repeat(2001))
   })
 

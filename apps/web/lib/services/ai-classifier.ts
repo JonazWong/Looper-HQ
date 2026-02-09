@@ -1,8 +1,12 @@
 import OpenAI from 'openai';
 import { CaseCategory } from '@prisma/client';
 
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error('OPENAI_API_KEY environment variable is required for AI classification');
+}
+
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
+  apiKey: process.env.OPENAI_API_KEY,
   baseURL: process.env.OPENAI_BASE_URL || 'https://openrouter.ai/api/v1',
 });
 
@@ -63,8 +67,14 @@ export async function classifyCase(
   });
 
   const responseContent = response.choices[0].message.content || '{}';
-  const cleaned = responseContent.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-  const result = JSON.parse(cleaned);
+  const cleaned = responseContent.replace(/```(?:json)?\n?/g, '');
+  
+  let result: any;
+  try {
+    result = JSON.parse(cleaned);
+  } catch (error) {
+    throw new Error('Failed to parse AI classification response: invalid JSON format');
+  }
 
   return {
     category: result.category as CaseCategory,
