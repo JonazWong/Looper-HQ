@@ -50,6 +50,8 @@ export const mockPrismaClient = {
   },
   $disconnect: vi.fn(),
   $connect: vi.fn(),
+  $queryRaw: vi.fn(),
+  $executeRaw: vi.fn(),
 } as unknown as PrismaClient
 
 export const resetMockPrisma = () => {
