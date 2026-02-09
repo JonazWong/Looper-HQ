@@ -19,6 +19,8 @@ This directory contains historical documentation for reference purposes.
 ### Deployment Archives
 - **[deployment-summary.md](./deployment-summary.md)** - Historical deployment documentation
 - **[deployment-ready.md](./deployment-ready.md)** - Deployment readiness checklist
+- **[old-deployment-guide.md](./old-deployment-guide.md)** - Previous deployment guide
+- **[old-deployment-guide-detailed.md](./old-deployment-guide-detailed.md)** - Detailed deployment guide (archived)
 
 ## Why Archive?
 
@@ -51,6 +53,8 @@ For up-to-date information, please refer to:
 | fulltext-search.md | 2026-02 | 2026-02-09 | Duplicate documentation |
 | deployment-summary.md | 2026-02 | 2026-02-09 | Superseded by new guides |
 | deployment-ready.md | 2026-02 | 2026-02-09 | Superseded by new guides |
+| old-deployment-guide.md | 2026-02 | 2026-02-09 | Superseded by new deployment structure |
+| old-deployment-guide-detailed.md | 2026-02 | 2026-02-09 | Superseded by new deployment structure |
 | rss-fixes.md | 2026-02 | 2026-02-09 | Issues resolved |
 
 ---
