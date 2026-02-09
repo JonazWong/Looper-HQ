@@ -513,6 +513,9 @@ model PublicCase {
   publishedAt DateTime?  // News publish time
   author      String?    // News author
   
+  // Full-text search vector
+  searchVector Unsupported("tsvector")?
+  
   // Metadata
   crawledAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -522,6 +525,7 @@ model PublicCase {
   @@index([caseNumber])
   @@index([keywords])
   @@index([publishedAt])
+  @@index([searchVector], type: Gin)
   @@map("public_cases")
 }
 

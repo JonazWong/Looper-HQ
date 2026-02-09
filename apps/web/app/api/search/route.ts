@@ -1,109 +1,80 @@
-import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/db'
-import { 
-  successResponse, 
-  errorResponse,
-  validationErrorResponse 
-} from '@/lib/api/response'
-import { handleApiError } from '@/lib/api/errors'
-import { searchSchema, paginationSchema } from '@/lib/validations/schemas'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
+import { search, searchSuggestions } from '@/lib/services/search-engine';
+import { z } from 'zod';
+
+const searchSchema = z.object({
+  q: z.string().min(1, 'Search query is required'),
+  source: z.string().optional(),
+  category: z.string().optional(),
+  court: z.string().optional(),
+  dateFrom: z.string().datetime().optional(),
+  dateTo: z.string().datetime().optional(),
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(20),
+  mode: z.enum(['fulltext', 'semantic', 'hybrid']).default('fulltext'),
+});
 
 /**
- * POST /api/search - Public case search
+ * GET /api/search - Public case search with full-text search support
  */
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const body = await request.json()
-
-    // Validate input
-    const validationResult = searchSchema.safeParse(body)
-
-    if (!validationResult.success) {
-      return validationErrorResponse(validationResult.error.format())
-    }
-
-    const { query, category, dateFrom, dateTo, status } = validationResult.data
-
-    // Parse pagination from query params
-    const searchParams = request.nextUrl.searchParams
-    const paginationResult = paginationSchema.safeParse({
-      page: searchParams.get('page'),
-      perPage: searchParams.get('perPage'),
-    })
-
-    if (!paginationResult.success) {
-      return validationErrorResponse(paginationResult.error.format())
-    }
-
-    const { page, perPage } = paginationResult.data
-
-    // Build where clause - only search public cases
-    const where: any = {
-      isPublic: true,
-    }
-
-    // Add text search
-    where.OR = [
-      { caseNumber: { contains: query, mode: 'insensitive' } },
-      { title: { contains: query, mode: 'insensitive' } },
-      { description: { contains: query, mode: 'insensitive' } },
-      { publicNote: { contains: query, mode: 'insensitive' } },
-    ]
-
-    // Add filters
-    if (category) where.category = category
-    if (status) where.status = status
-    if (dateFrom || dateTo) {
-      where.startDate = {}
-      if (dateFrom) where.startDate.gte = new Date(dateFrom)
-      if (dateTo) where.startDate.lte = new Date(dateTo)
-    }
-
-    // Get total count
-    const total = await prisma.case.count({ where })
-
-    // Get cases
-    const cases = await prisma.case.findMany({
-      where,
-      select: {
-        id: true,
-        caseNumber: true,
-        title: true,
-        category: true,
-        status: true,
-        priority: true,
-        startDate: true,
-        publicNote: true,
-        createdAt: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      skip: (page - 1) * perPage,
-      take: perPage,
-    })
-
+    const { searchParams } = new URL(request.url);
+    const params = searchSchema.parse(Object.fromEntries(searchParams));
+    
+    const results = await search({
+      query: params.q,
+      source: params.source,
+      category: params.category,
+      court: params.court,
+      dateFrom: params.dateFrom ? new Date(params.dateFrom) : undefined,
+      dateTo: params.dateTo ? new Date(params.dateTo) : undefined,
+      page: params.page,
+      limit: params.limit,
+      searchMode: params.mode,
+    });
+    
     // Log search (get IP from headers)
     const ipAddress = request.headers.get('x-forwarded-for') || 
                       request.headers.get('x-real-ip') || 
-                      '0.0.0.0'
+                      '0.0.0.0';
 
     await prisma.searchHistory.create({
       data: {
         ipAddress,
-        query,
-        resultsCount: total,
+        query: params.q,
+        resultsCount: results.total,
       },
-    })
-
-    return successResponse(cases, {
-      page,
-      perPage,
-      total,
-      totalPages: Math.ceil(total / perPage),
-    })
-  } catch (error) {
-    const { message, statusCode, code, details } = handleApiError(error)
-    return errorResponse(message, statusCode, code, details)
+    });
+    
+    return NextResponse.json({
+      success: true,
+      data: {
+        cases: results.cases,
+        pagination: {
+          page: params.page,
+          limit: params.limit,
+          total: results.total,
+          totalPages: Math.ceil(results.total / params.limit),
+        },
+        took: results.took,
+        mode: params.mode,
+      },
+    });
+  } catch (error: any) {
+    console.error('Search API error:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid parameters', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
+    return NextResponse.json(
+      { success: false, error: error.message || 'Search failed' },
+      { status: 500 }
+    );
   }
 }
