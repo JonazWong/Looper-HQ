@@ -58,6 +58,13 @@ interface PaginationData {
   totalPages: number;
 }
 
+interface SearchResponseData {
+  cases: PublicCase[];
+  pagination: PaginationData;
+  took?: number; // Search time in milliseconds
+  mode?: string; // Search mode used
+}
+
 export default function PublicCasesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -70,6 +77,10 @@ export default function PublicCasesPage() {
     total: 0,
     totalPages: 0
   });
+  const [searchPerformance, setSearchPerformance] = useState<{
+    took: number;
+    mode: string;
+  } | null>(null);
   
   const [filters, setFilters] = useState({
     query: searchParams.get('q') || '',
@@ -92,8 +103,13 @@ export default function PublicCasesPage() {
         ...(filters.category && { category: filters.category }),
         ...(filters.court && { court: filters.court }),
         page: page.toString(),
-        limit: '20'
+        limit: '20',
       });
+      
+      // Only add mode when there's a query
+      if (filters.query) {
+        params.append('mode', 'fulltext');
+      }
       
       const response = await fetch(`/api/public-cases?${params}`);
       const data = await response.json();
@@ -101,6 +117,13 @@ export default function PublicCasesPage() {
       if (data.success) {
         setCases(data.data.cases);
         setPagination(data.data.pagination);
+        // Store search performance metrics
+        if (data.data.took !== undefined) {
+          setSearchPerformance({
+            took: data.data.took,
+            mode: data.data.mode || 'simple',
+          });
+        }
       }
     } catch (error) {
       console.error('Search error:', error);
@@ -250,10 +273,22 @@ export default function PublicCasesPage() {
           <>
             {/* Results Header */}
             {cases.length > 0 && (
-              <div className="mb-6 flex items-center justify-between">
-                <p className="text-premier-pearl-gray">
-                  找到 <span className="text-premier-gold font-semibold">{pagination.total}</span> 個結果
-                </p>
+              <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <p className="text-premier-pearl-gray">
+                    找到 <span className="text-premier-gold font-semibold">{pagination.total}</span> 個結果
+                  </p>
+                  {searchPerformance && searchPerformance.took > 0 && (
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                      {searchPerformance.took}ms
+                    </Badge>
+                  )}
+                  {searchPerformance && searchPerformance.mode && searchPerformance.mode !== 'simple' && (
+                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                      {searchPerformance.mode}
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-premier-pearl-dark">
                   第 {pagination.page} 頁，共 {pagination.totalPages} 頁
                 </p>
