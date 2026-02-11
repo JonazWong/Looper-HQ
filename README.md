@@ -71,14 +71,6 @@ git push origin main
 - [Digital Ocean Setup](./docs/deployment/digitalocean.md) - Complete DO implementation
 - [Full Deployment Guide](./docs/deployment/README.md) - Comprehensive deployment documentation
 
-### Migrating from HK-Legal-Case-Agency
-
-If you're upgrading from the previous version:
-- 📖 [Migration Guide](./docs/deployment/migrate-from-agency.md) - Complete step-by-step migration instructions
-- 🔐 [Environment Variables](./docs/deployment/environment-variables.md) - Required configuration reference
-- ⚡ [Quick Reference](./docs/deployment/QUICK_REFERENCE.md) - Common deployment tasks
-- ✅ Run pre-migration check: `pnpm pre-migration-check`
-
 ### 🔄 CI/CD Pipeline
 
 Automated deployment pipeline with GitHub Actions:
