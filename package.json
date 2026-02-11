@@ -31,6 +31,7 @@
     "migrate:backup": "pnpm --filter=@looper-hq/migration backup",
     "migrate:rollback": "pnpm --filter=@looper-hq/migration rollback",
     "migrate:export-legacy": "pnpm --filter=@looper-hq/migration export:legacy",
+    "pre-migration:check": "node scripts/pre-migration-check.js",
     "docker:up": "docker compose -f infrastructure/docker/docker-compose.yml up -d",
     "docker:down": "docker compose -f infrastructure/docker/docker-compose.yml down",
     "crawler:all": "tsx scripts/crawlers/unified-tracker.ts",

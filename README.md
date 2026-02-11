@@ -126,7 +126,7 @@ looper-hq/
 - **Backend**: Node.js, Spring Boot 3, Flask
 - **Database**: PostgreSQL, Prisma ORM
 - **Cache**: Redis
-- **Auth**: Keycloak, NextAuth.js
+- **Auth**: NextAuth.js v5 (with optional Keycloak OAuth provider)
 - **DevOps**: Docker, Turborepo, pnpm
 
 ## 📖 Documentation
