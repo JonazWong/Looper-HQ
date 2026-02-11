@@ -39,7 +39,8 @@
     "crawler:health": "tsx scripts/crawlers/health-check.ts",
     "test:rss": "tsx scripts/test-rss-sources.ts",
     "close-issues": "node scripts/close-automated-issues.js",
-    "close-issues:bash": "./scripts/close-automated-issues.sh"
+    "close-issues:bash": "./scripts/close-automated-issues.sh",
+    "pre-migration-check": "node scripts/pre-migration-check.js"
   },
   "devDependencies": {
     "@octokit/rest": "^20.0.2",
