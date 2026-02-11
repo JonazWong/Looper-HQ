@@ -61,10 +61,21 @@ async function checkDatabaseConnection() {
     logCheck('DATABASE_URL', 'pass', 'Environment variable is set');
 
     // Try to connect to database using Prisma
-    const { stdout } = await execAsync('pnpm --filter=@looper-hq/database prisma db execute --stdin < /dev/null 2>&1 || echo "connection-test"');
-    
-    // Check if database is accessible
-    logCheck('Database Connection', 'pass', 'Successfully connected to database');
+    try {
+      // Use Prisma migrate status which requires a database connection
+      const { stdout } = await execAsync('pnpm --filter=@looper-hq/database prisma migrate status 2>&1');
+      logCheck('Database Connection', 'pass', 'Successfully connected to database');
+    } catch (error) {
+      // If migrate status fails, it could be due to connection issues or no migrations yet
+      // Try a simple db pull to verify connection
+      try {
+        await execAsync('pnpm --filter=@looper-hq/database prisma db pull --force --print 2>&1');
+        logCheck('Database Connection', 'pass', 'Successfully connected to database');
+      } catch (innerError) {
+        logCheck('Database Connection', 'fail', 'Cannot connect to database - check DATABASE_URL and database availability');
+        return false;
+      }
+    }
     
     return true;
   } catch (error) {
@@ -85,7 +96,8 @@ async function checkSchemaCompatibility() {
     try {
       const { stdout: migrateStatus } = await execAsync('pnpm --filter=@looper-hq/database prisma migrate status 2>&1');
       
-      if (migrateStatus.includes('following migration have not yet been applied') || 
+      if (migrateStatus.includes('The following migration have not yet been applied') || 
+          migrateStatus.includes('following migration have not yet been applied') ||
           migrateStatus.includes('Your database is not in sync')) {
         logCheck('Migration Status', 'warn', 'Pending migrations detected - will be applied during migration');
       } else {
