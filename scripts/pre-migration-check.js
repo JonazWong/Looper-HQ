@@ -90,10 +90,7 @@ async function checkSchemaCompatibility() {
     try {
       const { stdout: migrateStatus } = await execAsync('pnpm --filter=@looper-hq/database prisma migrate status');
       
-      if (migrateStatus.includes('The following migration have not yet been applied') || 
-          migrateStatus.includes('The following migrations have not yet been applied') ||
-          migrateStatus.includes('following migration have not yet been applied') || 
-          migrateStatus.includes('following migrations have not yet been applied') ||
+      if (migrateStatus.includes('following migration') || 
           migrateStatus.includes('Your database is not in sync')) {
         logCheck('Migration Status', 'warn', 'Pending migrations detected - will be applied during migration');
       } else {
