@@ -63,13 +63,13 @@ async function checkDatabaseConnection() {
     // Try to connect to database using Prisma
     try {
       // Use Prisma migrate status which requires a database connection
-      const { stdout } = await execAsync('pnpm --filter=@looper-hq/database prisma migrate status 2>&1');
+      await execAsync('pnpm --filter=@looper-hq/database prisma migrate status');
       logCheck('Database Connection', 'pass', 'Successfully connected to database');
     } catch (error) {
       // If migrate status fails, it could be due to connection issues or no migrations yet
       // Try a simple db pull to verify connection
       try {
-        await execAsync('pnpm --filter=@looper-hq/database prisma db pull --force --print 2>&1');
+        await execAsync('pnpm --filter=@looper-hq/database prisma db pull --force --print');
         logCheck('Database Connection', 'pass', 'Successfully connected to database');
       } catch (innerError) {
         logCheck('Database Connection', 'fail', 'Cannot connect to database - check DATABASE_URL and database availability');
@@ -89,12 +89,12 @@ async function checkSchemaCompatibility() {
   
   try {
     // Check Prisma schema
-    const { stdout: schemaStatus } = await execAsync('pnpm --filter=@looper-hq/database prisma format --check 2>&1 || true');
+    await execAsync('pnpm --filter=@looper-hq/database prisma format --check');
     logCheck('Prisma Schema Format', 'pass', 'Schema format is valid');
 
     // Check for pending migrations
     try {
-      const { stdout: migrateStatus } = await execAsync('pnpm --filter=@looper-hq/database prisma migrate status 2>&1');
+      const { stdout: migrateStatus } = await execAsync('pnpm --filter=@looper-hq/database prisma migrate status');
       
       if (migrateStatus.includes('The following migration have not yet been applied') || 
           migrateStatus.includes('following migration have not yet been applied') ||
@@ -120,7 +120,7 @@ async function checkDataIntegrity() {
   try {
     // Run migration package validator if available
     try {
-      const { stdout } = await execAsync('pnpm --filter=@looper-hq/migration validate 2>&1 || true');
+      await execAsync('pnpm --filter=@looper-hq/migration validate');
       logCheck('Data Validator', 'pass', 'Migration validator executed successfully');
     } catch (error) {
       logCheck('Data Validator', 'warn', 'Migration validator not available or failed');
