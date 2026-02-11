@@ -5,7 +5,7 @@
 Looper HQ is a unified legal case management platform for Hong Kong built on:
 - **Monorepo**: pnpm workspace with Turborepo (`apps/`, `services/`, `packages/`)
 - **Frontend**: Next.js 15 + React 19 with App Router, TailwindCSS with custom "Premier Design System"
-- **Backend**: REST APIs in `/api` routes, Prisma + PostgreSQL, NextAuth.js + Keycloak
+- **Backend**: REST APIs in `/api` routes, Prisma + PostgreSQL, NextAuth.js v5
 - **Stack**: TypeScript throughout, Zod validation, class-variance-authority for components
 
 ## 🔧 Development Workflow
@@ -22,11 +22,53 @@ Looper HQ is a unified legal case management platform for Hong Kong built on:
 ### API Structure
 All APIs in `apps/web/app/api/` follow this pattern:
 ```typescript
-// Zod validation → Auth check → Prisma operations → Standardized responses
+// Example from apps/web/app/api/cases/route.ts
+import { NextRequest } from 'next/server'
+import { prisma } from '@/lib/db'
+import { 
+  successResponse, 
+  errorResponse, 
+  validationErrorResponse 
+} from '@/lib/api/response'
+import { handleApiError } from '@/lib/api/errors'
+import { requireAuth } from '@/lib/api/auth'
+import { caseSchema, paginationSchema } from '@/lib/validations/schemas'
+
 export async function GET(request: NextRequest) {
-  const session = await requireAuth()
-  const result = schema.safeParse(params)
-  return successResponse(data) | errorResponse()
+  try {
+    const session = await requireAuth()
+    const searchParams = request.nextUrl.searchParams
+
+    // Parse and validate pagination
+    const paginationResult = paginationSchema.safeParse({
+      page: searchParams.get('page'),
+      perPage: searchParams.get('perPage'),
+    })
+
+    if (!paginationResult.success) {
+      return validationErrorResponse(paginationResult.error.format())
+    }
+
+    const { page, perPage } = paginationResult.data
+
+    // Query database
+    const total = await prisma.case.count()
+    const cases = await prisma.case.findMany({
+      skip: (page - 1) * perPage,
+      take: perPage,
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return successResponse(cases, {
+      page,
+      perPage,
+      total,
+      totalPages: Math.ceil(total / perPage),
+    })
+  } catch (error) {
+    const { message, statusCode, code, details } = handleApiError(error)
+    return errorResponse(message, statusCode, code, details)
+  }
 }
 ```
 
@@ -38,8 +80,9 @@ export async function GET(request: NextRequest) {
 
 ### Database & Validation
 - **Schema**: Single Prisma schema in `packages/database/prisma/schema.prisma`
-- **Validation**: Zod schemas in `lib/validations/schemas.ts` matching Prisma models
-- **Client**: Shared `@looper-hq/database` package, imported as `@/lib/db`
+- **Validation**: Zod schemas in `apps/web/lib/validations/schemas.ts` matching Prisma models
+- **Client**: PrismaClient singleton in `apps/web/lib/db.ts`, imported as `@/lib/db`
+- **Package**: `packages/database` re-exports `@prisma/client` for workspace sharing
 
 ## 🎨 Design System - "Black Veil Empress"
 
@@ -49,10 +92,12 @@ export async function GET(request: NextRequest) {
 
 ## 🔐 Authentication & Authorization
 
-NextAuth.js v5 with Keycloak provider:
+NextAuth.js v5 with optional Keycloak OAuth provider:
 - Session via `requireAuth()` in API routes
 - User roles: `ADMIN | LAWYER | CLIENT | STAFF` (see Prisma schema)
 - Multi-tenant via `Membership` model
+- Credentials provider for local development (when Keycloak not configured)
+- Keycloak provider enabled when `KEYCLOAK_CLIENT_ID` and `KEYCLOAK_ISSUER` are set
 
 ## 📊 Data Flow Patterns
 
