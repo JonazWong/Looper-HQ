@@ -3,7 +3,11 @@ import { ArrowRight, Scale, Shield, Search, Users, Clock, FileText, Brain, Globe
 import { PremierButton } from "@/components/ui/premier-button"
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
 
-export default function HomePage() {
+export default function HomePage({
+  params: { locale }
+}: {
+  params: { locale: string }
+}) {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-premier-black via-premier-black-medium to-premier-black">
       {/* Header */}
@@ -14,10 +18,10 @@ export default function HomePage() {
             <span className="text-xl font-serif font-bold text-gradient-gold">Looper HQ</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login">
+            <Link href={`/${locale}/login`}>
               <PremierButton variant="ghost">會員登入</PremierButton>
             </Link>
-            <Link href="/register">
+            <Link href={`/${locale}/register`}>
               <PremierButton variant="primary">立即開始</PremierButton>
             </Link>
           </div>
@@ -34,12 +38,12 @@ export default function HomePage() {
             香港法律案例智能搜尋平台
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Link href="/register">
+            <Link href={`/${locale}/register`}>
               <PremierButton size="lg" variant="primary">
                 立即開始 <ArrowRight className="ml-2 h-4 w-4" />
               </PremierButton>
             </Link>
-            <Link href="/login">
+            <Link href={`/${locale}/login`}>
               <PremierButton size="lg" variant="ghost">
                 會員登入
               </PremierButton>
@@ -97,7 +101,7 @@ export default function HomePage() {
                 <li>✓ 每日 5 次搜尋</li>
                 <li>✗ AI 分類</li>
               </ul>
-              <Link href="/case-search" className="block">
+              <Link href={`/${locale}/case-search`} className="block">
                 <PremierButton variant="ghost" className="w-full">立即體驗</PremierButton>
               </Link>
             </GlassCardContent>
@@ -113,7 +117,7 @@ export default function HomePage() {
                 <li>✓ 每日 50 次搜尋</li>
                 <li>✓ AI 智能分類</li>
               </ul>
-              <Link href="/register" className="block">
+              <Link href={`/${locale}/register`} className="block">
                 <PremierButton variant="primary" className="w-full">免費註冊</PremierButton>
               </Link>
             </GlassCardContent>
@@ -129,7 +133,7 @@ export default function HomePage() {
                 <li>✓ 無限搜尋</li>
                 <li>✓ 導出 PDF/Excel</li>
               </ul>
-              <Link href="/register?plan=premium" className="block">
+              <Link href={`/${locale}/register?plan=premium`} className="block">
                 <PremierButton variant="mystery" className="w-full">立即升級</PremierButton>
               </Link>
             </GlassCardContent>

@@ -3,7 +3,11 @@ import { ArrowRight, Scale, Shield, Search, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export default function LandingPage() {
+export default function LandingPage({
+  params: { locale }
+}: {
+  params: { locale: string }
+}) {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -14,10 +18,10 @@ export default function LandingPage() {
             <span className="text-xl font-bold">Looper HQ</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login">
+            <Link href={`/${locale}/login`}>
               <Button variant="ghost">Login</Button>
             </Link>
-            <Link href="/register">
+            <Link href={`/${locale}/register`}>
               <Button>Get Started</Button>
             </Link>
           </div>
@@ -35,12 +39,12 @@ export default function LandingPage() {
             client portals, and public case search in one powerful platform.
           </p>
           <div className="flex gap-4 justify-center">
-            <Link href="/register">
+            <Link href={`/${locale}/register`}>
               <Button size="lg">
                 Get Started <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/case-search">
+            <Link href={`/${locale}/case-search`}>
               <Button size="lg" variant="outline">
                 Search Cases
               </Button>
@@ -119,7 +123,7 @@ export default function LandingPage() {
           <p className="text-lg text-muted-foreground mb-8">
             Join law firms across Hong Kong using Looper HQ to manage their practice
           </p>
-          <Link href="/register">
+          <Link href={`/${locale}/register`}>
             <Button size="lg">
               Start Your Free Trial <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

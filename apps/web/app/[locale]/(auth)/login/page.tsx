@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams, useParams } from "next/navigation"
 import Link from "next/link"
 import { signIn } from "next-auth/react"
 import { AuthLayout } from "@/components/layout/auth-layout"
@@ -14,7 +14,9 @@ import { Chrome, Github } from "lucide-react"
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
+  const params = useParams()
+  const locale = params.locale as string
+  const callbackUrl = searchParams.get("callbackUrl") || `/${locale}/dashboard`
   const error = searchParams.get("error")
 
   const [email, setEmail] = useState("")
@@ -173,7 +175,7 @@ function LoginForm() {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-premier-pearl">密碼</Label>
                 <Link
-                  href="/forgot-password"
+                  href={`/${locale}/forgot-password`}
                   className="text-sm text-premier-gold hover:text-premier-gold-rose transition-colors"
                 >
                   忘記密碼？
@@ -202,7 +204,7 @@ function LoginForm() {
         <GlassCardFooter className="flex flex-col gap-2">
           <div className="text-sm text-premier-pearl-gray text-center">
             還沒有帳號？{" "}
-            <Link href="/register" className="text-premier-gold hover:text-premier-gold-rose transition-colors">
+            <Link href={`/${locale}/register`} className="text-premier-gold hover:text-premier-gold-rose transition-colors">
               立即註冊
             </Link>
           </div>
