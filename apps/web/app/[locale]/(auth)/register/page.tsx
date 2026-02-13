@@ -3,7 +3,6 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useLocale } from "next-intl"
 import { AuthLayout } from "@/components/layout/auth-layout"
 import { PremierButton } from "@/components/ui/premier-button"
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardFooter, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
@@ -13,7 +12,6 @@ import { Label } from "@/components/ui/label"
 
 export default function RegisterPage() {
   const router = useRouter()
-  const locale = useLocale()
   const [isLoading, setIsLoading] = useState(false)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -42,7 +40,7 @@ export default function RegisterPage() {
       }
 
       // Registration successful, redirect to login
-      router.push(`/${locale}/login?registered=true`)
+      router.push('/login?registered=true')
     } catch (error) {
       console.error('Registration error:', error)
       // Distinguish between network errors and other errors
@@ -71,7 +69,7 @@ export default function RegisterPage() {
 
   const handleDemoAccount = () => {
     setIsLoading(true)
-    router.push(`/${locale}/login?demo=true`)
+    router.push("/login?demo=true")
   }
 
   return (
@@ -196,7 +194,7 @@ export default function RegisterPage() {
         <GlassCardFooter className="flex flex-col gap-2">
           <div className="text-sm text-premier-pearl-gray text-center">
             已有帳號？{" "}
-            <Link href={`/${locale}/login`} className="text-premier-gold hover:text-premier-gold-rose transition-colors">
+            <Link href="/login" className="text-premier-gold hover:text-premier-gold-rose transition-colors">
               立即登入
             </Link>
           </div>
