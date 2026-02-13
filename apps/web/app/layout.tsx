@@ -1,4 +1,5 @@
 import '@/styles/globals.css'
+import { defaultLocale } from '@/i18n'
 
 /**
  * Root Layout
@@ -10,7 +11,7 @@ import '@/styles/globals.css'
  * IMPORTANT: Do NOT redirect here as it will break API routes.
  * Locale redirection is handled by middleware and /page.tsx.
  * 
- * Note: The lang="zh" attribute provides a default for non-locale routes.
+ * Note: The lang attribute uses defaultLocale for non-locale routes.
  * Locale-specific pages override this in app/[locale]/layout.tsx.
  */
 export default function RootLayout({
@@ -19,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh" suppressHydrationWarning>
+    <html lang={defaultLocale} suppressHydrationWarning>
       <body>{children}</body>
     </html>
   )

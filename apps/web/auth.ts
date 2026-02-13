@@ -188,6 +188,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const pathname = nextUrl.pathname
       
       // Strip locale prefix (e.g., /zh/dashboard -> /dashboard) using configured locales
+      // Note: replace() with anchored regex (^) is efficient - only matches at start of string
       const pathWithoutLocale = pathname.replace(localeRegex, '') || '/'
       
       const isOnDashboard = pathWithoutLocale.startsWith("/dashboard")
