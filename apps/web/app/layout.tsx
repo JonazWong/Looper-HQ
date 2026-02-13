@@ -1,14 +1,24 @@
-import { redirect } from 'next/navigation'
-import { defaultLocale } from '@/i18n'
+import '@/styles/globals.css'
 
-// Root layout - redirects to default locale
+/**
+ * Root Layout
+ * 
+ * This layout renders the base HTML structure for ALL routes, including:
+ * - API routes like /api/auth/* (NextAuth endpoints)
+ * - Locale-specific routes like /[locale]/* 
+ * 
+ * IMPORTANT: Do NOT redirect here as it will break API routes.
+ * Locale redirection is handled by middleware and /page.tsx.
+ */
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  // This layout will only be used for the root path "/"
-  // Redirect to default locale
-  redirect(`/${defaultLocale}`)
+  return (
+    <html suppressHydrationWarning>
+      <body>{children}</body>
+    </html>
+  )
 }
 
