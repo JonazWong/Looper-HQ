@@ -195,7 +195,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const pathWithoutLocale = pathname.replace(localeRegex, '') || '/'
       
       const isOnDashboard = pathWithoutLocale.startsWith("/dashboard")
-      const isOnAuth = authRoutes.includes(pathWithoutLocale)
+      const isOnAuth = authRoutes.some(route => pathWithoutLocale.startsWith(route))
 
       // Redirect authenticated users away from auth pages
       if (isLoggedIn && isOnAuth) {
