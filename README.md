@@ -1,4 +1,4 @@
-# 🏛️ Looper HQ Nexus-L
+# 🏛️ Looper HQ
 
 > **AI-Powered Legal Case Database & Intelligent Search Platform for Hong Kong**  
 > Professional legal case management with comprehensive database and advanced search algorithms
@@ -7,9 +7,9 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=next.js)](https://nextjs.org/)
 
-## 🌟 Platform Architecture
+## 🌟 Platform Features
 
-### Nexus Legal (Core Functions)
+### Core Functions
 **Primary Legal Case Management System**
 - 💼 **Cases Management** - Comprehensive case lifecycle management
 - 👥 **Clients Management** - Client records & communication portal

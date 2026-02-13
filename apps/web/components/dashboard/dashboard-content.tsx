@@ -125,7 +125,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
       {/* Header */}
       <motion.div variants={itemVariants}>
         <h1 className="text-4xl font-serif font-bold text-gradient-gold mb-2">
-          Nexus Legal
+          Looper HQ
         </h1>
         <p className="text-premier-pearl-gray">
           香港法律案件管理系統 - 專業高效的案件與客戶管理平台

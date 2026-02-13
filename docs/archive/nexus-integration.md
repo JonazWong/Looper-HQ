@@ -1,8 +1,8 @@
-# Looper HQ Nexus-L 整合完成報告
+# Looper HQ 整合完成報告
 
 ## 📅 整合日期
 **完成時間**: 2026-02-06  
-**專案名稱**: Looper HQ Nexus-L v2.0  
+**專案名稱**: Looper HQ v2.0  
 **架構**: Enterprise-Grade Monorepo
 
 ---
@@ -11,14 +11,14 @@
 
 ### 1. 專案重命名與定位 ✅
 **舊名稱**: Looper HQ v1.0  
-**新名稱**: Looper HQ Nexus-L v2.0
+**新名稱**: Looper HQ v2.0
 
 **package.json**:
 ```json
 {
-  "name": "looper-hq-nexus-l",
+  "name": "looper-hq",
   "version": "2.0.0",
-  "description": "Looper HQ Nexus-L - Enterprise-grade legal case management platform for Hong Kong"
+  "description": "Looper HQ - Enterprise-grade legal case management platform for Hong Kong"
 }
 ```
 
@@ -28,16 +28,16 @@
 ┌─────────────────────────────────────────────────┐
 │      Looper HQ (企業級基礎設施)                │
 │           ↓                                     │
-│      Nexus Legal (核心業務)                    │
+│      Core Functions (核心業務)                  │
 ├─────────────────────────────────────────────────┤
 │                                                   │
-│  🏛️ NEXUS LEGAL - 核心功能 (主要)              │
+│  🏛️ CORE FUNCTIONS - 核心功能 (主要)           │
 │     ├── 💼 Cases (案件管理)                     │
 │     ├── 👥 Clients (客戶管理)                   │
 │     ├── 🔍 Search (智能搜尋)                    │
 │     └── 📊 Dashboard (數據儀表板)               │
 │                                                   │
-│  🔧 LOOPER HQ - 配套功能 (輔助)                 │
+│  🔧 SUPPORTING FEATURES - 配套功能 (輔助)       │
 │     ├── 📄 Documents (文檔管理)                 │
 │     ├── 📅 Calendar (日程追蹤)                  │
 │     ├── ⏱️ Time Tracking (工時記錄)             │
@@ -59,7 +59,7 @@
 **新版**:
 ```tsx
 <h1 className="text-4xl font-serif font-bold text-gradient-gold">
-  Nexus Legal
+  Looper HQ
 </h1>
 <p className="text-premier-pearl-gray">
   香港法律案件管理系統 - 專業高效的案件與客戶管理平台
@@ -75,7 +75,7 @@
 const sidebarItems = [
   { label: "dashboard", href: "/dashboard", icon: LayoutDashboard },
   
-  // === NEXUS LEGAL CORE FUNCTIONS ===
+  // === CORE FUNCTIONS ===
   { label: "cases", href: "/dashboard/cases", icon: Briefcase },
   { label: "clients", href: "/dashboard/clients", icon: Users },
   { label: "search", href: "/dashboard/search", icon: Search },
@@ -93,8 +93,8 @@ const sidebarItems = [
 
 ```typescript
 export const metadata: Metadata = {
-  title: "Looper HQ Nexus-L - Legal Case Management Platform",
-  description: "Nexus Legal - Unified enterprise-grade legal case management system for Hong Kong",
+  title: "Looper HQ - Legal Case Management Platform",
+  description: "Looper HQ - Unified enterprise-grade legal case management system for Hong Kong",
 }
 ```
 
@@ -103,21 +103,21 @@ export const metadata: Metadata = {
 **文件**: `README.md`
 
 ```markdown
-# 🏛️ Looper HQ Nexus-L
+# 🏛️ Looper HQ
 
 > **Enterprise-Grade Legal Case Management Platform for Hong Kong**  
-> **Nexus Legal Core + Looper HQ Infrastructure**
+> **Core Functions + Supporting Infrastructure**
 
-## 🌟 Platform Architecture
+## 🌟 Platform Features
 
-### Nexus Legal (Core Functions)
+### Core Functions
 **Primary Legal Case Management System**
 - 💼 **Cases Management** - Comprehensive case lifecycle management
 - 👥 **Clients Management** - Client records & communication portal
 - 🔍 **Smart Search** - Intelligent case & document search
 - 📊 **Analytics Dashboard** - Real-time insights & reporting
 
-### Looper HQ (Supporting Infrastructure)
+### Supporting Infrastructure
 **Enterprise Platform Features**
 - 📄 **Document Management** - Secure file storage & version control
 - 📅 **Calendar** - Court dates & deadline tracking
@@ -129,14 +129,14 @@ export const metadata: Metadata = {
 
 ## 📂 目錄結構
 
-### Looper HQ Nexus-L (主專案)
+### Looper HQ (主專案)
 ```
 d:\Looper HQ Platform\Looper-HQ\
 ├── apps/
-│   ├── web/                        ← 主應用 (Nexus Legal + Looper HQ)
+│   ├── web/                        ← 主應用 (Core + Supporting Functions)
 │   │   ├── app/
 │   │   │   ├── (dashboard)/
-│   │   │   │   ├── dashboard/      ← Nexus Legal 主頁
+│   │   │   │   ├── dashboard/      ← Dashboard 主頁
 │   │   │   │   ├── cases/          ← 案件管理 (核心)
 │   │   │   │   ├── clients/        ← 客戶管理 (核心)
 │   │   │   │   ├── search/         ← 智能搜尋 (核心)
@@ -183,7 +183,7 @@ pnpm docker:up
 # 切換到專案目錄
 cd 'd:\Looper HQ Platform\Looper-HQ'
 
-# 啟動 Nexus Legal (Web 主應用)
+# 啟動 Web 主應用
 pnpm dev:web
 
 # 或啟動所有應用
@@ -191,8 +191,8 @@ pnpm dev:all
 ```
 
 **訪問地址**:
-- **Looper HQ 公司大門**: http://localhost:3000
-- **Nexus Legal Dashboard**: http://localhost:3000/dashboard (需登入)
+- **Looper HQ 主頁**: http://localhost:3000
+- **Dashboard**: http://localhost:3000/dashboard (需登入)
 - **公開案件搜尋**: http://localhost:3001 (legal-case-search)
 
 ### Demo 帳號
@@ -254,8 +254,8 @@ pnpm db:studio
 
 ## 📊 功能對比
 
-| 功能 | Nexus Legal (核心) | Looper HQ (輔助) | 狀態 |
-|------|-------------------|------------------|------|
+| 功能 | Core Functions | Supporting Features | 狀態 |
+|------|----------------|---------------------|------|
 | **案件管理** | ✅ 主要功能 | - | ✅ 完整 |
 | **客戶管理** | ✅ 主要功能 | - | ✅ 完整 |
 | **智能搜尋** | ✅ 主要功能 | - | ✅ 完整 |
@@ -288,8 +288,7 @@ pnpm db:studio
 ## 📝 後續待辦事項
 
 ### Phase 1: API 整合 (如需要)
-- [ ] 複製 Nexus API routes 到 Looper (如缺失)
-- [ ] 驗證所有 Nexus 功能正常運作
+- [ ] 驗證所有功能正常運作
 - [ ] 測試案件與客戶管理流程
 
 ### Phase 2: 數據遷移 (如需要)
@@ -316,11 +315,10 @@ pnpm db:studio
 
 ## 📞 聯絡資訊
 
-**專案**: Looper HQ Nexus-L  
+**專案**: Looper HQ  
 **版本**: 2.0.0  
 **架構**: Enterprise Monorepo  
-**核心**: Nexus Legal  
-**基礎設施**: Looper HQ
+**核心**: Case Management Platform
 
 ---
 
