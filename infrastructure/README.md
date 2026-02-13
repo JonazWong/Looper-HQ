@@ -233,7 +233,7 @@ KEYCLOAK_FRONTEND_URL=http://localhost:8080
 Override default ports via environment variables:
 
 ```env
-POSTGRES_PORT=5432
+POSTGRES_PORT=55432  # Example: expose PostgreSQL on port 55432
 REDIS_PORT=6380
 KEYCLOAK_PORT=8081
 PGADMIN_PORT=5051

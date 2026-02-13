@@ -40,7 +40,7 @@ pnpm dev:all    # Both apps in parallel
 - `pnpm dev` - Start all apps via Turborepo
 - `pnpm --filter=@looper-hq/database prisma studio` - Database GUI on :5555
 - `pnpm db:push` - Sync Prisma schema to DB (dev only, no migrations)
-- `pnpm db:migrate` - Create and apply migrations (production workflow)
+- `pnpm db:migrate` - Create and apply migrations in development (uses `prisma migrate dev`)
 
 **IMPORTANT**: After modifying `packages/database/prisma/schema.prisma`, you MUST run `pnpm --filter=@looper-hq/database prisma generate` before building/testing.
 
