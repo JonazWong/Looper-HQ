@@ -15,7 +15,7 @@ export default function SitemapPage() {
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-premier-gold via-premier-gold-champagne to-premier-gold bg-clip-text text-transparent">
-            Looper HQ Nexus-L
+            Looper HQ
           </h1>
           <p className="text-premier-pearl-gray text-lg">
             完整頁面導航 - Site Navigation
@@ -206,7 +206,7 @@ export default function SitemapPage() {
 
         {/* Footer Info */}
         <div className="text-center text-sm text-premier-pearl-gray border-t border-premier-gold/10 pt-6">
-          <p>Looper HQ Nexus-L - Nexus Legal | 香港法律案件管理系統</p>
+          <p>Looper HQ | 香港法律案件管理系統</p>
           <p className="text-xs mt-2">Running on http://localhost:3005</p>
         </div>
       </div>

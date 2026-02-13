@@ -35,7 +35,7 @@ export function Sidebar() {
       href: `/${locale}/dashboard`,
       icon: LayoutDashboard,
     },
-    // === NEXUS LEGAL CORE FUNCTIONS ===
+    // === CORE FUNCTIONS ===
     {
       labelKey: "cases" as const,
       href: `/${locale}/dashboard/cases`,

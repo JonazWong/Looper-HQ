@@ -8,7 +8,7 @@ This directory contains historical documentation for reference purposes.
 
 ### Implementation Documentation
 - **[implementation-summary.md](./implementation-summary.md)** - Implementation completion notes (Feb 2026)
-- **[nexus-integration.md](./nexus-integration.md)** - Nexus Legal integration process
+- **[nexus-integration.md](./nexus-integration.md)** - Integration process (now renamed to Looper HQ)
 - **[system-checks.md](./system-checks.md)** - System verification results
 
 ### Feature Implementation Archives
@@ -47,7 +47,7 @@ For up-to-date information, please refer to:
 | Document | Original Date | Archived Date | Reason |
 |----------|--------------|---------------|---------|
 | implementation-summary.md | 2026-02-01 | 2026-02-09 | Implementation completed |
-| nexus-integration.md | 2026-02 | 2026-02-09 | Integration completed |
+| nexus-integration.md | 2026-02 | 2026-02-09 | Integration completed - Renamed to Looper HQ |
 | system-checks.md | 2026-02 | 2026-02-09 | One-time verification |
 | fts-implementation.md | 2026-02 | 2026-02-09 | Feature completed |
 | fulltext-search.md | 2026-02 | 2026-02-09 | Duplicate documentation |

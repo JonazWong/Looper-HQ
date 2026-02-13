@@ -1,8 +1,8 @@
 {
-  "name": "looper-hq-nexus-l",
+  "name": "looper-hq",
   "version": "2.0.0",
   "private": true,
-  "description": "Looper HQ Nexus-L - Enterprise-grade legal case management platform for Hong Kong",
+  "description": "Looper HQ - Enterprise-grade legal case management platform for Hong Kong",
   "author": "JonazWong",
   "license": "MIT",
   "engines": {

@@ -12,10 +12,10 @@ export async function generateMetadata({ params: { locale } }: { params: { local
   const isZh = locale === 'zh';
   
   return {
-    title: isZh ? "Looper HQ Nexus-L - 香港法律案例管理平台" : "Looper HQ Nexus-L - Legal Case Management Platform",
+    title: isZh ? "Looper HQ - 香港法律案例管理平台" : "Looper HQ - Legal Case Management Platform",
     description: isZh 
-      ? "Nexus Legal - 香港統一企業級法律案例管理系統"
-      : "Nexus Legal - Unified enterprise-grade legal case management system for Hong Kong",
+      ? "Looper HQ - 香港統一企業級法律案例管理系統"
+      : "Looper HQ - Unified enterprise-grade legal case management system for Hong Kong",
   };
 }
 

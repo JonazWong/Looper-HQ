@@ -1,6 +1,6 @@
 /**
- * Looper HQ Nexus-L Dashboard Page
- * Nexus Legal - Core Legal Case Management Platform
+ * Looper HQ Dashboard Page
+ * Core Legal Case Management Platform
  * Server Component - fetches real data from database
  */
 
