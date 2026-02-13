@@ -43,9 +43,10 @@ import {
 import { ActivityTimeline, type Activity } from "@/components/ui/activity-timeline"
 import { CaseStatus, Priority, CaseCategory, ActivityType } from "@prisma/client"
 import { formatHKDate, formatHKDateTime } from "@/lib/utils"
+import { getLocalizedField } from "@looper-hq/utils"
 
 interface CaseDetailPageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string; locale: string }>
 }
 
 // Constants
@@ -182,7 +183,7 @@ function formatFileSize(bytes: number): string {
 }
 
 export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
-  const { id } = await params
+  const { id, locale } = await params
   const case_ = await getCaseDetails(id)
 
   if (!case_) {
@@ -239,7 +240,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               </Badge>
             </div>
             <p className="text-premier-pearl-gray mt-1">
-              {case_.title}
+              {getLocalizedField(case_, 'title', locale as 'zh' | 'en')}
             </p>
           </div>
         </div>
@@ -269,7 +270,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             <div>
               <label className="text-sm text-premier-pearl-gray">Description</label>
               <p className="text-premier-pearl">
-                {case_.description || 'No description provided'}
+                {getLocalizedField(case_, 'description', locale as 'zh' | 'en') || 'No description provided'}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -562,7 +563,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                     </p>
                   </div>
                   <p className="text-premier-pearl whitespace-pre-wrap">
-                    {note.content}
+                    {getLocalizedField(note, 'content', locale as 'zh' | 'en')}
                   </p>
                 </div>
               ))}
