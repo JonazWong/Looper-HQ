@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { 
   Search as SearchIcon,
   FileText,
@@ -68,6 +68,8 @@ interface SearchResponseData {
 export default function PublicCasesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
+  const locale = params.locale as string;
   
   const [cases, setCases] = useState<PublicCase[]>([]);
   const [loading, setLoading] = useState(false);
@@ -165,16 +167,16 @@ export default function PublicCasesPage() {
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b border-premier-gold/10 backdrop-blur-md bg-premier-black/80">
         <div className="container flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <Link href={`/${locale}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <ArrowLeft className="h-5 w-5 text-premier-gold" />
             <Scale className="h-6 w-6 text-premier-gold" />
             <span className="text-xl font-bold bg-premier-gold bg-clip-text text-transparent">Looper HQ</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/login">
+            <Link href={`/${locale}/login`}>
               <PremierButton variant="ghost">Login</PremierButton>
             </Link>
-            <Link href="/register">
+            <Link href={`/${locale}/register`}>
               <PremierButton variant="primary">Get Started</PremierButton>
             </Link>
           </div>
@@ -432,11 +434,11 @@ export default function PublicCasesPage() {
         <div className="mt-12 pt-8 border-t border-premier-gold/10 text-center">
           <p className="text-sm text-premier-pearl-dark">
             資料每日自動更新 | 如需專業法律服務，請{' '}
-            <Link href="/register" className="text-premier-gold hover:underline">
+            <Link href={`/${locale}/register`} className="text-premier-gold hover:underline">
               註冊帳號
             </Link>
             {' '}或{' '}
-            <Link href="/login" className="text-premier-gold hover:underline">
+            <Link href={`/${locale}/login`} className="text-premier-gold hover:underline">
               登入
             </Link>
           </p>
