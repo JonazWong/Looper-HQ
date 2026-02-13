@@ -158,7 +158,7 @@ docker-compose -f infrastructure/docker/docker-compose.yml restart postgres
 | Keycloak   | 8080          | 8080          | Auth server & Admin UI |
 | pgAdmin    | 80            | 5050          | Database management UI |
 
-**Note**: External ports can be customized via environment variables (e.g., `POSTGRES_PORT=5432`)
+**Note**: External ports can be customized via environment variables (e.g., `POSTGRES_PORT=55432` to expose PostgreSQL on port 55432 instead of 5432).
 
 ## 🔑 Access Credentials
 
