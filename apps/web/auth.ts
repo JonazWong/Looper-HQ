@@ -98,10 +98,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   // Note: pages config removed to let middleware handle locale-aware redirects
   // The middleware correctly redirects to /{locale}/login based on the user's locale
-  // pages: {
-  //   signIn: "/login",
-  //   error: "/login",
-  // },
 
   callbacks: {
     /**

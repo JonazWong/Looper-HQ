@@ -9,6 +9,9 @@ import '@/styles/globals.css'
  * 
  * IMPORTANT: Do NOT redirect here as it will break API routes.
  * Locale redirection is handled by middleware and /page.tsx.
+ * 
+ * Note: The lang="zh" attribute provides a default for non-locale routes.
+ * Locale-specific pages override this in app/[locale]/layout.tsx.
  */
 export default function RootLayout({
   children,
