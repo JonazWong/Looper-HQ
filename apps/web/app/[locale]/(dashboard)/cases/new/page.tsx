@@ -47,8 +47,10 @@ export default function NewCasePage() {
   const [error, setError] = useState<string | null>(null)
   
   // Form state
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
+  const [titleZh, setTitleZh] = useState("")
+  const [titleEn, setTitleEn] = useState("")
+  const [descriptionZh, setDescriptionZh] = useState("")
+  const [descriptionEn, setDescriptionEn] = useState("")
   const [category, setCategory] = useState<CaseCategory>("CIVIL")
   const [priority, setPriority] = useState<Priority>("MEDIUM")
   const [clientId, setClientId] = useState("")
@@ -56,6 +58,8 @@ export default function NewCasePage() {
   const [courtDate, setCourtDate] = useState("")
   const [estimatedValue, setEstimatedValue] = useState("")
   const [isPublic, setIsPublic] = useState(false)
+  const [publicNoteZh, setPublicNoteZh] = useState("")
+  const [publicNoteEn, setPublicNoteEn] = useState("")
 
   // Search states
   const [clientSearch, setClientSearch] = useState("")
@@ -109,16 +113,20 @@ export default function NewCasePage() {
 
     try {
       // Validate required fields
-      if (!title.trim()) {
-        throw new Error('Title is required')
+      if (!titleZh.trim() || !titleEn.trim()) {
+        throw new Error('Both Chinese and English titles are required')
       }
       if (!clientId) {
         throw new Error('Client is required')
       }
 
       const caseData = {
-        title: title.trim(),
-        description: description.trim() || undefined,
+        title_zh: titleZh.trim(),
+        title_en: titleEn.trim(),
+        description_zh: descriptionZh.trim() || undefined,
+        description_en: descriptionEn.trim() || undefined,
+        publicNote_zh: publicNoteZh.trim() || undefined,
+        publicNote_en: publicNoteEn.trim() || undefined,
         category,
         priority,
         clientId,
@@ -188,32 +196,66 @@ export default function NewCasePage() {
             </GlassCardDescription>
           </GlassCardHeader>
           <GlassCardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title" className="text-premier-pearl">
-                Title <span className="text-red-400">*</span>
-              </Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., Property Dispute - 123 Main Street"
-                required
-                className="bg-premier-charcoal/50 border-premier-gold/30 text-premier-pearl"
-              />
+            {/* Bilingual Title Fields */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="title_zh" className="text-premier-pearl">
+                  Title (中文) <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="title_zh"
+                  value={titleZh}
+                  onChange={(e) => setTitleZh(e.target.value)}
+                  placeholder="例如：物業糾紛 - 皇后大道中123號"
+                  required
+                  className="bg-premier-charcoal/50 border-premier-gold/30 text-premier-pearl"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="title_en" className="text-premier-pearl">
+                  Title (English) <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="title_en"
+                  value={titleEn}
+                  onChange={(e) => setTitleEn(e.target.value)}
+                  placeholder="e.g., Property Dispute - 123 Queen's Road Central"
+                  required
+                  className="bg-premier-charcoal/50 border-premier-gold/30 text-premier-pearl"
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-premier-pearl">
-                Description
-              </Label>
-              <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Provide a detailed description of the case..."
-                rows={4}
-                className="w-full px-3 py-2 bg-premier-charcoal/50 border border-premier-gold/30 rounded-md text-premier-pearl placeholder:text-premier-pearl-gray focus:outline-none focus:ring-2 focus:ring-premier-gold"
-              />
+            {/* Bilingual Description Fields */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="description_zh" className="text-premier-pearl">
+                  Description (中文)
+                </Label>
+                <textarea
+                  id="description_zh"
+                  value={descriptionZh}
+                  onChange={(e) => setDescriptionZh(e.target.value)}
+                  placeholder="提供案件的詳細描述..."
+                  rows={4}
+                  className="w-full px-3 py-2 bg-premier-charcoal/50 border border-premier-gold/30 rounded-md text-premier-pearl placeholder:text-premier-pearl-gray focus:outline-none focus:ring-2 focus:ring-premier-gold"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="description_en" className="text-premier-pearl">
+                  Description (English)
+                </Label>
+                <textarea
+                  id="description_en"
+                  value={descriptionEn}
+                  onChange={(e) => setDescriptionEn(e.target.value)}
+                  placeholder="Provide a detailed description of the case..."
+                  rows={4}
+                  className="w-full px-3 py-2 bg-premier-charcoal/50 border border-premier-gold/30 rounded-md text-premier-pearl placeholder:text-premier-pearl-gray focus:outline-none focus:ring-2 focus:ring-premier-gold"
+                />
+              </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -426,6 +468,39 @@ export default function NewCasePage() {
                 Make this case publicly visible
               </Label>
             </div>
+            
+            {/* Bilingual Public Note Fields - shown when case is public */}
+            {isPublic && (
+              <div className="grid gap-4 md:grid-cols-2 pt-4 border-t border-premier-gold/20">
+                <div className="space-y-2">
+                  <Label htmlFor="publicNote_zh" className="text-premier-pearl">
+                    Public Note (中文)
+                  </Label>
+                  <textarea
+                    id="publicNote_zh"
+                    value={publicNoteZh}
+                    onChange={(e) => setPublicNoteZh(e.target.value)}
+                    placeholder="公開顯示的備註..."
+                    rows={2}
+                    className="w-full px-3 py-2 bg-premier-charcoal/50 border border-premier-gold/30 rounded-md text-premier-pearl placeholder:text-premier-pearl-gray focus:outline-none focus:ring-2 focus:ring-premier-gold"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="publicNote_en" className="text-premier-pearl">
+                    Public Note (English)
+                  </Label>
+                  <textarea
+                    id="publicNote_en"
+                    value={publicNoteEn}
+                    onChange={(e) => setPublicNoteEn(e.target.value)}
+                    placeholder="Public note for display..."
+                    rows={2}
+                    className="w-full px-3 py-2 bg-premier-charcoal/50 border border-premier-gold/30 rounded-md text-premier-pearl placeholder:text-premier-pearl-gray focus:outline-none focus:ring-2 focus:ring-premier-gold"
+                  />
+                </div>
+              </div>
+            )}
           </GlassCardContent>
         </GlassCard>
 

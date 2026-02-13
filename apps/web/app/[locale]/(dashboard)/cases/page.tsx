@@ -37,6 +37,7 @@ import {
 import { CasesFilters } from "@/components/cases/cases-filters"
 import { CasesPagination } from "@/components/cases/cases-pagination"
 import { CaseStatus, Priority, CaseCategory } from "@prisma/client"
+import { getLocalizedField } from "@looper-hq/utils"
 
 interface SearchParams {
   search?: string
@@ -47,6 +48,7 @@ interface SearchParams {
 }
 
 interface CasesPageProps {
+  params: Promise<{ locale: string }>
   searchParams: Promise<SearchParams>
 }
 
@@ -68,7 +70,8 @@ async function getCases(params: SearchParams) {
     if (params.search) {
       where.OR = [
         { caseNumber: { contains: params.search, mode: 'insensitive' } },
-        { title: { contains: params.search, mode: 'insensitive' } },
+        { title_zh: { contains: params.search, mode: 'insensitive' } },
+        { title_en: { contains: params.search, mode: 'insensitive' } },
         { client: { name: { contains: params.search, mode: 'insensitive' } } },
       ]
     }
@@ -198,9 +201,10 @@ function formatCategory(category: CaseCategory): string {
   return category.replace('_', ' ')
 }
 
-export default async function CasesPage({ searchParams }: CasesPageProps) {
-  // Await searchParams (Next.js 15 requirement)
+export default async function CasesPage({ params: paramsPromise, searchParams }: CasesPageProps) {
+  // Await searchParams and params (Next.js 15 requirement)
   const params = await searchParams
+  const { locale } = await paramsPromise
   
   // Fetch data in parallel
   const [{ cases, totalCases, currentPage, totalPages }, stats] = await Promise.all([
@@ -324,7 +328,7 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
                           </Link>
                         </TableCell>
                         <TableCell className="max-w-xs truncate text-premier-pearl">
-                          {case_.title}
+                          {getLocalizedField(case_, 'title', locale as 'zh' | 'en')}
                         </TableCell>
                         <TableCell className="text-premier-pearl-gray">
                           {case_.client.name || UNKNOWN_CLIENT}
