@@ -194,7 +194,7 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
 
 # NextAuth (REQUIRED for authentication)
 NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
-NEXTAUTH_URL="http://localhost:3005"  # NOTE: .env.example shows :3000 but dev runs on :3005
+NEXTAUTH_URL="http://localhost:3005"
 
 # Keycloak OAuth (OPTIONAL - credentials provider works without it)
 KEYCLOAK_CLIENT_ID="looper-hq-web"
@@ -242,7 +242,6 @@ pnpm db:push                                        # Sync to DB (dev)
 - **Keycloak not required**: App works with credentials provider (email/password)
 - **Session errors**: Verify `NEXTAUTH_SECRET` is set in `.env`
 - **Redirect loops**: Check `NEXTAUTH_URL` matches your dev server port (web: 3005, legal: 3001)
-- **Port mismatch**: `.env.example` shows NEXTAUTH_URL as :3000, but `apps/web/package.json` uses :3005 - update your `.env` accordingly
 
 ## 🚫 Prohibited Actions
 - Breaking existing API contracts without migration plan
