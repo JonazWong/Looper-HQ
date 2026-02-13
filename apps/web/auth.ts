@@ -4,7 +4,6 @@ import Keycloak from "next-auth/providers/keycloak"
 import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/lib/db"
 import { UserRole } from "@prisma/client"
-import { locales, defaultLocale } from "@/i18n"
 
 // Extend NextAuth types for custom session properties
 declare module "next-auth" {
@@ -29,13 +28,6 @@ declare module "next-auth/jwt" {
     keycloakId?: string
   }
 }
-
-// Create locale regex pattern from configured locales
-const localePattern = locales.join('|')
-const localeRegex = new RegExp(`^/(${localePattern})`)
-
-// Auth routes that should redirect to dashboard when user is logged in
-const authRoutes = ['/login', '/register']
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -96,8 +88,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
-  // Note: pages config removed to let middleware handle locale-aware redirects
-  // The middleware correctly redirects to /{locale}/login based on the user's locale
+  pages: {
+    signIn: "/login",
+    error: "/login",
+  },
 
   callbacks: {
     /**
@@ -179,26 +173,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     /**
      * Authorized callback - controls access to pages
      * This runs on middleware-protected routes
-     * 
-     * Note: With i18n routing, paths include locale prefix like /zh/dashboard or /en/login
-     * We strip the locale prefix before checking paths to make this work with any locale
      */
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
-      const pathname = nextUrl.pathname
-      
-      // Strip locale prefix (e.g., /zh/dashboard -> /dashboard) using configured locales
-      // Note: replace() with anchored regex (^) is efficient - only matches at start of string
-      const pathWithoutLocale = pathname.replace(localeRegex, '') || '/'
-      
-      const isOnDashboard = pathWithoutLocale.startsWith("/dashboard")
-      const isOnAuth = authRoutes.some(route => pathWithoutLocale.startsWith(route))
+      const isOnDashboard = nextUrl.pathname.startsWith("/dashboard")
+      const isOnAuth = nextUrl.pathname.startsWith("/login") || 
+                       nextUrl.pathname.startsWith("/register")
 
       // Redirect authenticated users away from auth pages
       if (isLoggedIn && isOnAuth) {
-        // Preserve the locale when redirecting, fallback to default
-        const locale = pathname.match(localeRegex)?.[1] || defaultLocale
-        return Response.redirect(new URL(`/${locale}/dashboard`, nextUrl))
+        return Response.redirect(new URL("/dashboard", nextUrl))
       }
 
       // Require authentication for dashboard
