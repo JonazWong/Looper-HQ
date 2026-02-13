@@ -25,6 +25,11 @@ export interface Client {
   email: string;
   phone: string;
   address: string | null;
+  
+  // Bilingual notes
+  notes_zh: string | null;
+  notes_en: string | null;
+  
   membershipTier: MembershipTierEnum;
   createdAt: Date;
   updatedAt: Date;
@@ -39,6 +44,8 @@ export interface ClientCreateInput {
   email: string;
   phone: string;
   address?: string;
+  notes_zh?: string;
+  notes_en?: string;
   membershipTier?: MembershipTierEnum;
 }
 
@@ -50,5 +57,7 @@ export interface ClientUpdateInput {
   email?: string;
   phone?: string;
   address?: string;
+  notes_zh?: string;
+  notes_en?: string;
   membershipTier?: MembershipTierEnum;
 }

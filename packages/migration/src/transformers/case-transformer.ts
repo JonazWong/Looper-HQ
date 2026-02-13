@@ -5,7 +5,11 @@ import { CaseStatus, Priority, CaseCategory } from '@prisma/client'
 const LegacyCaseSchema = z.object({
   id: z.union([z.string(), z.number()]),
   title: z.string(),
+  title_zh: z.string().optional().nullable(),
+  title_en: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
+  description_zh: z.string().optional().nullable(),
+  description_en: z.string().optional().nullable(),
   status: z.string().optional().default('active'),
   priority: z.string().optional().nullable(),
   category: z.string().optional().nullable(),
@@ -27,6 +31,8 @@ const LegacyCaseSchema = z.object({
   isPublic: z.boolean().optional().nullable(),
   public_note: z.string().optional().nullable(),
   publicNote: z.string().optional().nullable(),
+  publicNote_zh: z.string().optional().nullable(),
+  publicNote_en: z.string().optional().nullable(),
 }).passthrough() // Allow additional fields
 
 export type LegacyCase = z.infer<typeof LegacyCaseSchema>
@@ -190,8 +196,13 @@ export async function transformCase(legacyCase: unknown, sourceSystem: string = 
   
   return {
     caseNumber: generateCaseNumber(validated.id),
-    title: validated.title,
-    description: validated.description || null,
+    // Bilingual fields - use provided values or fallback to single title/description
+    title_zh: validated.title_zh || validated.title,
+    title_en: validated.title_en || validated.title,
+    description_zh: validated.description_zh || validated.description || null,
+    description_en: validated.description_en || validated.description || null,
+    publicNote_zh: validated.publicNote_zh || validated.public_note || validated.publicNote || null,
+    publicNote_en: validated.publicNote_en || validated.public_note || validated.publicNote || null,
     status: mapStatus(validated.status),
     priority: mapPriority(validated.priority),
     category: mapCategory(validated.category),
@@ -201,7 +212,6 @@ export async function transformCase(legacyCase: unknown, sourceSystem: string = 
     endDate: parseDate(validated.end_date || validated.endDate),
     courtDate: parseDate(validated.court_date || validated.courtDate),
     isPublic: determinePublicVisibility(validated),
-    publicNote: validated.public_note || validated.publicNote || null,
     createdAt: createdDate,
     updatedAt: parseDate(validated.updated_at || validated.updatedAt) || new Date(),
     // Store metadata for tracking

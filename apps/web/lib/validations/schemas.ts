@@ -2,8 +2,14 @@ import { z } from 'zod'
 
 // Case validation schemas
 export const caseSchema = z.object({
-  title: z.string().min(5, 'Title must be at least 5 characters'),
-  description: z.string().optional(),
+  // Bilingual fields
+  title_zh: z.string().min(5, 'Chinese title must be at least 5 characters'),
+  title_en: z.string().min(5, 'English title must be at least 5 characters'),
+  description_zh: z.string().optional(),
+  description_en: z.string().optional(),
+  publicNote_zh: z.string().optional(),
+  publicNote_en: z.string().optional(),
+  
   category: z.enum([
     'CIVIL',
     'CRIMINAL',
@@ -21,7 +27,6 @@ export const caseSchema = z.object({
   courtDate: z.string().datetime().optional(),
   estimatedValue: z.number().positive().optional(),
   isPublic: z.boolean().default(false),
-  publicNote: z.string().optional(),
 })
 
 export const updateCaseSchema = caseSchema.partial()
@@ -39,6 +44,8 @@ export const clientSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().min(8, 'Phone number must be at least 8 characters'),
   address: z.string().optional(),
+  notes_zh: z.string().optional(),
+  notes_en: z.string().optional(),
   membershipTier: z.enum(['BASIC', 'STANDARD', 'PREMIUM', 'PREMIER']).default('BASIC'),
 })
 
@@ -156,7 +163,9 @@ export type TimeLogFilterInput = z.infer<typeof timeLogFilterSchema>
 
 // Case note validation schemas
 export const caseNoteSchema = z.object({
-  content: z.string().min(1, 'Note content cannot be empty'),
+  // Bilingual fields
+  content_zh: z.string().min(1, 'Chinese note content cannot be empty'),
+  content_en: z.string().min(1, 'English note content cannot be empty'),
   isPrivate: z.boolean().default(false),
 })
 

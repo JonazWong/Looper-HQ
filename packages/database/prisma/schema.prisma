@@ -48,8 +48,13 @@ enum UserRole {
 model Case {
   id          String       @id @default(cuid())
   caseNumber  String       @unique // e.g., "HK-2026-001"
-  title       String
-  description String?      @db.Text
+  
+  // Bilingual fields
+  title_zh       String
+  title_en       String
+  description_zh String?      @db.Text
+  description_en String?      @db.Text
+  
   status      CaseStatus   @default(ACTIVE)
   priority    Priority     @default(MEDIUM)
   category    CaseCategory
@@ -75,8 +80,9 @@ model Case {
   estimatedValue Decimal?  @db.Decimal(12, 2)
 
   // Visibility
-  isPublic   Boolean @default(false)
-  publicNote String? @db.Text
+  isPublic       Boolean @default(false)
+  publicNote_zh  String? @db.Text
+  publicNote_en  String? @db.Text
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -146,6 +152,10 @@ model Client {
   email   String  @unique
   phone   String
   address String? @db.Text
+
+  // Bilingual notes
+  notes_zh String? @db.Text
+  notes_en String? @db.Text
 
   // Membership
   membershipTier MembershipTier @default(BASIC)
@@ -327,7 +337,10 @@ model CaseNote {
   caseId String
   case   Case   @relation(fields: [caseId], references: [id])
 
-  content   String  @db.Text
+  // Bilingual fields
+  content_zh String @db.Text
+  content_en String @db.Text
+  
   isPrivate Boolean @default(false)
 
   createdAt DateTime @default(now())
@@ -492,8 +505,13 @@ model PublicCase {
   
   // Case information
   caseNumber  String?       // e.g., HCAL 123/2024
-  title       String
-  description String?       @db.Text
+  
+  // Bilingual fields
+  title_zh       String
+  title_en       String
+  description_zh String? @db.Text
+  description_en String? @db.Text
+  
   category    CaseCategory? // Case category (enum)
   court       String?       // Court name
   
@@ -501,9 +519,10 @@ model PublicCase {
   parties     Json?      // { plaintiff: [], defendant: [] }
   
   // Judge and judgment
-  judge       String?
-  judgmentDate DateTime?
-  judgment    String?    @db.Text
+  judge          String?
+  judgmentDate   DateTime?
+  judgment_zh    String? @db.Text
+  judgment_en    String? @db.Text
   
   // Keywords and tags
   keywords    String[]

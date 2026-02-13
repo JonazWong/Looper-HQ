@@ -31,8 +31,15 @@ export enum CaseCategory {
 export interface Case {
   id: string;
   caseNumber: string;
-  title: string;
-  description: string | null;
+  
+  // Bilingual fields
+  title_zh: string;
+  title_en: string;
+  description_zh: string | null;
+  description_en: string | null;
+  publicNote_zh: string | null;
+  publicNote_en: string | null;
+  
   status: CaseStatusEnum;
   priority: Priority;
   category: CaseCategory;
@@ -43,7 +50,6 @@ export interface Case {
   courtDate: Date | null;
   estimatedValue: number | null;
   isPublic: boolean;
-  publicNote: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -67,8 +73,14 @@ export interface CaseWithRelations extends Case {
 }
 
 export interface CaseCreateInput {
-  title: string;
-  description?: string;
+  // Bilingual fields
+  title_zh: string;
+  title_en: string;
+  description_zh?: string;
+  description_en?: string;
+  publicNote_zh?: string;
+  publicNote_en?: string;
+  
   category: CaseCategory;
   priority?: Priority;
   clientId: string;
@@ -76,12 +88,17 @@ export interface CaseCreateInput {
   courtDate?: Date;
   estimatedValue?: number;
   isPublic?: boolean;
-  publicNote?: string;
 }
 
 export interface CaseUpdateInput {
-  title?: string;
-  description?: string;
+  // Bilingual fields
+  title_zh?: string;
+  title_en?: string;
+  description_zh?: string;
+  description_en?: string;
+  publicNote_zh?: string;
+  publicNote_en?: string;
+  
   status?: CaseStatusEnum;
   priority?: Priority;
   category?: CaseCategory;
@@ -90,7 +107,6 @@ export interface CaseUpdateInput {
   courtDate?: Date;
   estimatedValue?: number;
   isPublic?: boolean;
-  publicNote?: string;
 }
 
 export interface CaseSearchParams {

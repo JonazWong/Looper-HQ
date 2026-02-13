@@ -105,14 +105,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-        { success: false, error: 'Invalid parameters', details: error.errors },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}

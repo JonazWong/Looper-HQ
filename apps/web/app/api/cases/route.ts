@@ -57,8 +57,10 @@ export async function GET(request: NextRequest) {
     if (filters.search) {
       where.OR = [
         { caseNumber: { contains: filters.search, mode: 'insensitive' } },
-        { title: { contains: filters.search, mode: 'insensitive' } },
-        { description: { contains: filters.search, mode: 'insensitive' } },
+        { title_zh: { contains: filters.search, mode: 'insensitive' } },
+        { title_en: { contains: filters.search, mode: 'insensitive' } },
+        { description_zh: { contains: filters.search, mode: 'insensitive' } },
+        { description_en: { contains: filters.search, mode: 'insensitive' } },
       ]
     }
 
@@ -178,7 +180,7 @@ export async function POST(request: NextRequest) {
         caseId: newCase.id,
         type: 'CASE_CREATED',
         action: 'created',
-        description: `Created case: ${newCase.title}`,
+        description: `Created case: ${newCase.title_zh} / ${newCase.title_en}`,
       },
     })
 

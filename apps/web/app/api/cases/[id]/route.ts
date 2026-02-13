@@ -164,7 +164,7 @@ export async function PATCH(
         caseId: updatedCase.id,
         type: 'CASE_UPDATED',
         action: 'updated',
-        description: `Updated case: ${updatedCase.title}`,
+        description: `Updated case: ${updatedCase.title_zh} / ${updatedCase.title_en}`,
       },
     })
 
@@ -210,7 +210,7 @@ export async function DELETE(
         caseId: archivedCase.id,
         type: 'CASE_UPDATED',
         action: 'archived',
-        description: `Archived case: ${archivedCase.title}`,
+        description: `Archived case: ${archivedCase.title_zh} / ${archivedCase.title_en}`,
       },
     })
 
