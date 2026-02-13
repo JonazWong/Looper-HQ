@@ -47,26 +47,26 @@ pnpm dev:all    # Both apps in parallel
 ## 📁 Code Organization
 
 ### API Structure
-All APIs in `apps/web/app/api/` follow this pattern:
+All APIs in `apps/web/app/api/` follow this **mandatory pattern**:
+
 ```typescript
-// Example from apps/web/app/api/cases/route.ts
+// Required imports for every API route
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/db'
-import { 
-  successResponse, 
-  errorResponse, 
-  validationErrorResponse 
-} from '@/lib/api/response'
+import { successResponse, errorResponse, validationErrorResponse } from '@/lib/api/response'
 import { handleApiError } from '@/lib/api/errors'
-import { requireAuth } from '@/lib/api/auth'
+import { requireAuth, requireRole } from '@/lib/api/auth'
 import { caseSchema, paginationSchema } from '@/lib/validations/schemas'
 
 export async function GET(request: NextRequest) {
   try {
+    // 1. ALWAYS authenticate first (throws UnauthorizedError if not logged in)
     const session = await requireAuth()
+    // Or for role-based access: await requireRole('ADMIN', 'LAWYER')
+    
     const searchParams = request.nextUrl.searchParams
 
-    // Parse and validate pagination
+    // 2. Validate query parameters with safeParse() - NEVER use parse()
     const paginationResult = paginationSchema.safeParse({
       page: searchParams.get('page'),
       perPage: searchParams.get('perPage'),
@@ -78,14 +78,19 @@ export async function GET(request: NextRequest) {
 
     const { page, perPage } = paginationResult.data
 
-    // Query database
+    // 3. Query with explicit includes (NEVER use * or implicit includes)
     const total = await prisma.case.count()
     const cases = await prisma.case.findMany({
       skip: (page - 1) * perPage,
       take: perPage,
       orderBy: { createdAt: 'desc' },
+      include: {
+        client: { select: { name: true, email: true } },
+        lawyer: { select: { name: true } },
+      },
     })
 
+    // 4. Return with meta pagination (required for list endpoints)
     return successResponse(cases, {
       page,
       perPage,
@@ -93,11 +98,17 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / perPage),
     })
   } catch (error) {
+    // 5. ALWAYS use handleApiError - it handles ApiError subclasses automatically
     const { message, statusCode, code, details } = handleApiError(error)
     return errorResponse(message, statusCode, code, details)
   }
 }
 ```
+
+**Critical API Utilities** (see `apps/web/lib/api/`):
+- **Custom Errors**: `NotFoundError`, `ValidationError`, `UnauthorizedError`, `ForbiddenError`, `ConflictError` - throw these, handleApiError catches
+- **Auth Helpers**: `requireAuth()` for any logged-in user, `requireRole('ADMIN', 'LAWYER')` for role checks
+- **Response Helpers**: `successResponse()`, `validationErrorResponse()`, `notFoundResponse()`, `unauthorizedResponse()`
 
 ### Component Architecture
 - **UI Components**: `components/ui/` - shadcn/ui-style with cva variants
@@ -107,9 +118,11 @@ export async function GET(request: NextRequest) {
 
 ### Database & Validation
 - **Schema**: Single Prisma schema in `packages/database/prisma/schema.prisma`
-- **Validation**: Zod schemas in `apps/web/lib/validations/schemas.ts` matching Prisma models
+- **Validation**: Zod schemas in `apps/web/lib/validations/schemas.ts` **MUST exactly match** Prisma models
 - **Client**: PrismaClient singleton in `apps/web/lib/db.ts`, imported as `@/lib/db`
 - **Package**: `packages/database` re-exports `@prisma/client` for workspace sharing
+- **Bilingual Pattern**: All user-facing models use `_zh` and `_en` suffixes (e.g., `title_zh`, `title_en`, `description_zh`, `description_en`)
+- **Multi-Tenancy**: Firm-based isolation via `firmId` foreign keys on User, Case, Invoice models
 
 ## 🎨 Design System - "Black Veil Empress"
 
@@ -132,13 +145,30 @@ NextAuth.js v5 with optional Keycloak OAuth provider:
 **Real-time**: Uses React Query for caching/state management
 **Forms**: react-hook-form + Zod resolvers with consistent error handling
 
+**Bilingual Data Handling**:
+- All models with user-facing content require both `_zh` (Traditional Chinese) and `_en` (English) fields
+- Validation schemas enforce either both fields or neither (never just one)
+- Examples: `Case.title_zh`/`title_en`, `CaseNote.content_zh`/`content_en`, `PublicCase.title_zh`/`title_en`
+
+**Activity Logging** (Audit Trail):
+- POST/PUT/DELETE operations log to `prisma.activity.create()`
+- Required fields: `action` (string), `userId`, `firmId`
+- Optional: `entityType`, `entityId`, `metadata` (JSON)
+
 ## 🚨 Mandatory Pre-Change Analysis
 
 Before ANY modification:
 - **Impact Assessment**: Analyze cross-component dependencies 
-- **Chain Reactions**: Database changes require schema + API + UI updates
-- **Validation Sync**: Keep Zod schemas aligned with Prisma models
-- **Route Groups**: Respect `(auth)` vs `(dashboard)` boundaries
+- **Chain Reactions**: Database changes require this exact sequence:
+  1. Update `packages/database/prisma/schema.prisma`
+  2. Run `pnpm --filter=@looper-hq/database prisma generate`
+  3. Run `pnpm db:push` (dev) or `pnpm db:migrate` (prod)
+  4. Update Zod schemas in `apps/web/lib/validations/schemas.ts` to match
+  5. Update API routes (`apps/web/app/api/**/route.ts`)
+  6. Update UI components that consume the data
+- **Validation Sync**: Keep Zod schemas aligned with Prisma models - enums, optionality, defaults MUST match exactly
+- **Route Groups**: Respect `(auth)` vs `(dashboard)` boundaries - auth routes redirect to dashboard, dashboard routes require authentication
+- **Bilingual Fields**: When adding user-facing text fields, ALWAYS add both `_zh` and `_en` versions
 
 ## 🧪 Testing & Validation
 
@@ -184,6 +214,45 @@ pnpm --filter=@looper-hq/web type-check  # Explicit type check
 **Services** (currently empty, reserved for future microservices)
 
 **Critical Path**: Database changes → Update `schema.prisma` → Run `prisma generate` → Update Zod schemas in `apps/web/lib/validations/schemas.ts` → Update API routes → Update UI components
+
+## 🔍 Non-Obvious Patterns & Gotchas
+
+**Prisma Client Generation**:
+- `postinstall` script in root `package.json` automatically runs `prisma generate` after `pnpm install`
+- If you see "Prisma Client not found", you forgot to run `prisma generate` after schema changes
+- Generation happens in `packages/database` but is consumed by apps via workspace imports
+
+**API Response Format is Mandatory**:
+```typescript
+// Every successful response MUST use this shape
+{ success: true, data: {...}, meta?: {...} }
+
+// Every error response MUST use this shape  
+{ success: false, error: { message: string, code?: string, details?: any } }
+```
+
+**Zod safeParse() Over parse()**:
+- ALWAYS use `safeParse()` in API routes (returns `{ success: boolean, data?, error? }`)
+- NEVER use `parse()` directly - it throws exceptions that aren't caught by handleApiError
+
+**Multi-Tenant Isolation**:
+- Firm model acts as tenant boundary
+- When querying, ALWAYS filter by `firmId` if multi-tenant
+- User.firmId links users to their tenant/law office
+
+**Role-Based Access Control**:
+- `ADMIN`: Full access to everything
+- `LAWYER`: Full CRUD on cases, clients, documents, invoices
+- `STAFF`: Read-only access
+- `CLIENT`: Own resources only (`:own` suffix permissions)
+- Use `requireRole('ADMIN', 'LAWYER')` to allow multiple roles
+- Use `hasPermission(session, 'case:delete')` for granular checks
+
+**Crawler System** (Public Cases):
+- Daily automated tracking via GitHub Actions (2am HKT)
+- Crawlers: HK Judiciary (placeholder), RSS feeds (SCMP, RTHK)
+- Deduplication via unique constraint on `(source, externalId)`
+- Run manually: `pnpm crawler:all` or `pnpm crawler:rss`
 
 ## 🚨 Environment Setup Requirements
 
@@ -251,3 +320,7 @@ pnpm db:push                                        # Sync to DB (dev)
 - Mixing authentication contexts between route groups
 - Modifying `pnpm-lock.yaml` manually (always use `pnpm install`)
 - Running `prisma db push` in production (use `prisma migrate` instead)
+- Using `parse()` instead of `safeParse()` in Zod validation
+- Creating API routes without authentication checks
+- Adding text fields without bilingual (`_zh`/`_en`) support
+- Skipping `prisma generate` after schema changes
