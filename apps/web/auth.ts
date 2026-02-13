@@ -4,6 +4,7 @@ import Keycloak from "next-auth/providers/keycloak"
 import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/lib/db"
 import { UserRole } from "@prisma/client"
+import { locales, defaultLocale } from "@/i18n"
 
 // Extend NextAuth types for custom session properties
 declare module "next-auth" {
@@ -28,6 +29,13 @@ declare module "next-auth/jwt" {
     keycloakId?: string
   }
 }
+
+// Create locale regex pattern from configured locales
+const localePattern = locales.join('|')
+const localeRegex = new RegExp(`^/(${localePattern})`)
+
+// Auth routes that should redirect to dashboard when user is logged in
+const authRoutes = ['/login', '/register']
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -183,16 +191,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const isLoggedIn = !!auth?.user
       const pathname = nextUrl.pathname
       
-      // Strip locale prefix (e.g., /zh/dashboard -> /dashboard)
-      const pathWithoutLocale = pathname.replace(/^\/(zh|en)/, '') || '/'
+      // Strip locale prefix (e.g., /zh/dashboard -> /dashboard) using configured locales
+      const pathWithoutLocale = pathname.replace(localeRegex, '') || '/'
       
       const isOnDashboard = pathWithoutLocale.startsWith("/dashboard")
-      const isOnAuth = pathWithoutLocale === "/login" || pathWithoutLocale === "/register"
+      const isOnAuth = authRoutes.includes(pathWithoutLocale)
 
       // Redirect authenticated users away from auth pages
       if (isLoggedIn && isOnAuth) {
-        // Preserve the locale when redirecting
-        const locale = pathname.match(/^\/(zh|en)/)?.[1] || 'zh'
+        // Preserve the locale when redirecting, fallback to default
+        const locale = pathname.match(localeRegex)?.[1] || defaultLocale
         return Response.redirect(new URL(`/${locale}/dashboard`, nextUrl))
       }
 
