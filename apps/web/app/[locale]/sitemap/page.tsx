@@ -8,7 +8,11 @@ import { Home, Search, FileText, Lock, UserPlus, LogIn, LayoutDashboard } from "
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
 import { PremierButton } from "@/components/ui/premier-button"
 
-export default function SitemapPage() {
+export default function SitemapPage({
+  params: { locale }
+}: {
+  params: { locale: string }
+}) {
   return (
     <div className="min-h-screen bg-premier-dark p-8">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -34,7 +38,7 @@ export default function SitemapPage() {
             </GlassCardDescription>
           </GlassCardHeader>
           <GlassCardContent className="space-y-3">
-            <Link href="/" className="block">
+            <Link href={`/${locale}`} className="block">
               <div className="p-4 rounded-lg bg-premier-gold/10 hover:bg-premier-gold/20 transition-colors border border-premier-gold/20">
                 <div className="flex items-center justify-between">
                   <div>
@@ -46,7 +50,7 @@ export default function SitemapPage() {
               </div>
             </Link>
 
-            <Link href="/landing" className="block">
+            <Link href={`/${locale}/landing`} className="block">
               <div className="p-4 rounded-lg bg-premier-gold/10 hover:bg-premier-gold/20 transition-colors border border-premier-gold/20">
                 <div className="flex items-center justify-between">
                   <div>
@@ -61,7 +65,7 @@ export default function SitemapPage() {
               </div>
             </Link>
 
-            <Link href="/case-search" className="block">
+            <Link href={`/${locale}/case-search`} className="block">
               <div className="p-4 rounded-lg bg-premier-gold/10 hover:bg-premier-gold/20 transition-colors border border-premier-gold/20">
                 <div className="flex items-center justify-between">
                   <div>
@@ -76,7 +80,7 @@ export default function SitemapPage() {
               </div>
             </Link>
 
-            <Link href="/sitemap" className="block">
+            <Link href={`/${locale}/sitemap`} className="block">
               <div className="p-4 rounded-lg bg-premier-gold/10 hover:bg-premier-gold/20 transition-colors border border-premier-gold/20">
                 <div className="flex items-center justify-between">
                   <div>
@@ -102,7 +106,7 @@ export default function SitemapPage() {
             </GlassCardDescription>
           </GlassCardHeader>
           <GlassCardContent className="space-y-3">
-            <Link href="/login" className="block">
+            <Link href={`/${locale}/login`} className="block">
               <div className="p-4 rounded-lg bg-premier-mystery/30 hover:bg-premier-mystery/40 transition-colors border border-premier-mystery/30">
                 <div className="flex items-center justify-between">
                   <div>
@@ -119,7 +123,7 @@ export default function SitemapPage() {
               </div>
             </Link>
 
-            <Link href="/register" className="block">
+            <Link href={`/${locale}/register`} className="block">
               <div className="p-4 rounded-lg bg-premier-mystery/30 hover:bg-premier-mystery/40 transition-colors border border-premier-mystery/30">
                 <div className="flex items-center justify-between">
                   <div>
@@ -190,13 +194,13 @@ export default function SitemapPage() {
 
         {/* Quick Actions */}
         <div className="flex gap-4 justify-center flex-wrap">
-          <Link href="/">
+          <Link href={`/${locale}`}>
             <PremierButton variant="primary" size="lg">
               <Home className="mr-2 h-4 w-4" />
               返回首頁
             </PremierButton>
           </Link>
-          <Link href="/login">
+          <Link href={`/${locale}/login`}>
             <PremierButton variant="outline" size="lg">
               <LogIn className="mr-2 h-4 w-4" />
               登入系統
