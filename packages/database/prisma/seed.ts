@@ -197,8 +197,10 @@ async function main() {
   const case1 = await prisma.case.create({
     data: {
       caseNumber: 'HK-2026-001',
-      title: 'Wong v. Chan Property Dispute',
-      description: 'Boundary dispute regarding property at 123 Queen\'s Road Central. Client claims encroachment by neighboring property.',
+      title_zh: '黃先生訴陳先生物業糾紛',
+      title_en: 'Wong v. Chan Property Dispute',
+      description_zh: '皇后大道中123號物業的邊界糾紛。客戶聲稱鄰近物業侵佔。',
+      description_en: 'Boundary dispute regarding property at 123 Queen\'s Road Central. Client claims encroachment by neighboring property.',
       status: 'ACTIVE',
       priority: 'HIGH',
       category: 'PROPERTY',
@@ -211,15 +213,18 @@ async function main() {
       budget: 150000,
       deadline: new Date('2024-06-30'),
       isPublic: true,
-      publicNote: 'Property boundary dispute case',
+      publicNote_zh: '物業邊界糾紛案件',
+      publicNote_en: 'Property boundary dispute case',
     },
   });
 
   const case2 = await prisma.case.create({
     data: {
       caseNumber: 'HK-2026-002',
-      title: 'Li Family Trust Administration',
-      description: 'Administration of the Li family trust estate. Multiple beneficiaries and complex asset distribution.',
+      title_zh: '李氏家族信託管理',
+      title_en: 'Li Family Trust Administration',
+      description_zh: '李氏家族信託財產管理。涉及多位受益人及複雜資產分配。',
+      description_en: 'Administration of the Li family trust estate. Multiple beneficiaries and complex asset distribution.',
       status: 'ACTIVE',
       priority: 'MEDIUM',
       category: 'FAMILY',
@@ -237,8 +242,10 @@ async function main() {
   const case3 = await prisma.case.create({
     data: {
       caseNumber: 'HK-2026-003',
-      title: 'Corporate Merger - ABC Ltd',
-      description: 'Merger and acquisition advisory for ABC Limited. Due diligence and regulatory compliance required.',
+      title_zh: '企業合併 - ABC有限公司',
+      title_en: 'Corporate Merger - ABC Ltd',
+      description_zh: 'ABC有限公司之合併收購諮詢。需進行盡職調查及符合監管要求。',
+      description_en: 'Merger and acquisition advisory for ABC Limited. Due diligence and regulatory compliance required.',
       status: 'ACTIVE',
       priority: 'URGENT',
       category: 'CORPORATE',
@@ -250,15 +257,18 @@ async function main() {
       budget: 100000,
       deadline: new Date('2024-12-31'),
       isPublic: true,
-      publicNote: 'Corporate merger case',
+      publicNote_zh: '企業合併案件',
+      publicNote_en: 'Corporate merger case',
     },
   });
 
   const case4 = await prisma.case.create({
     data: {
       caseNumber: 'HK-2026-004',
-      title: 'Employment Termination Dispute',
-      description: 'Wrongful termination claim. Employee alleges unfair dismissal and seeks compensation.',
+      title_zh: '僱傭終止糾紛',
+      title_en: 'Employment Termination Dispute',
+      description_zh: '不當解僱索償。僱員指稱不公平解僱並尋求賠償。',
+      description_en: 'Wrongful termination claim. Employee alleges unfair dismissal and seeks compensation.',
       status: 'COMPLETED',
       priority: 'LOW',
       category: 'EMPLOYMENT',
@@ -277,8 +287,10 @@ async function main() {
   const case5 = await prisma.case.create({
     data: {
       caseNumber: 'HK-2026-005',
-      title: 'Intellectual Property Infringement',
-      description: 'Copyright infringement case involving software patents.',
+      title_zh: '知識產權侵權',
+      title_en: 'Intellectual Property Infringement',
+      description_zh: '涉及軟件專利的版權侵權案件。',
+      description_en: 'Copyright infringement case involving software patents.',
       status: 'PENDING',
       priority: 'MEDIUM',
       category: 'INTELLECTUAL_PROPERTY',
@@ -290,7 +302,8 @@ async function main() {
       budget: 100000,
       deadline: new Date('2024-12-31'),
       isPublic: true,
-      publicNote: 'IP infringement case',
+      publicNote_zh: '知識產權侵權案件',
+      publicNote_en: 'IP infringement case',
     },
   });
 
@@ -403,22 +416,26 @@ async function main() {
     data: [
       {
         caseId: case1.id,
-        content: 'Initial consultation with client. Client provided detailed history of the dispute. Neighboring property owner has been uncooperative.',
+        content_zh: '與客戶進行初次諮詢。客戶提供糾紛詳細歷史。鄰近物業業主一直不合作。',
+        content_en: 'Initial consultation with client. Client provided detailed history of the dispute. Neighboring property owner has been uncooperative.',
         isPrivate: false,
       },
       {
         caseId: case1.id,
-        content: 'Confidential: Client willing to settle for HKD 2.5M but prefers to avoid court if possible.',
+        content_zh: '機密：客戶願意以250萬港元和解，但希望盡量避免上庭。',
+        content_en: 'Confidential: Client willing to settle for HKD 2.5M but prefers to avoid court if possible.',
         isPrivate: true,
       },
       {
         caseId: case2.id,
-        content: 'Family meeting scheduled. All beneficiaries must be present to discuss asset distribution.',
+        content_zh: '已安排家族會議。所有受益人必須出席討論資產分配。',
+        content_en: 'Family meeting scheduled. All beneficiaries must be present to discuss asset distribution.',
         isPrivate: false,
       },
       {
         caseId: case3.id,
-        content: 'Due diligence report received. Several regulatory compliance issues need to be addressed before proceeding.',
+        content_zh: '已收到盡職調查報告。需在繼續進行前處理若干監管合規問題。',
+        content_en: 'Due diligence report received. Several regulatory compliance issues need to be addressed before proceeding.',
         isPrivate: true,
       },
     ],
@@ -711,8 +728,10 @@ async function main() {
         source: 'HK_JUDICIARY',
         externalId: 'HCAL123/2024',
         caseNumber: 'HCAL 123/2024',
-        title: 'Wong Tai Man v. Chan Siu Ming',
-        description: 'Property boundary dispute regarding land at Lot 123, New Territories',
+        title_zh: '黃大文訴陳小明',
+        title_en: 'Wong Tai Man v. Chan Siu Ming',
+        description_zh: '新界第123地段土地邊界糾紛',
+        description_en: 'Property boundary dispute regarding land at Lot 123, New Territories',
         category: 'CIVIL',
         court: 'High Court',
         judge: 'Hon. Mr Justice Lee',
