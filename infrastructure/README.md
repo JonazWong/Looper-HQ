@@ -158,7 +158,7 @@ docker-compose -f infrastructure/docker/docker-compose.yml restart postgres
 | Keycloak   | 8080          | 8080          | Auth server & Admin UI |
 | pgAdmin    | 80            | 5050          | Database management UI |
 
-**Note**: External ports can be customized via environment variables (e.g., `POSTGRES_PORT=5433`)
+**Note**: External ports can be customized via environment variables (e.g., `POSTGRES_PORT=55432` to expose PostgreSQL on port 55432 instead of 5432).
 
 ## 🔑 Access Credentials
 
@@ -233,7 +233,7 @@ KEYCLOAK_FRONTEND_URL=http://localhost:8080
 Override default ports via environment variables:
 
 ```env
-POSTGRES_PORT=5433
+POSTGRES_PORT=55432  # Example: expose PostgreSQL on port 55432
 REDIS_PORT=6380
 KEYCLOAK_PORT=8081
 PGADMIN_PORT=5051
