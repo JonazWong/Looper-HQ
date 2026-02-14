@@ -110,7 +110,10 @@ export default auth((req) => {
         // Fallback to original pathname if URL parsing fails
         newPathname = pathname;
         if (isDev) {
-          console.error('[Middleware] Failed to parse redirect URL:', e);
+          console.error('[Middleware] Failed to parse redirect URL:', {
+            location,
+            error: e instanceof Error ? e.message : String(e)
+          });
         }
       }
     }

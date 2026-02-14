@@ -35,7 +35,7 @@ export default getRequestConfig(async ({ locale }) => {
     console.error(`[i18n] Failed to load messages for locale "${locale}":`, error);
     
     // In production, fall back to default locale
-    if (process.env.NODE_ENV === 'production' && locale !== defaultLocale) {
+    if (!isDev && locale !== defaultLocale) {
       console.warn(`[i18n] Falling back to default locale: ${defaultLocale}`);
       try {
         const messages = (await import(`./messages/${defaultLocale}.json`)).default;
@@ -45,7 +45,10 @@ export default getRequestConfig(async ({ locale }) => {
         };
       } catch (fallbackError) {
         console.error(`[i18n] Failed to load default locale messages:`, fallbackError);
-        throw new Error(`Translation files are missing for both "${locale}" and "${defaultLocale}"`);
+        throw new Error(
+          `Translation files are missing for both "${locale}" and "${defaultLocale}". ` +
+          `Ensure translation files exist at ./messages/${locale}.json and ./messages/${defaultLocale}.json`
+        );
       }
     }
     
