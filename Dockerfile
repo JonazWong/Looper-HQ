@@ -46,24 +46,13 @@ WORKDIR /app
 # Install pnpm
 RUN npm install -g pnpm@9.15.2
 
-# Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
+# Copy everything from deps stage (includes node_modules, package.json, prisma schema)
+COPY --from=deps /app ./
 
-# Copy all workspace package.json files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
-COPY apps/web/package.json ./apps/web/
-COPY apps/legal-case-search/package.json ./apps/legal-case-search/
-COPY packages/database/package.json ./packages/database/
-COPY packages/types/package.json ./packages/types/
-COPY packages/utils/package.json ./packages/utils/
-COPY packages/config/package.json ./packages/config/
-COPY packages/migration/package.json ./packages/migration/
-
-# Copy Prisma schema files explicitly
-COPY packages/database/prisma ./packages/database/prisma
-
-# Copy source code
-COPY . .
+# Copy source code (adds source files while keeping node_modules from deps)
+COPY apps ./apps
+COPY packages ./packages
+COPY scripts ./scripts
 
 # Generate Prisma Client (required before build)
 RUN pnpm --filter=@looper-hq/database prisma generate
