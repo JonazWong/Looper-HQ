@@ -7,8 +7,11 @@ services:
       repo: JonazWong/Looper-HQ
       branch: main
       deploy_on_push: true
-    build_command: pnpm install && pnpm build --filter=@looper-hq/web
-    run_command: cd apps/web && pnpm start
+    
+    # Use Dockerfile for optimized multi-stage build
+    dockerfile_path: Dockerfile
+    
+    # Port configuration (Dockerfile exposes 3000)
     http_port: 3000
     
     # Instance configuration
@@ -17,36 +20,134 @@ services:
 
     health_check:
       http_path: /api/health
-      initial_delay_seconds: 30
-      period_seconds: 10
-
+      initial_delay_seconds: 60
+      period_seconds: 30
+      timeout_seconds: 10
+      success_threshold: 1
+      failure_threshold: 3
+    
+    # Environment variables for web service
     envs:
+      # =====================================
+      # Database Configuration (Auto-injected)
+      # =====================================
       - key: DATABASE_URL
         scope: RUN_AND_BUILD_TIME
         type: SECRET
-      - key: NEXTAUTH_SECRET
+        value: ${db.DATABASE_URL}
+      
+      # =====================================
+      # Node Environment
+      # =====================================
+      - key: NODE_ENV
         scope: RUN_AND_BUILD_TIME
-        type: SECRET
-      - key: OPENAI_API_KEY
+        value: production
+      
+      - key: TZ
+        scope: RUN_AND_BUILD_TIME
+        value: Asia/Hong_Kong
+      
+      # =====================================
+      # NextAuth Configuration
+      # REQUIRED: Set in DO App Platform UI
+      # =====================================
+      - key: NEXTAUTH_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${APP_URL}
+      
+      - key: NEXTAUTH_SECRET
         scope: RUN_TIME
         type: SECRET
+        # MUST BE SET IN DO CONSOLE - Generate with: openssl rand -base64 32
+      
+      # =====================================
+      # Keycloak OAuth (Optional)
+      # Set these if using Keycloak authentication
+      # =====================================
+      - key: KEYCLOAK_CLIENT_ID
+        scope: RUN_AND_BUILD_TIME
+        # Optional - for OAuth integration
+      
+      - key: KEYCLOAK_ISSUER
+        scope: RUN_AND_BUILD_TIME
+        # Optional - e.g., https://your-keycloak.com/realms/looper-hq
+      
+      # =====================================
+      # AI Provider Configuration
+      # REQUIRED: Set OpenAI/OpenRouter API key
+      # =====================================
+      - key: AI_PROVIDER
+        scope: RUN_AND_BUILD_TIME
+        value: openai
+      
+      - key: OPENAI_API_KEY
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+        # MUST BE SET IN DO CONSOLE - Your OpenAI or OpenRouter API key
+      
+      - key: OPENAI_MODEL
+        scope: RUN_AND_BUILD_TIME
+        value: gpt-4o-mini
+      
+      - key: OPENAI_BASE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://openrouter.ai/api/v1
+      
+      - key: AI_MAX_TOKENS
+        scope: RUN_AND_BUILD_TIME
+        value: "2048"
+      
+      - key: AI_TEMPERATURE
+        scope: RUN_AND_BUILD_TIME
+        value: "0.3"
+      
+      - key: AI_DEFAULT_LOCALE
+        scope: RUN_AND_BUILD_TIME
+        value: zh-HK
+      
+      # =====================================
+      # Crawler Configuration
+      # =====================================
+      - key: CRAWLER_ENABLED
+        scope: RUN_AND_BUILD_TIME
+        value: "true"
+      
+      - key: CRAWLER_SCHEDULE
+        scope: RUN_AND_BUILD_TIME
+        value: "0 18 * * *"  # Daily at 2am HKT (18:00 UTC previous day)
+      
+      - key: RSS_TIMEOUT
+        scope: RUN_AND_BUILD_TIME
+        value: "30000"
+      
+      - key: RSS_MAX_RETRIES
+        scope: RUN_AND_BUILD_TIME
+        value: "3"
+
+# =============================================================================
+# Database Migration Job (DISABLED - Using db:push instead)
+# =============================================================================
+# Note: This project uses Prisma's db:push for schema sync (no migrations yet).
+# After first deployment, run: pnpm bootstrap:data via DO Console
+#
+# jobs:
+#   - name: db-migrate
+#     kind: PRE_DEPLOY
+#     github:
+#       repo: JonazWong/Looper-HQ
+#       branch: main
+#     dockerfile_path: Dockerfile
+#     instance_count: 1
+#     instance_size_slug: basic-xxs
+#     run_command: |
+#       npx prisma db push --schema=/app/packages/database/prisma/schema.prisma --accept-data-loss
+#     envs:
+#       - key: DATABASE_URL
+#         scope: RUN_TIME
+#         type: SECRET
+#         value: ${db.DATABASE_URL}
 
 databases:
   - name: db
     engine: PG
-
-    production: true
-    cluster_name: looper-hq-prod
-    db_name: looper_hq
-    db_user: looper_hq_user
-
-# Alerts
-alerts:
-  - rule: DEPLOYMENT_FAILED
-  - rule: DOMAIN_FAILED
-  - rule: CPU_UTILIZATION
-    value: 80
-  - rule: MEMORY_UTILIZATION
-    value: 80
-  - rule: RESTART_COUNT
-    value: 5
+    version: "16"
