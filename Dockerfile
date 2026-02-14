@@ -12,7 +12,7 @@ RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g pnpm@8.15.0
+RUN npm install -g pnpm@9.15.2
 
 # Copy package files for dependency resolution
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -41,12 +41,20 @@ RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g pnpm@8.15.0
+RUN npm install -g pnpm@9.15.2
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps ./apps
-COPY --from=deps /app/packages ./packages
+
+# Copy all workspace package.json files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps/web/package.json ./apps/web/
+COPY apps/legal-case-search/package.json ./apps/legal-case-search/
+COPY packages/database/package.json ./packages/database/
+COPY packages/types/package.json ./packages/types/
+COPY packages/utils/package.json ./packages/utils/
+COPY packages/config/package.json ./packages/config/
+COPY packages/migration/package.json ./packages/migration/
 
 # Copy source code
 COPY . .
@@ -80,7 +88,7 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # Install pnpm (needed for running migrations)
-RUN npm install -g pnpm@8.15.0
+RUN npm install -g pnpm@9.15.2
 
 # Copy necessary files from builder
 # Note: Next.js standalone output includes all dependencies
