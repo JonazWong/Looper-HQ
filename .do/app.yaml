@@ -9,7 +9,6 @@ services:
       deploy_on_push: true
     
     # Force Docker build (disable buildpack auto-detection)
-    source_dir: /
     dockerfile_path: Dockerfile
     
     # Port configuration (Dockerfile exposes 3000)
