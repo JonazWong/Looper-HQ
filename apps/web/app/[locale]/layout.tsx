@@ -4,6 +4,9 @@ import { notFound } from 'next/navigation';
 import { locales } from '@/i18n';
 import '../../styles/globals.css';
 
+// Development mode check (module-level constant)
+const isDev = process.env.NODE_ENV === 'development';
+
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
@@ -26,7 +29,6 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
-  const isDev = process.env.NODE_ENV === 'development';
   
   if (isDev) {
     console.log('[LocaleLayout] Received locale:', locale);

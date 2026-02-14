@@ -7,8 +7,10 @@ export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = 'zh';
 
+// Development mode check (module-level constant)
+const isDev = process.env.NODE_ENV === 'development';
+
 export default getRequestConfig(async ({ locale }) => {
-  const isDev = process.env.NODE_ENV === 'development';
   
   // 驗證語言是否支持
   if (!locales.includes(locale as Locale)) {

@@ -24,6 +24,9 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { locales, defaultLocale } from './i18n';
 
+// Development mode check (module-level constant)
+const isDev = process.env.NODE_ENV === 'development';
+
 // Create next-intl middleware
 const intlMiddleware = createIntlMiddleware({
   locales,
@@ -62,7 +65,6 @@ function isPublicPath(pathname: string): boolean {
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
-  const isDev = process.env.NODE_ENV === 'development';
 
   // Skip middleware for API routes (except those requiring auth)
   if (pathname.startsWith('/api')) {
@@ -107,6 +109,9 @@ export default auth((req) => {
       } catch (e) {
         // Fallback to original pathname if URL parsing fails
         newPathname = pathname;
+        if (isDev) {
+          console.error('[Middleware] Failed to parse redirect URL:', e);
+        }
       }
     }
   } else {
