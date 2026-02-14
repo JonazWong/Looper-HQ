@@ -83,6 +83,27 @@ async function main() {
   console.log(`   Model: ${aiModel}`)
   console.log(`   Locale: ${aiLocale}`)
   
+  // Note: If you have an AiConfig model in Prisma schema, uncomment and adjust:
+  /*
+  const aiConfig = await prisma.aiConfig.upsert({
+    where: { firmId: firm.id },
+    update: {},
+    create: {
+      firmId: firm.id,
+      provider: aiProvider,
+      model: aiModel,
+      defaultLanguage: aiLocale,
+      systemPrompt: '你是專業的香港法律案例分析助手。請準確翻譯法律文件，保持專業術語的準確性。',
+      features: ['case_classification', 'legal_translation', 'case_summarization'],
+      config: {
+        maxTokens: Number(process.env.AI_MAX_TOKENS || 2048),
+        temperature: Number(process.env.AI_TEMPERATURE || 0.3),
+      },
+    },
+  })
+  console.log(`✅ AI Config created for firm: ${firm.name}\n`)
+  */
+  
   console.log(`✅ AI configuration recorded (using env vars)\n`)
 
   // 5. Create initial system activity log
