@@ -44,7 +44,7 @@ interface SearchParams {
 }
 
 interface DocumentsPageProps {
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }
 
 // Constants
@@ -188,7 +188,7 @@ function getFileTypeIcon(fileType: string): typeof FileText {
 }
 
 export default async function DocumentsPage({ searchParams }: DocumentsPageProps) {
-  const params = searchParams
+  const params = await searchParams
   
   const [{ documents, totalDocuments, currentPage, totalPages }, stats] = await Promise.all([
     getDocuments(params),

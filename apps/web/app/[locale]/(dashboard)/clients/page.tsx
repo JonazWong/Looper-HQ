@@ -44,7 +44,7 @@ interface SearchParams {
 }
 
 interface ClientsPageProps {
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }
 
 // Constants
@@ -152,7 +152,7 @@ function getTypeColor(type: ClientType): string {
 }
 
 export default async function ClientsPage({ searchParams }: ClientsPageProps) {
-  const params = searchParams
+  const params = await searchParams
   
   // Fetch data in parallel
   const [{ clients, totalClients, currentPage, totalPages }, stats] = await Promise.all([

@@ -49,7 +49,7 @@ interface SearchParams {
 
 interface CasesPageProps {
   params: Promise<{ locale: string }>
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }
 
 // Constants
@@ -203,7 +203,7 @@ function formatCategory(category: CaseCategory): string {
 
 export default async function CasesPage({ params, searchParams }: CasesPageProps) {
   const { locale } = await params
-  const resolvedSearchParams = searchParams
+  const resolvedSearchParams = await searchParams
 
   // Fetch data in parallel
   const [{ cases, totalCases, currentPage, totalPages }, stats] = await Promise.all([

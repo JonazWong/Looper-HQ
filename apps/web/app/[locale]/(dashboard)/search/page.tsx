@@ -32,7 +32,7 @@ interface SearchParams {
 }
 
 interface SearchPageProps {
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }
 
 // Fetch public cases from database
@@ -148,7 +148,7 @@ function truncate(text: string | null, length: number): string {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const params = searchParams
+  const params = await searchParams
   
   // Get search results
   const results = params.q || params.category || params.status 
