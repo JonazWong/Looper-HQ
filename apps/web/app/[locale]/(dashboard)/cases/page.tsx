@@ -262,10 +262,10 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
       <GlassCard variant="default">
         <GlassCardContent className="pt-6">
           <CasesFilters
-            initialSearch={params.search}
-            initialStatus={params.status}
-            initialPriority={params.priority}
-            initialCategory={params.category}
+            initialSearch={resolvedSearchParams.search}
+            initialStatus={resolvedSearchParams.status}
+            initialPriority={resolvedSearchParams.priority}
+            initialCategory={resolvedSearchParams.category}
           />
         </GlassCardContent>
       </GlassCard>
@@ -289,7 +289,7 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
                 No cases found
               </h3>
               <p className="text-sm text-premier-pearl-gray mb-6 text-center max-w-md">
-                {params.search || params.status || params.priority || params.category
+                {resolvedSearchParams.search || resolvedSearchParams.status || resolvedSearchParams.priority || resolvedSearchParams.category
                   ? 'Try adjusting your filters to find what you\'re looking for.'
                   : 'Get started by creating your first case.'}
               </p>

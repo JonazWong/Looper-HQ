@@ -189,10 +189,10 @@ function getFileTypeIcon(fileType: string): typeof FileText {
 }
 
 export default async function DocumentsPage({ searchParams }: DocumentsPageProps) {
-  const params = await searchParams
+  const resolvedSearchParams = await searchParams
   
   const [{ documents, totalDocuments, currentPage, totalPages }, stats] = await Promise.all([
-    getDocuments(params),
+    getDocuments(resolvedSearchParams),
     getDocumentStats(),
   ])
 
@@ -248,12 +248,12 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                 <form action="/documents" method="get">
                   <Input
                     name="search"
-                    defaultValue={params.search}
+                    defaultValue={resolvedSearchParams.search}
                     placeholder="Search documents by name, case, or description..."
                     className="pl-10 bg-premier-charcoal/50 border-premier-gold/30 text-premier-pearl"
                   />
-                  {params.category && (
-                    <input type="hidden" name="category" value={params.category} />
+                  {resolvedSearchParams.category && (
+                    <input type="hidden" name="category" value={resolvedSearchParams.category} />
                   )}
                 </form>
               </div>
@@ -264,7 +264,7 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
               <Link href="/documents">
                 <Badge 
                   variant="outline"
-                  className={!params.category 
+                  className={!resolvedSearchParams.category 
                     ? 'bg-premier-gold/20 text-premier-gold border-premier-gold/40'
                     : 'bg-premier-charcoal/50 text-premier-pearl-gray border-premier-gold/20 hover:bg-premier-gold/10 cursor-pointer'
                   }
@@ -275,11 +275,11 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
               {Object.values(DocumentCategory).map((category) => (
                 <Link 
                   key={category} 
-                  href={`/documents?category=${category}${params.search ? `&search=${params.search}` : ''}`}
+                  href={`/documents?category=${category}${resolvedSearchParams.search ? `&search=${resolvedSearchParams.search}` : ''}`}
                 >
                   <Badge 
                     variant="outline"
-                    className={params.category === category
+                    className={resolvedSearchParams.category === category
                       ? 'bg-premier-gold/20 text-premier-gold border-premier-gold/40'
                       : 'bg-premier-charcoal/50 text-premier-pearl-gray border-premier-gold/20 hover:bg-premier-gold/10 cursor-pointer'
                     }
@@ -312,7 +312,7 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                 No documents found
               </h3>
               <p className="text-sm text-premier-pearl-gray mb-6 text-center max-w-md">
-                {params.search || params.category
+                {resolvedSearchParams.search || resolvedSearchParams.category
                   ? 'Try adjusting your filters to find what you\'re looking for.'
                   : 'Get started by uploading your first document.'}
               </p>

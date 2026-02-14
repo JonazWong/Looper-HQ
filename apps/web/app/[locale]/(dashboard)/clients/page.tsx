@@ -152,11 +152,11 @@ function getTypeColor(type: ClientType): string {
 }
 
 export default async function ClientsPage({ searchParams }: ClientsPageProps) {
-  const params = await searchParams
+  const resolvedSearchParams = await searchParams
   
   // Fetch data in parallel
   const [{ clients, totalClients, currentPage, totalPages }, stats] = await Promise.all([
-    getClients(params),
+    getClients(resolvedSearchParams),
     getClientStats(),
   ])
 
@@ -207,8 +207,8 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
       <GlassCard>
         <GlassCardContent className="pt-6">
           <ClientsFilters
-            initialSearch={params.search}
-            initialTier={params.tier}
+            initialSearch={resolvedSearchParams.search}
+            initialTier={resolvedSearchParams.tier}
           />
         </GlassCardContent>
       </GlassCard>
@@ -227,7 +227,7 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
               <Users className="mx-auto h-12 w-12 text-premier-pearl-gray opacity-50" />
               <h3 className="mt-4 text-lg font-semibold text-premier-pearl">No clients found</h3>
               <p className="mt-2 text-sm text-premier-pearl-gray">
-                {params.search || params.tier
+                {resolvedSearchParams.search || resolvedSearchParams.tier
                   ? 'Try adjusting your filters'
                   : 'Get started by adding a new client'}
               </p>
