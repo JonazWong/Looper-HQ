@@ -57,6 +57,9 @@ COPY scripts ./scripts
 # Generate Prisma Client (required before build)
 RUN pnpm --filter=@looper-hq/database prisma generate
 
+# Build workspace packages that need compilation (TypeScript → JavaScript)
+RUN pnpm --filter=@looper-hq/utils build
+
 # Build the web application using Turborepo
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
