@@ -7,20 +7,18 @@ services:
       repo: JonazWong/Looper-HQ
       branch: main
       deploy_on_push: true
-    build_command: |
-      echo "Installing pnpm..."
-      npm install -g pnpm@8
-      echo "Installing dependencies..."
-      pnpm install --frozen-lockfile
-      echo "Generating Prisma Client..."
-      pnpm --filter=@looper-hq/database prisma generate
-      echo "Building web app..."
-      pnpm --filter=@looper-hq/web build
-    run_command: cd apps/web && pnpm start -p 3000
+    
+    # Use Dockerfile for optimized multi-stage build
+    dockerfile_path: Dockerfile
+    
+    # Port configuration
     http_port: 3000
+    
+    # Instance configuration
     instance_count: 1
     instance_size_slug: professional-xs
-
+    
+    # Health check configuration
     health_check:
       http_path: /api/health
       initial_delay_seconds: 60
@@ -28,15 +26,20 @@ services:
       timeout_seconds: 10
       success_threshold: 1
       failure_threshold: 3
-
+    
+    # Environment variables for web service
     envs:
-      # Database (自動注入)
+      # =====================================
+      # Database Configuration (Auto-injected)
+      # =====================================
       - key: DATABASE_URL
         scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: ${db.DATABASE_URL}
       
-      # Node 環境
+      # =====================================
+      # Node Environment
+      # =====================================
       - key: NODE_ENV
         scope: RUN_AND_BUILD_TIME
         value: production
@@ -45,7 +48,10 @@ services:
         scope: RUN_AND_BUILD_TIME
         value: Asia/Hong_Kong
       
-      # NextAuth
+      # =====================================
+      # NextAuth Configuration
+      # REQUIRED: Set in DO App Platform UI
+      # =====================================
       - key: NEXTAUTH_URL
         scope: RUN_AND_BUILD_TIME
         value: ${APP_URL}
@@ -53,9 +59,24 @@ services:
       - key: NEXTAUTH_SECRET
         scope: RUN_AND_BUILD_TIME
         type: SECRET
-        value: ""  # 必須在 DO 控制台填入
+        # MUST BE SET IN DO CONSOLE - Generate with: openssl rand -base64 32
       
-      # AI Provider 統一配置
+      # =====================================
+      # Keycloak OAuth (Optional)
+      # Set these if using Keycloak authentication
+      # =====================================
+      - key: KEYCLOAK_CLIENT_ID
+        scope: RUN_AND_BUILD_TIME
+        # Optional - for OAuth integration
+      
+      - key: KEYCLOAK_ISSUER
+        scope: RUN_AND_BUILD_TIME
+        # Optional - e.g., https://your-keycloak.com/realms/looper-hq
+      
+      # =====================================
+      # AI Provider Configuration
+      # REQUIRED: Set OpenAI/OpenRouter API key
+      # =====================================
       - key: AI_PROVIDER
         scope: RUN_AND_BUILD_TIME
         value: openai
@@ -63,7 +84,7 @@ services:
       - key: OPENAI_API_KEY
         scope: RUN_AND_BUILD_TIME
         type: SECRET
-        value: ""  # 必須在 DO 控制台填入
+        # MUST BE SET IN DO CONSOLE - Your OpenAI or OpenRouter API key
       
       - key: OPENAI_MODEL
         scope: RUN_AND_BUILD_TIME
@@ -85,14 +106,16 @@ services:
         scope: RUN_AND_BUILD_TIME
         value: zh-HK
       
+      # =====================================
       # Crawler Configuration
+      # =====================================
       - key: CRAWLER_ENABLED
         scope: RUN_AND_BUILD_TIME
         value: "true"
       
       - key: CRAWLER_SCHEDULE
         scope: RUN_AND_BUILD_TIME
-        value: "0 18 * * *"  # Daily at 2am HKT
+        value: "0 18 * * *"  # Daily at 2am HKT (18:00 UTC previous day)
       
       - key: RSS_TIMEOUT
         scope: RUN_AND_BUILD_TIME
@@ -101,6 +124,34 @@ services:
       - key: RSS_MAX_RETRIES
         scope: RUN_AND_BUILD_TIME
         value: "3"
+
+jobs:
+  - name: db-migrate
+    kind: PRE_DEPLOY
+    github:
+      repo: JonazWong/Looper-HQ
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    # Run migration using the built Docker image
+    # The Dockerfile already includes pnpm and Prisma client
+    run_command: |
+      cd /app && \
+      echo "Running database migrations..." && \
+      pnpm --filter=@looper-hq/database prisma migrate deploy && \
+      echo "✅ Database migrations completed successfully!"
+    envs:
+      # Database connection (same as web service)
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: ${db.DATABASE_URL}
+      
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
 
 databases:
   - name: db
