@@ -1,14 +1,5 @@
-import OpenAI from 'openai';
+import { generateCompletion } from '@looper-hq/utils';
 import { CaseCategory } from '@prisma/client';
-
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error('OPENAI_API_KEY environment variable is required for AI classification');
-}
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_BASE_URL || 'https://openrouter.ai/api/v1',
-});
 
 export interface ClassificationResult {
   category: CaseCategory;
@@ -25,9 +16,6 @@ export async function classifyCase(
   title: string,
   content: string
 ): Promise<ClassificationResult> {
-  const isOpenRouter = process.env.OPENAI_BASE_URL?.includes('openrouter');
-  const model = process.env.OPENAI_MODEL || 'anthropic/claude-3.5-sonnet';
-
   const prompt = `分析以下香港法律案例，提取結構化信息。
 
 標題: ${title}
@@ -45,28 +33,13 @@ export async function classifyCase(
   "keywords": ["關鍵詞1", "關鍵詞2"]
 }`;
 
-  const response = await openai.chat.completions.create({
-    model,
-    messages: [
-      {
-        role: 'system',
-        content: '你是專業的香港法律案例分析助手。',
-      },
-      {
-        role: 'user',
-        content: prompt,
-      },
-    ],
-    temperature: 0.3,
-    max_tokens: 1000,
-  }, {
-    headers: isOpenRouter ? {
-      'HTTP-Referer': 'https://looper-hq.app',
-      'X-Title': 'Looper HQ',
-    } : undefined,
+  const responseContent = await generateCompletion({
+    systemPrompt: '你是專業的香港法律案例分析助手。',
+    userPrompt: prompt,
+    jsonMode: true,
+    maxTokens: 1000,
   });
 
-  const responseContent = response.choices[0].message.content || '{}';
   const cleaned = responseContent.replace(/```(?:json)?\n?/g, '');
   
   let result: any;
@@ -87,4 +60,3 @@ export async function classifyCase(
     keywords: result.keywords || [],
   };
 }
-

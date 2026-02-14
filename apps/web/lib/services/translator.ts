@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import { generateCompletion } from '@looper-hq/utils';
 
 export type TranslationDirection = 'zh-to-en' | 'en-to-zh';
 
@@ -19,10 +19,6 @@ export async function translateText(
   direction: TranslationDirection,
   context: 'legal' | 'general' = 'legal'
 ): Promise<TranslationResult> {
-  const openai = new OpenAI({ 
-    apiKey: process.env.OPENAI_API_KEY 
-  });
-  
   const [sourceLang, targetLang] = direction === 'zh-to-en' 
     ? ['繁體中文', 'English']
     : ['English', '繁體中文'];
@@ -38,17 +34,11 @@ export async function translateText(
   const userPrompt = `請將以下${sourceLang}文本翻譯為${targetLang}:\n\n${text}`;
   
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
-      temperature: 0.3,
-      max_tokens: 2000,
+    const translatedText = await generateCompletion({
+      systemPrompt,
+      userPrompt,
+      maxTokens: 2000,
     });
-    
-    const translatedText = response.choices[0].message.content || text;
     
     return {
       originalText: text,
