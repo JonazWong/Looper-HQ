@@ -145,7 +145,8 @@ async function getRecentActivities() {
           select: {
             id: true,
             caseNumber: true,
-            title: true,
+            title_zh: true,
+            title_en: true,
           },
         },
       },

@@ -26,7 +26,8 @@ export async function GET(
           select: {
             id: true,
             caseNumber: true,
-            title: true,
+            title_zh: true,
+            title_en: true,
             client: {
               select: {
                 id: true,
@@ -103,7 +104,8 @@ export async function PATCH(
           select: {
             id: true,
             caseNumber: true,
-            title: true,
+            title_zh: true,
+            title_en: true,
             client: {
               select: {
                 id: true,

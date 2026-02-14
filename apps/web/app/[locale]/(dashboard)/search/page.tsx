@@ -73,7 +73,8 @@ async function searchPublicCases(params: SearchParams) {
       select: {
         id: true,
         caseNumber: true,
-        title: true,
+        title_zh: true,
+        title_en: true,
         category: true,
         status: true,
         startDate: true,

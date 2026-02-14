@@ -96,7 +96,8 @@ async function getTimeLogs(params: SearchParams) {
             select: {
               id: true,
               caseNumber: true,
-              title: true,
+              title_zh: true,
+              title_en: true,
               client: {
                 select: {
                   name: true,
@@ -210,7 +211,8 @@ async function getCasesForFilter() {
       select: {
         id: true,
         caseNumber: true,
-        title: true,
+        title_zh: true,
+        title_en: true,
       },
       orderBy: {
         createdAt: 'desc',

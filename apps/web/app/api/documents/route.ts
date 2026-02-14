@@ -70,7 +70,8 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             caseNumber: true,
-            title: true,
+            title_zh: true,
+            title_en: true,
           },
         },
         uploadedBy: {
@@ -137,7 +138,8 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             caseNumber: true,
-            title: true,
+            title_zh: true,
+            title_en: true,
           },
         },
         uploadedBy: {

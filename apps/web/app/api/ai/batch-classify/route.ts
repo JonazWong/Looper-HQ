@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
       take: 50, // Process 50 cases at a time
       select: {
         id: true,
-        title: true,
+        title_zh: true,
+        title_en: true,
         description: true,
       },
     });
