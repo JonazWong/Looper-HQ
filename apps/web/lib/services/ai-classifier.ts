@@ -60,3 +60,37 @@ export async function classifyCase(
     keywords: result.keywords || [],
   };
 }
+
+/**
+ * Batch classify multiple cases
+ */
+export async function batchClassifyCases(
+  cases: Array<{ title: string; content: string }>
+): Promise<ClassificationResult[]> {
+  const results: ClassificationResult[] = [];
+  
+  for (const caseData of cases) {
+    try {
+      const result = await classifyCase(caseData.title, caseData.content);
+      results.push(result);
+      
+      // Rate limiting: wait 500ms between requests
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } catch (error) {
+      console.error(`Failed to classify case: ${caseData.title}`, error);
+      // Return a default result for failed classification
+      results.push({
+        category: 'OTHER' as CaseCategory,
+        court: null,
+        judge: null,
+        parties: [],
+        judgmentDate: null,
+        summary: caseData.title.substring(0, 100),
+        confidence: 0,
+        keywords: [],
+      });
+    }
+  }
+  
+  return results;
+}

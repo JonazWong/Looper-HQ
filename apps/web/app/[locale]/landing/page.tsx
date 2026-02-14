@@ -140,15 +140,15 @@ export default async function LandingPage({
             © {new Date().getFullYear()} Looper HQ. All rights reserved.
           </div>
           <div className="flex gap-4">
-            <a href="/terms" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground">
               Terms
-            </a>
-            <a href="/privacy" className="text-sm text-muted-foreground hover:text-foreground">
+            </Link>
+            <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground">
               Privacy
-            </a>
-            <a href="/contact" className="text-sm text-muted-foreground hover:text-foreground">
+            </Link>
+            <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">
               Contact
-            </a>
+            </Link>
           </div>
         </div>
       </footer>

@@ -150,15 +150,15 @@ export default async function HomePage({
             © {new Date().getFullYear()} Looper HQ. All rights reserved.
           </div>
           <div className="flex gap-4">
-            <a href="/terms" className="text-sm text-premier-pearl-gray hover:text-premier-gold transition-colors">
+            <Link href="/terms" className="text-sm text-premier-pearl-gray hover:text-premier-gold transition-colors">
               Terms
-            </a>
-            <a href="/privacy" className="text-sm text-premier-pearl-gray hover:text-premier-gold transition-colors">
+            </Link>
+            <Link href="/privacy" className="text-sm text-premier-pearl-gray hover:text-premier-gold transition-colors">
               Privacy
-            </a>
-            <a href="/contact" className="text-sm text-premier-pearl-gray hover:text-premier-gold transition-colors">
+            </Link>
+            <Link href="/contact" className="text-sm text-premier-pearl-gray hover:text-premier-gold transition-colors">
               Contact
-            </a>
+            </Link>
           </div>
         </div>
       </footer>
