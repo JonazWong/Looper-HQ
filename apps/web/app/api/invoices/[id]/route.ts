@@ -14,13 +14,13 @@ import { updateInvoiceSchema } from '@/lib/validations/schemas'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAuth()
 
     const invoice = await prisma.invoice.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
       include: {
         case: {
           include: {
@@ -59,7 +59,7 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
@@ -76,7 +76,7 @@ export async function PATCH(
 
     // Check if invoice exists
     const existingInvoice = await prisma.invoice.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
     })
 
     if (!existingInvoice) {
@@ -93,7 +93,7 @@ export async function PATCH(
 
     // Update invoice
     const invoice = await prisma.invoice.update({
-      where: { id: params.id },
+      where: { id: (await params).id },
       data: updateData,
       include: {
         case: {
@@ -140,14 +140,14 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
 
     // Check if invoice exists
     const invoice = await prisma.invoice.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
     })
 
     if (!invoice) {
@@ -156,7 +156,7 @@ export async function DELETE(
 
     // Delete invoice
     await prisma.invoice.delete({
-      where: { id: params.id },
+      where: { id: (await params).id },
     })
 
     // Log activity

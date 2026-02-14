@@ -14,13 +14,13 @@ import { updateTimeLogSchema } from '@/lib/validations/schemas'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAuth()
 
     const timeLog = await prisma.timeLog.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
       include: {
         case: {
           select: {
@@ -62,7 +62,7 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
@@ -79,7 +79,7 @@ export async function PATCH(
 
     // Check if time log exists
     const existingTimeLog = await prisma.timeLog.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
     })
 
     if (!existingTimeLog) {
@@ -96,7 +96,7 @@ export async function PATCH(
 
     // Update time log
     const timeLog = await prisma.timeLog.update({
-      where: { id: params.id },
+      where: { id: (await params).id },
       data: updateData,
       include: {
         case: {
@@ -146,14 +146,14 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
 
     // Check if time log exists
     const timeLog = await prisma.timeLog.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
     })
 
     if (!timeLog) {
@@ -162,7 +162,7 @@ export async function DELETE(
 
     // Delete time log
     await prisma.timeLog.delete({
-      where: { id: params.id },
+      where: { id: (await params).id },
     })
 
     // Log activity

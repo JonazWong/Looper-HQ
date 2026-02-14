@@ -14,13 +14,13 @@ import { updateDocumentSchema } from '@/lib/validations/schemas'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAuth()
 
     const document = await prisma.document.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
       include: {
         case: {
           select: {
@@ -55,7 +55,7 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
@@ -72,7 +72,7 @@ export async function PATCH(
 
     // Check if document exists
     const existingDocument = await prisma.document.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
     })
 
     if (!existingDocument) {
@@ -81,7 +81,7 @@ export async function PATCH(
 
     // Update document
     const document = await prisma.document.update({
-      where: { id: params.id },
+      where: { id: (await params).id },
       data,
       include: {
         case: {
@@ -126,14 +126,14 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await requireAuth()
 
     // Check if document exists
     const document = await prisma.document.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
     })
 
     if (!document) {
@@ -142,7 +142,7 @@ export async function DELETE(
 
     // Delete document
     await prisma.document.delete({
-      where: { id: params.id },
+      where: { id: (await params).id },
     })
 
     // Log activity if associated with a case
