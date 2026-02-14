@@ -176,9 +176,13 @@ function formatDate(date: Date): string {
 // Get status badge color
 function getStatusColor(status: CaseStatus): string {
   const colors: Record<CaseStatus, string> = {
+    DRAFT: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    OPEN: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
     ACTIVE: 'bg-green-500/20 text-green-400 border-green-500/30',
+    IN_PROGRESS: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
     PENDING: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
     COMPLETED: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    CLOSED: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
     ARCHIVED: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
     CANCELLED: 'bg-red-500/20 text-red-400 border-red-500/30',
   }
