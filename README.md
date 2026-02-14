@@ -48,40 +48,67 @@ pnpm dev:legal  # Legal case search on http://localhost:3001
 
 ### Production Deployment
 
-**Quick Deploy to DigitalOcean (15 minutes):**
+**🚀 Deploy to Digital Ocean App Platform (Recommended):**
+
+Complete deployment guide with CI/CD: **[docs/deployment-guide.md](./docs/deployment-guide.md)**
+
+**Quick Setup (15 minutes):**
 
 ```bash
-# 1. Push to GitHub
-git push origin main
-
-# 2. Create App on DigitalOcean
+# 1. Create App on Digital Ocean
 # Visit: https://cloud.digitalocean.com/apps
 # Connect GitHub repo: JonazWong/Looper-HQ
 # App Platform auto-reads .do/app.yaml
 
-# 3. Set environment variables (see .env.production.example)
-# Required: NEXTAUTH_SECRET, NEXTAUTH_URL, DATABASE_URL
-# Optional: OPENAI_API_KEY, KEYCLOAK_CLIENT_ID, SLACK_WEBHOOK
+# 2. Set required secrets in DO Console
+# - NEXTAUTH_SECRET (generate: openssl rand -base64 32)
+# - OPENAI_API_KEY (from OpenRouter or OpenAI)
 
-# 4. Deploy!
+# 3. Configure GitHub Secrets for CI/CD
+# - DIGITALOCEAN_ACCESS_TOKEN
+# - DIGITALOCEAN_APP_ID
+
+# 4. Push to main - automatic deployment!
+git push origin main
 ```
 
-📖 **Deployment Guides:**
-- [Quick Start](./docs/deployment/quickstart.md) - 5-minute deployment guide
-- [Digital Ocean Setup](./docs/deployment/digitalocean.md) - Complete DO implementation
-- [Full Deployment Guide](./docs/deployment/README.md) - Comprehensive deployment documentation
+📖 **Documentation:**
+- **[Digital Ocean App Platform Guide](./docs/deployment-guide.md)** - Complete setup & CI/CD (Recommended)
+- [Quick Start](./docs/deployment/quickstart.md) - Droplet deployment guide
+- [Full Deployment Guide](./docs/deployment/README.md) - Comprehensive documentation
+
+**Features:**
+- ✅ Automatic deployments on push to `main`
+- ✅ Zero-downtime rolling updates
+- ✅ Automatic database migrations
+- ✅ Managed PostgreSQL 16 database
+- ✅ Built-in monitoring & logging
+- ✅ SSL/TLS certificates (auto-managed)
 
 ### 🔄 CI/CD Pipeline
 
-Automated deployment pipeline with GitHub Actions:
+Automated deployment pipeline with GitHub Actions (`.github/workflows/deploy-production.yml`):
 
-- ✅ **Test Stage**: Type-check, lint, unit tests
-- ✅ **Build Stage**: Production build with artifacts
-- ✅ **Deploy Stage**: Automated Digital Ocean deployment
-- ✅ **Health Checks**: Automated verification after deployment
-- ✅ **Notifications**: Slack alerts for deployment status
+**Stages:**
+- ✅ **Test & Build**: Dependencies, Prisma generation, type-check, lint, build
+- ✅ **Deploy**: Update app spec, trigger DO App Platform deployment  
+- ✅ **Verify**: Wait for deployment, health check validation (10 retries)
 
-Workflow triggers on push to `main` or `production` branches.
+**Triggers:**
+- Automatic: Push to `main` branch
+- Manual: workflow_dispatch in GitHub Actions UI
+
+**Deployment Process:**
+1. Install dependencies with pnpm
+2. Generate Prisma client
+3. Build Next.js application
+4. Run tests (continues on error)
+5. Trigger Digital Ocean App Platform deployment via doctl
+6. Wait for deployment to complete (15 min timeout)
+7. Verify health endpoint returns 200
+8. Display deployment summary with URLs
+
+**Time:** ~10-15 minutes per deployment
 
 ### 🏥 Health Monitoring
 

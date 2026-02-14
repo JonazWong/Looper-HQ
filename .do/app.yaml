@@ -37,10 +37,13 @@ jobs:
     dockerfile_path: Dockerfile
     instance_count: 1
     instance_size_slug: basic-xxs
+    # Run migration using the built Docker image
+    # The Dockerfile already includes pnpm and Prisma client
     run_command: |
-      echo "Running database migrations..."
-      pnpm --filter=@looper-hq/database prisma migrate deploy
-      echo "Database migrations completed successfully!"
+      cd /app && \
+      echo "Running database migrations..." && \
+      pnpm --filter=@looper-hq/database prisma migrate deploy && \
+      echo "✅ Database migrations completed successfully!"
     envs:
       # Database connection (same as web service)
       - key: DATABASE_URL
