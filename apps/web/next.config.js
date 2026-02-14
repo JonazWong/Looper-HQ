@@ -5,8 +5,8 @@ const withNextIntl = createNextIntlPlugin('./i18n.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Turborepo optimization
-  transpilePackages: [],
+  // Turborepo optimization - transpile workspace packages
+  transpilePackages: ['@looper-hq/utils', '@looper-hq/database'],
   
   // Image optimization
   images: {

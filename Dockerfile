@@ -49,6 +49,9 @@ RUN npm install -g pnpm@9.15.2
 # Copy everything from deps stage (includes node_modules, package.json, prisma schema)
 COPY --from=deps /app ./
 
+# Copy TypeScript configuration
+COPY tsconfig.json ./
+
 # Copy source code (adds source files while keeping node_modules from deps)
 COPY apps ./apps
 COPY packages ./packages
@@ -98,6 +101,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 COPY --from=builder --chown=nextjs:nodejs /app/packages/database/prisma ./packages/database/prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+
+# Copy compiled workspace packages
+COPY --from=builder --chown=nextjs:nodejs /app/packages/utils/dist ./packages/utils/dist
+COPY --from=builder --chown=nextjs:nodejs /app/packages/utils/package.json ./packages/utils/package.json
 
 # Copy package.json files for reference
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
