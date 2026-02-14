@@ -1,56 +1,54 @@
 {
-  "name": "looper-hq",
-  "version": "2.0.0",
-  "private": true,
-  "description": "Looper HQ - Enterprise-grade legal case management platform for Hong Kong",
-  "author": "JonazWong",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
-  },
-  "packageManager": "pnpm@8.15.0",
   "scripts": {
+    // === 一鍵安裝 / 組合腳本 ===
+    "setup:dev": "bash ./scripts/install-dev.sh",
+    "setup:database": "pnpm db:push && pnpm db:seed",
+    "setup:crawler": "pnpm crawler:all",
+    "setup:all": "pnpm setup:dev && pnpm setup:crawler",
+    "bootstrap:data": "tsx scripts/bootstrap-data.ts",
+    "rollback:dev": "bash ./scripts/uninstall-dev.sh --rollback-latest",
+
+    // === 開發環境啟動 ===
     "dev": "turbo run dev",
     "dev:web": "turbo run dev --filter=@looper-hq/web",
     "dev:legal": "turbo run dev --filter=@looper-hq/legal-case-search",
     "dev:all": "turbo run dev --parallel",
-    "postinstall": "pnpm --filter=@looper-hq/database generate",
+
+    // === 安裝後動作 ===
+    "postinstall": "pnpm --filter=@looper-hq/database prisma generate",
+
+    // === Build / Test / Lint ===
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
+
+    // === 資料庫（Prisma wrapper packages）===
     "db:migrate": "pnpm --filter=@looper-hq/database migrate",
     "db:push": "pnpm --filter=@looper-hq/database db:push",
     "db:seed": "pnpm --filter=@looper-hq/database seed",
-    "db:seed:minimal": "pnpm --filter=@looper-hq/database seed:minimal",
     "db:studio": "pnpm --filter=@looper-hq/database studio",
-    "bootstrap:data": "tsx scripts/bootstrap-data.ts",
+
+    // === Migration 專用套件 ===
     "migrate:all": "pnpm --filter=@looper-hq/migration migrate:all",
     "migrate:clients": "pnpm --filter=@looper-hq/migration migrate:clients",
     "migrate:cases": "pnpm --filter=@looper-hq/migration migrate:cases",
-    "migrate:memberships": "pnpm --filter=@looper-hq/migration migrate:memberships",
+    "migrate:memberships": "pnpm --filter=@looper-hq/migration memberships",
     "migrate:validate": "pnpm --filter=@looper-hq/migration validate",
     "migrate:backup": "pnpm --filter=@looper-hq/migration backup",
     "migrate:rollback": "pnpm --filter=@looper-hq/migration rollback",
     "migrate:export-legacy": "pnpm --filter=@looper-hq/migration export:legacy",
-    "pre-migration:check": "node scripts/pre-migration-check.js",
+
+    // === Docker ===
     "docker:up": "docker compose -f infrastructure/docker/docker-compose.yml up -d",
     "docker:down": "docker compose -f infrastructure/docker/docker-compose.yml down",
+
+    // === Crawlers ===
     "crawler:all": "tsx scripts/crawlers/unified-tracker.ts",
     "crawler:judiciary": "tsx scripts/crawlers/hk-judiciary-crawler.ts",
     "crawler:rss": "tsx scripts/crawlers/rss-news-crawler.ts",
     "crawler:health": "tsx scripts/crawlers/health-check.ts",
-    "test:rss": "tsx scripts/test-rss-sources.ts",
-    "do:check": "bash scripts/do-bootstrap.sh",
-    "close-issues": "node scripts/close-automated-issues.js",
-    "close-issues:bash": "./scripts/close-automated-issues.sh"
-  },
-  "devDependencies": {
-    "@octokit/rest": "^20.0.2",
-    "@types/node": "^20.10.6",
-    "rss-parser": "^3.13.0",
-    "tsx": "^4.7.0",
-    "turbo": "^1.11.2",
-    "typescript": "^5.3.3"
+
+    // === 測試工具 ===
+    "test:rss": "tsx scripts/test-rss-sources.ts"
   }
 }

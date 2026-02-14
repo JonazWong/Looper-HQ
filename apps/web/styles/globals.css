@@ -103,12 +103,12 @@
 /* Premier Glassmorphism Effects */
 @layer components {
   .glass-card {
-    @apply bg-premier-black-light/60 backdrop-blur-[16px] border border-premier-gold/10 shadow-premier-lg;
+    @apply bg-premier-black-light/60 backdrop-blur-[16px] border border-premier-gold/5 shadow-premier-lg;
   }
   
   .glass-gold {
-    background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(184,134,11,0.05) 100%);
-    @apply backdrop-blur-[20px] border border-premier-gold/20;
+    background: linear-gradient(135deg, rgba(212,175,55,0.05) 0%, rgba(184,134,11,0.025) 100%);
+    @apply backdrop-blur-[20px] border border-premier-gold/10;
   }
   
   .glass-frosted {
@@ -116,8 +116,8 @@
   }
   
   .glass-mystery {
-    background: linear-gradient(135deg, rgba(74,20,140,0.1) 0%, rgba(26,35,126,0.05) 100%);
-    @apply backdrop-blur-[20px] border border-premier-mystery-violet/20;
+    background: linear-gradient(135deg, rgba(74,20,140,0.05) 0%, rgba(26,35,126,0.025) 100%);
+    @apply backdrop-blur-[20px] border border-premier-mystery-violet/10;
   }
 }
 

@@ -32,19 +32,34 @@
 ```bash
 git clone https://github.com/JonazWong/Looper-HQ.git
 cd Looper-HQ
-pnpm install
-cp .env.example .env
-pnpm docker:up
-pnpm db:push
-pnpm db:seed
 
-# Run both applications
+# 1. Install dependencies (generates Prisma Client automatically)
+pnpm install
+
+# 2. Configure environment
+cp .env.example .env
+# Edit .env - add OPENAI_API_KEY and other required vars
+
+# 3. Start Docker services (PostgreSQL, Redis, Keycloak)
+pnpm docker:up
+
+# 4. Sync database schema
+pnpm db:push
+
+# 5. Bootstrap initial data (admin user, firm, membership)
+pnpm bootstrap:data
+
+# 6. Run both applications
 pnpm dev:all
 
 # Or run individually
-pnpm dev:web    # Main app on http://localhost:3000
+pnpm dev        # Main app on http://localhost:3005
 pnpm dev:legal  # Legal case search on http://localhost:3001
 ```
+
+**Login Credentials (after bootstrap):**
+- Email: `admin@looper-hq.app`
+- Password: Any password (dev mode uses Credentials provider)
 
 ### Production Deployment
 
@@ -151,8 +166,11 @@ pnpm dev:all          # Run both apps in parallel
 # Database
 pnpm db:push          # Sync schema to database (dev)
 pnpm db:migrate       # Create and apply migrations
-pnpm db:seed          # Seed database with sample data
 pnpm db:studio        # Open Prisma Studio
+
+# Bootstrap & Setup
+pnpm bootstrap:data   # Initialize firm, admin user, membership
+pnpm do:check         # Validate DigitalOcean deployment config
 
 # Crawlers (Public Case Tracking)
 pnpm crawler:all      # Run all crawlers (HK Judiciary + RSS)
@@ -161,17 +179,7 @@ pnpm crawler:judiciary # Run HK Judiciary crawler only
 pnpm crawler:health   # Check crawler health status
 
 # Docker
-pnpm docker:up        # Start all services
-pnpm docker:down      # Stop all services
-
-# Database
-pnpm db:migrate       # Run database migrations
-pnpm db:push          # Push schema changes
-pnpm db:seed          # Seed database with test data
-pnpm db:studio        # Open Prisma Studio
-
-# Docker
-pnpm docker:up        # Start all services
+pnpm docker:up        # Start all services (PostgreSQL, Redis, Keycloak)
 pnpm docker:down      # Stop all services
 
 # Build & Test
@@ -180,8 +188,10 @@ pnpm test             # Run tests
 pnpm lint             # Run linters
 ```
 
-📚 **爬蟲系統快速參考**: [CRAWLER_QUICK_REFERENCE.md](./CRAWLER_QUICK_REFERENCE.md)  
-📖 **完整設置指南**: [docs/CRAWLER_SETUP_GUIDE.md](./docs/CRAWLER_SETUP_GUIDE.md)
+📚 **Quick References**:
+- [AI Configuration Guide](./docs/AI_CONFIGURATION.md) - Complete AI setup & usage
+- [Crawler Quick Reference](./CRAWLER_QUICK_REFERENCE.md) - Crawler system guide  
+- [DigitalOcean Deployment](./docs/deployment/DIGITALOCEAN_DEPLOYMENT.md) - Production deployment
 
 ---
 

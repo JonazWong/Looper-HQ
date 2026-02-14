@@ -47,8 +47,8 @@ export function LanguageSwitcher() {
             onClick={() => switchLanguage(language.code)}
             className={`cursor-pointer ${
               locale === language.code 
-                ? 'bg-premier-gold/20 text-premier-gold' 
-                : 'text-premier-pearl hover:bg-premier-gold/10'
+                ? 'bg-premier-gold/10 text-premier-gold' 
+                : 'text-premier-pearl hover:bg-premier-gold/5'
             }`}
           >
             <span className="mr-2">{language.flag}</span>

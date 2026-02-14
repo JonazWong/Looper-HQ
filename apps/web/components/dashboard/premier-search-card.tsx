@@ -8,6 +8,7 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { useLocale } from 'next-intl'
 import { Search, Sparkles, Crown, ArrowRight, Shield, Zap } from "lucide-react"
 import { GlassCard, GlassCardHeader, GlassCardTitle, GlassCardContent } from "@/components/ui/glass-card"
 import { itemVariants } from "@/lib/animations"
@@ -17,11 +18,12 @@ interface PremierSearchCardProps {
 }
 
 export function PremierSearchCard({ membershipTier }: PremierSearchCardProps) {
+  const locale = useLocale()
   const isPremier = membershipTier === 'PREMIER'
   
   return (
     <motion.div variants={itemVariants}>
-      <Link href="/dashboard/public-cases" className="block group">
+      <Link href={`/${locale}/public-cases`} className="block group">
         <GlassCard 
           variant="gold" 
           glow

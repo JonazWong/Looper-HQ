@@ -119,21 +119,21 @@ const config: Config = {
         'premier-dark': 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
         'premier-gold': 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
         'premier-mystery': 'linear-gradient(135deg, #4A148C 0%, #1A237E 100%)',
-        'premier-veil': 'radial-gradient(circle at 50% 50%, rgba(212,175,55,0.1) 0%, transparent 70%)',
+        'premier-veil': 'radial-gradient(circle at 50% 50%, rgba(212,175,55,0.05) 0%, transparent 70%)',
       },
       boxShadow: {
         // Subtle elevation
-        'premier-xs': '0 1px 4px rgba(212,175,55,0.08)',
-        'premier-sm': '0 2px 8px rgba(212,175,55,0.12)',
+        'premier-xs': '0 1px 4px rgba(212,175,55,0.04)',
+        'premier-sm': '0 2px 8px rgba(212,175,55,0.06)',
         // Medium elevation with glow
-        'premier-md': '0 4px 16px rgba(212,175,55,0.15), 0 2px 8px rgba(212,175,55,0.1)',
-        'premier-lg': '0 8px 32px rgba(212,175,55,0.2), 0 4px 16px rgba(212,175,55,0.15)',
+        'premier-md': '0 4px 16px rgba(212,175,55,0.08), 0 2px 8px rgba(212,175,55,0.05)',
+        'premier-lg': '0 8px 32px rgba(212,175,55,0.1), 0 4px 16px rgba(212,175,55,0.08)',
         // Dramatic elevation
-        'premier-xl': '0 12px 48px rgba(212,175,55,0.25), 0 8px 24px rgba(212,175,55,0.18)',
-        'premier-2xl': '0 24px 64px rgba(212,175,55,0.3), 0 12px 32px rgba(212,175,55,0.2)',
+        'premier-xl': '0 12px 48px rgba(212,175,55,0.12), 0 8px 24px rgba(212,175,55,0.09)',
+        'premier-2xl': '0 24px 64px rgba(212,175,55,0.15), 0 12px 32px rgba(212,175,55,0.1)',
         // Glowing effects
-        'premier-glow': '0 0 20px rgba(212,175,55,0.3), 0 0 40px rgba(212,175,55,0.15)',
-        'premier-glow-lg': '0 0 30px rgba(212,175,55,0.4), 0 0 60px rgba(212,175,55,0.2)',
+        'premier-glow': '0 0 20px rgba(212,175,55,0.15), 0 0 40px rgba(212,175,55,0.08)',
+        'premier-glow-lg': '0 0 30px rgba(212,175,55,0.2), 0 0 60px rgba(212,175,55,0.1)',
         // Inner glow for glass effect
         'premier-inner': 'inset 0 1px 2px rgba(255,255,255,0.1)',
       },

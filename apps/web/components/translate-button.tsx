@@ -57,7 +57,7 @@ export function TranslateButton({ text, onTranslated, className }: TranslateButt
       </PremierButton>
       
       {translated && (
-        <div className="mt-2 p-3 bg-premier-gold/10 border border-premier-gold/30 rounded-lg">
+        <div className="mt-2 p-3 bg-premier-gold/5 border border-premier-gold/15 rounded-lg">
           <p className="text-sm text-premier-pearl">{translated}</p>
         </div>
       )}

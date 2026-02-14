@@ -1,14 +1,15 @@
 import Link from "next/link"
-import { ArrowRight, Scale, Shield, Search, Users, Clock, FileText, Brain, Globe } from "lucide-react"
+import { ArrowRight, Scale, Brain, Search, Globe } from "lucide-react"
 import { PremierButton } from "@/components/ui/premier-button"
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
 
 export default async function HomePage({
   params
 }: {
-  params: Promise<{ locale: string }>
+  params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-premier-black via-premier-black-medium to-premier-black">
       {/* Header */}
@@ -164,3 +165,4 @@ export default async function HomePage({
     </div>
   )
 }
+

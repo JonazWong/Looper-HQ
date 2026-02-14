@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
+import { ReactNode } from 'react';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { locales } from '@/i18n';
@@ -29,13 +29,15 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  console.log('[LocaleLayout] locale param:', locale);
+  setRequestLocale(locale);
   
-  // ✅ 在 layout 裡驗證 locale（不在 i18n.ts）
+  // Validate locale
   if (!locales.includes(locale as any)) {
+    console.error('[LocaleLayout] Invalid locale:', locale);
     notFound();
   }
-  
-  setRequestLocale(locale);
+
   const messages = await getMessages();
 
   return (

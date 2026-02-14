@@ -1,0 +1,111 @@
+name: looper-hq-nexus
+region: sgp1
+
+services:
+  - name: web
+    github:
+      repo: JonazWong/Looper-HQ
+      branch: main
+      deploy_on_push: true
+    build_command: |
+      echo "Installing pnpm..."
+      npm install -g pnpm@8
+      echo "Installing dependencies..."
+      pnpm install --frozen-lockfile
+      echo "Generating Prisma Client..."
+      pnpm --filter=@looper-hq/database prisma generate
+      echo "Building web app..."
+      pnpm --filter=@looper-hq/web build
+    run_command: cd apps/web && pnpm start -p 3000
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: professional-xs
+
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 60
+      period_seconds: 30
+      timeout_seconds: 10
+      success_threshold: 1
+      failure_threshold: 3
+
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+        value: ${db.DATABASE_URL}
+      
+      - key: NODE_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production
+      
+      - key: TZ
+        scope: RUN_AND_BUILD_TIME
+        value: Asia/Hong_Kong
+      
+      - key: NEXTAUTH_URL
+        scope: RUN_AND_BUILD_TIME
+        value: ${APP_URL}
+      
+      - key: NEXTAUTH_SECRET
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+        value: ""
+      
+      - key: AI_PROVIDER
+        scope: RUN_AND_BUILD_TIME
+        value: openai
+      
+      - key: OPENAI_API_KEY
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+        value: ""
+      
+      - key: OPENAI_MODEL
+        scope: RUN_AND_BUILD_TIME
+        value: gpt-4o-mini
+      
+      - key: OPENAI_BASE_URL
+        scope: RUN_AND_BUILD_TIME
+        value: https://openrouter.ai/api/v1
+      
+      - key: AI_MAX_TOKENS
+        scope: RUN_AND_BUILD_TIME
+        value: "2048"
+      
+      - key: AI_TEMPERATURE
+        scope: RUN_AND_BUILD_TIME
+        value: "0.3"
+      
+      - key: AI_DEFAULT_LOCALE
+        scope: RUN_AND_BUILD_TIME
+        value: zh-HK
+      
+      - key: CRAWLER_ENABLED
+        scope: RUN_AND_BUILD_TIME
+        value: "true"
+      
+      - key: CRAWLER_SCHEDULE
+        scope: RUN_AND_BUILD_TIME
+        value: "0 18 * * *"
+      
+      - key: RSS_TIMEOUT
+        scope: RUN_AND_BUILD_TIME
+        value: "30000"
+      
+      - key: RSS_MAX_RETRIES
+        scope: RUN_AND_BUILD_TIME
+        value: "3"
+
+databases:
+  - name: db
+    engine: PG
+    version: "16"
+    production: true
+    cluster_name: looper-hq-prod
+    db_name: looper_hq
+    db_user: looper_hq_user
+
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED

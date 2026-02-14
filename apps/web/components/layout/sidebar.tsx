@@ -38,33 +38,33 @@ export function Sidebar() {
     // === CORE FUNCTIONS ===
     {
       labelKey: "cases" as const,
-      href: `/${locale}/dashboard/cases`,
+      href: `/${locale}/cases`,
       icon: Briefcase,
     },
     {
       labelKey: "clients" as const,
-      href: `/${locale}/dashboard/clients`,
+      href: `/${locale}/clients`,
       icon: Users,
     },
     {
       labelKey: "search" as const,
-      href: `/${locale}/dashboard/search`,
+      href: `/${locale}/search`,
       icon: Search,
     },
     // === SUPPORTING FEATURES ===
     {
       labelKey: "documents" as const,
-      href: `/${locale}/dashboard/documents`,
+      href: `/${locale}/documents`,
       icon: FileText,
     },
     {
       labelKey: "calendar" as const,
-      href: `/${locale}/dashboard/calendar`,
+      href: `/${locale}/calendar`,
       icon: Calendar,
     },
     {
       labelKey: "settings" as const,
-      href: `/${locale}/dashboard/settings`,
+      href: `/${locale}/settings`,
       icon: Settings,
     },
   ]
@@ -128,7 +128,7 @@ export function Sidebar() {
                     "relative p-1.5 rounded-lg transition-all shrink-0",
                     isActive 
                       ? "bg-gradient-to-br from-premier-gold/20 to-premier-gold-rose/10" 
-                      : "group-hover:bg-premier-gold/10"
+                      : "group-hover:bg-premier-gold/5"
                   )}>
                     <Icon className={cn(
                       "h-4 w-4 transition-transform group-hover:scale-110",
@@ -153,7 +153,7 @@ export function Sidebar() {
                   
                   {/* Hover glow effect */}
                   {isActive && (
-                    <div className="absolute inset-0 bg-premier-gold/5 rounded-premier-md" />
+                    <div className="absolute inset-0 bg-premier-gold/3 rounded-premier-md" />
                   )}
                 </Link>
               </motion.div>

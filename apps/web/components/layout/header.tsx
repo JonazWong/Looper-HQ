@@ -30,9 +30,9 @@ export function Header() {
   // Nav items with locale prefix
   const navItems = [
     { href: `/${locale}/dashboard`, labelKey: "dashboard" },
-    { href: `/${locale}/dashboard/cases`, labelKey: "cases" },
-    { href: `/${locale}/dashboard/clients`, labelKey: "clients" },
-    { href: `/${locale}/dashboard/search`, labelKey: "search" },
+    { href: `/${locale}/cases`, labelKey: "cases" },
+    { href: `/${locale}/clients`, labelKey: "clients" },
+    { href: `/${locale}/search`, labelKey: "search" },
   ]
 
   return (
@@ -90,7 +90,7 @@ export function Header() {
           
           {/* Notifications */}
           <motion.button
-            className="relative p-2 rounded-premier-md text-premier-pearl-gray hover:text-premier-gold hover:bg-premier-gold/10 transition-colors"
+            className="relative p-2 rounded-premier-md text-premier-pearl-gray hover:text-premier-gold hover:bg-premier-gold/5 transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >

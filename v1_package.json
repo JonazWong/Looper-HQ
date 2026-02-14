@@ -1,0 +1,36 @@
+{
+  // ... 其他欄位（name, version, dependencies 等）
+
+  "scripts": {
+    // === 一鍵開發環境安裝 ===
+    "setup:dev": "bash ./scripts/install-dev.sh",
+
+    // === 開發環境啟動 ===
+    "dev": "pnpm dev:all",
+    "dev:all": "turbo run dev --parallel --filter=web --filter=legal-case-search",
+    "dev:web": "turbo run dev --filter=web",
+    "dev:legal": "turbo run dev --filter=legal-case-search",
+
+    // === 資料庫相關 ===
+    "db:migrate": "pnpm --filter @looper-hq/database prisma migrate deploy",
+    "db:push": "pnpm --filter @looper-hq/database prisma db push",
+    "db:seed": "pnpm --filter @looper-hq/database prisma db seed",
+    "db:studio": "pnpm --filter @looper-hq/database prisma studio",
+
+    // === Docker 相關 ===
+    "docker:up": "docker compose -f ./infrastructure/docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f ./infrastructure/docker/docker-compose.yml down",
+
+    // === Crawlers（依 README） ===
+    "crawler:all": "pnpm --filter legal-case-search run crawler:all",
+    "crawler:judiciary": "pnpm --filter legal-case-search run crawler:judiciary",
+    "crawler:rss": "pnpm --filter legal-case-search run crawler:rss",
+
+    // === Build & Test ===
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint"
+  }
+
+  // ... 其他欄位
+}

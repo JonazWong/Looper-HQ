@@ -86,15 +86,6 @@ interface DashboardContentProps {
   membershipTier: MembershipTier
 }
 
-const quickActions = [
-  { label: 'New Case', icon: Plus, variant: 'primary' as const, href: '/dashboard/cases/new' },
-  { label: 'Add Client', icon: Users, variant: 'secondary' as const, href: '/dashboard/clients' },
-  { label: 'Search Cases', icon: Search, variant: 'secondary' as const, href: '/dashboard/search' },
-  { label: 'View Cases', icon: Briefcase, variant: 'secondary' as const, href: '/dashboard/cases' },
-  { label: 'View Clients', icon: Users, variant: 'secondary' as const, href: '/dashboard/clients' },
-  { label: 'Upload Documents', icon: Upload, variant: 'secondary' as const, href: '/dashboard/documents' },
-]
-
 const getStatusDisplay = (status: string) => {
   const statusMap: Record<string, { label: string; className: string }> = {
     'ACTIVE': { label: 'Active', className: 'bg-amber-500/20 text-amber-200' },
@@ -105,6 +96,18 @@ const getStatusDisplay = (status: string) => {
   return statusMap[status] || { label: status, className: 'bg-gray-500/20 text-gray-200' }
 }
 export function DashboardContent({ stats, activities, membershipTier }: DashboardContentProps) {
+  const locale = useLocale()
+  
+  // Quick actions with locale-aware routes
+  const quickActions = [
+    { label: 'New Case', icon: Plus, variant: 'primary' as const, href: `/${locale}/cases/new` },
+    { label: 'Add Client', icon: Users, variant: 'secondary' as const, href: `/${locale}/clients` },
+    { label: 'Search Cases', icon: Search, variant: 'secondary' as const, href: `/${locale}/search` },
+    { label: 'View Cases', icon: Briefcase, variant: 'secondary' as const, href: `/${locale}/cases` },
+    { label: 'View Clients', icon: Users, variant: 'secondary' as const, href: `/${locale}/clients` },
+    { label: 'Upload Documents', icon: Upload, variant: 'secondary' as const, href: `/${locale}/documents` },
+  ]
+  
   // Convert serialized activities to Activity format with icons
   const activitiesWithIcons: Activity[] = activities.map(activity => ({
     ...activity,
@@ -252,9 +255,9 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
               {stats.recentCases.map((case_, index) => {
                 const statusDisplay = getStatusDisplay(case_.status);
                 return (
-                  <Link key={case_.id} href={`/dashboard/cases/${case_.id}`}>
+                  <Link key={case_.id} href={`/${locale}/cases/${case_.id}`}>
                     <motion.div
-                      className="flex items-center justify-between border-b border-premier-gold/10 pb-4 last:border-0 last:pb-0 hover:bg-premier-gold/5 -mx-4 px-4 py-2 rounded-premier-md transition-colors cursor-pointer group"
+                      className="flex items-center justify-between border-b border-premier-gold/5 pb-4 last:border-0 last:pb-0 hover:bg-premier-gold/3 -mx-4 px-4 py-2 rounded-premier-md transition-colors cursor-pointer group"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 1 + index * 0.1 }}

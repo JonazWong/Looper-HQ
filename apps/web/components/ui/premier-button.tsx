@@ -18,8 +18,8 @@ const premierButtonVariants = cva(
     variants: {
       variant: {
         primary: 'bg-gradient-to-r from-premier-gold to-premier-gold-rose text-premier-black shadow-premier-glow hover:shadow-premier-glow-lg',
-        secondary: 'glass-card text-premier-pearl hover:bg-premier-gold/10 border border-premier-gold/30',
-        ghost: 'text-premier-gold hover:bg-premier-gold/10',
+        secondary: 'glass-card text-premier-pearl hover:bg-premier-gold/5 border border-premier-gold/15',
+        ghost: 'text-premier-gold hover:bg-premier-gold/5',
         outline: 'border-2 border-premier-gold text-premier-gold hover:bg-premier-gold hover:text-premier-black',
         mystery: 'bg-gradient-to-r from-premier-mystery-violet to-premier-mystery-purple text-premier-pearl shadow-premier-md hover:shadow-premier-lg',
       },
