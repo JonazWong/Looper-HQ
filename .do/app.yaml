@@ -26,35 +26,8 @@ services:
       timeout_seconds: 10
       success_threshold: 1
       failure_threshold: 3
-
-jobs:
-  - name: db-migrate
-    kind: PRE_DEPLOY
-    github:
-      repo: JonazWong/Looper-HQ
-      branch: main
-      deploy_on_push: true
-    dockerfile_path: Dockerfile
-    instance_count: 1
-    instance_size_slug: basic-xxs
-    # Run migration using the built Docker image
-    # The Dockerfile already includes pnpm and Prisma client
-    run_command: |
-      cd /app && \
-      echo "Running database migrations..." && \
-      pnpm --filter=@looper-hq/database prisma migrate deploy && \
-      echo "✅ Database migrations completed successfully!"
-    envs:
-      # Database connection (same as web service)
-      - key: DATABASE_URL
-        scope: RUN_TIME
-        type: SECRET
-        value: ${db.DATABASE_URL}
-      
-      - key: NODE_ENV
-        scope: RUN_TIME
-        value: production
-
+    
+    # Environment variables for web service
     envs:
       # =====================================
       # Database Configuration (Auto-injected)
@@ -151,6 +124,34 @@ jobs:
       - key: RSS_MAX_RETRIES
         scope: RUN_AND_BUILD_TIME
         value: "3"
+
+jobs:
+  - name: db-migrate
+    kind: PRE_DEPLOY
+    github:
+      repo: JonazWong/Looper-HQ
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    # Run migration using the built Docker image
+    # The Dockerfile already includes pnpm and Prisma client
+    run_command: |
+      cd /app && \
+      echo "Running database migrations..." && \
+      pnpm --filter=@looper-hq/database prisma migrate deploy && \
+      echo "✅ Database migrations completed successfully!"
+    envs:
+      # Database connection (same as web service)
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: ${db.DATABASE_URL}
+      
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
 
 databases:
   - name: db
