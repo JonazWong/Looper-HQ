@@ -115,7 +115,7 @@ services:
       
       - key: CRAWLER_SCHEDULE
         scope: RUN_AND_BUILD_TIME
-        value: "0 18 * * *"  # Daily at 2am HKT (18:00 UTC)
+        value: "0 18 * * *"  # Daily at 2am HKT (18:00 UTC previous day)
       
       - key: RSS_TIMEOUT
         scope: RUN_AND_BUILD_TIME
