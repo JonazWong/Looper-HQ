@@ -27,6 +27,9 @@ COPY packages/utils/package.json ./packages/utils/
 COPY packages/config/package.json ./packages/config/
 COPY packages/migration/package.json ./packages/migration/
 
+# Copy Prisma schema files BEFORE installing dependencies
+COPY packages/database/prisma ./packages/database/prisma
+
 # Install dependencies (including dev dependencies for build)
 RUN pnpm install --frozen-lockfile
 
@@ -55,6 +58,9 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/utils/package.json ./packages/utils/
 COPY packages/config/package.json ./packages/config/
 COPY packages/migration/package.json ./packages/migration/
+
+# Copy Prisma schema files explicitly
+COPY packages/database/prisma ./packages/database/prisma
 
 # Copy source code
 COPY . .
