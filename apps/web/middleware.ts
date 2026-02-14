@@ -24,6 +24,9 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { locales, defaultLocale } from './i18n';
 
+// Development mode check (module-level constant)
+const isDev = process.env.NODE_ENV === 'development';
+
 // Create next-intl middleware
 const intlMiddleware = createIntlMiddleware({
   locales,
@@ -79,11 +82,52 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
+  if (isDev) {
+    console.log('[Middleware] Incoming request:', { pathname, isLoggedIn });
+  }
+
   // Apply internationalization middleware for non-API routes
   const response = intlMiddleware(req);
 
-  // Get the pathname after intl middleware processes it
-  const newPathname = response.headers.get('x-middleware-request-x-nexturl-pathname') || pathname;
+  // Safely extract pathname after intl middleware processes it
+  // The header may not exist if intl middleware redirects or modifies the request
+  let newPathname = pathname;
+  
+  // Check if this is a redirect response
+  const isRedirect = response.status >= 300 && response.status < 400;
+  
+  if (isRedirect) {
+    // For redirects, extract locale from the Location header
+    const location = response.headers.get('location');
+    if (location) {
+      try {
+        const redirectUrl = new URL(location, req.url);
+        newPathname = redirectUrl.pathname;
+        if (isDev) {
+          console.log('[Middleware] Redirect detected:', { from: pathname, to: newPathname });
+        }
+      } catch (e) {
+        // Fallback to original pathname if URL parsing fails
+        newPathname = pathname;
+        if (isDev) {
+          console.error('[Middleware] Failed to parse redirect URL:', {
+            location,
+            error: e instanceof Error ? e.message : String(e)
+          });
+        }
+      }
+    }
+  } else {
+    // For non-redirects, check the header (may not exist)
+    const headerPathname = response.headers.get('x-middleware-request-x-nexturl-pathname');
+    if (headerPathname) {
+      newPathname = headerPathname;
+    }
+  }
+  
+  // Extract locale from pathname (zh or en)
+  const localeMatch = newPathname.match(/^\/(zh|en)/);
+  const locale = localeMatch ? localeMatch[1] : defaultLocale;
   
   // Remove locale prefix for auth checks
   const pathWithoutLocale = newPathname.replace(/^\/(zh|en)/, '') || '/';
@@ -92,18 +136,40 @@ export default auth((req) => {
   const isAuthRoute = pathWithoutLocale === '/login' || pathWithoutLocale === '/register';
   const isPublic = isPublicPath(newPathname);
 
+  if (isDev) {
+    console.log('[Middleware] Processing:', {
+      originalPath: pathname,
+      newPathname,
+      locale,
+      pathWithoutLocale,
+      isDashboardRoute,
+      isAuthRoute,
+      isPublic,
+      isLoggedIn,
+      isRedirect
+    });
+  }
+
   // Redirect authenticated users away from auth pages
   if (isLoggedIn && isAuthRoute) {
-    const locale = newPathname.split('/')[1];
+    if (isDev) {
+      console.log('[Middleware] Redirecting logged-in user from auth page to dashboard');
+    }
     return NextResponse.redirect(new URL(`/${locale}/dashboard`, req.url));
   }
 
   // Require authentication for dashboard routes
   if (isDashboardRoute && !isLoggedIn) {
-    const locale = newPathname.split('/')[1] || defaultLocale;
+    if (isDev) {
+      console.log('[Middleware] Redirecting unauthenticated user to login');
+    }
     const loginUrl = new URL(`/${locale}/login`, req.url);
     loginUrl.searchParams.set("callbackUrl", newPathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  if (isDev) {
+    console.log('[Middleware] Returning response:', { status: response.status });
   }
 
   return response;

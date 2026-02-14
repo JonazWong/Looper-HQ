@@ -4,6 +4,9 @@ import { notFound } from 'next/navigation';
 import { locales } from '@/i18n';
 import '../../styles/globals.css';
 
+// Development mode check (module-level constant)
+const isDev = process.env.NODE_ENV === 'development';
+
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
@@ -26,12 +29,24 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
+  
+  if (isDev) {
+    console.log('[LocaleLayout] Received locale:', locale);
+  }
+
   // Validate locale
-  if (!locales.includes(locale as any)) {
+  if (!locale || !locales.includes(locale as any)) {
+    if (isDev) {
+      console.error('[LocaleLayout] Invalid locale:', locale, 'Valid locales:', locales);
+    }
     notFound();
   }
 
   const messages = await getMessages();
+
+  if (isDev) {
+    console.log('[LocaleLayout] Messages loaded for locale:', locale, 'Keys:', Object.keys(messages).length);
+  }
 
   return (
     <html lang={locale} className="dark" suppressHydrationWarning>
