@@ -26,12 +26,25 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
+  const isDev = process.env.NODE_ENV === 'development';
+  
+  if (isDev) {
+    console.log('[LocaleLayout] Received locale:', locale);
+  }
+
   // Validate locale
-  if (!locales.includes(locale as any)) {
+  if (!locale || !locales.includes(locale as any)) {
+    if (isDev) {
+      console.error('[LocaleLayout] Invalid locale:', locale, 'Valid locales:', locales);
+    }
     notFound();
   }
 
   const messages = await getMessages();
+
+  if (isDev) {
+    console.log('[LocaleLayout] Messages loaded for locale:', locale, 'Keys:', Object.keys(messages).length);
+  }
 
   return (
     <html lang={locale} className="dark" suppressHydrationWarning>
