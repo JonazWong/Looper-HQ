@@ -14,11 +14,11 @@ import { documentSchema } from '@/lib/validations/schemas'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     await requireAuth()
-    const { id } = await params
+    const { id } = params
 
     // Check if case exists
     const caseData = await prisma.case.findUnique({
@@ -57,11 +57,11 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await requireAuth()
-    const { id } = await params
+    const { id } = params
     const body = await request.json()
 
     // Validate input

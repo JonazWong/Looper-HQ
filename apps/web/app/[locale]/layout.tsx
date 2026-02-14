@@ -1,17 +1,15 @@
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { locales } from '@/i18n';
 import '../../styles/globals.css';
-
-// Development mode check (module-level constant)
-const isDev = process.env.NODE_ENV === 'development';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const isZh = locale === 'zh';
   
   return {
@@ -24,29 +22,21 @@ export async function generateMetadata({ params: { locale } }: { params: { local
 
 export default async function LocaleLayout({
   children,
-  params: { locale }
+  params
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+  console.log('[LocaleLayout] locale param:', locale);
+  setRequestLocale(locale);
   
-  if (isDev) {
-    console.log('[LocaleLayout] Received locale:', locale);
-  }
-
   // Validate locale
-  if (!locale || !locales.includes(locale as any)) {
-    if (isDev) {
-      console.error('[LocaleLayout] Invalid locale:', locale, 'Valid locales:', locales);
-    }
+  if (!locales.includes(locale as any)) {
     notFound();
   }
 
   const messages = await getMessages();
-
-  if (isDev) {
-    console.log('[LocaleLayout] Messages loaded for locale:', locale, 'Keys:', Object.keys(messages).length);
-  }
 
   return (
     <html lang={locale} className="dark" suppressHydrationWarning>

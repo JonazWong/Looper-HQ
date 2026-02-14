@@ -3,11 +3,13 @@ import { ArrowRight, Scale, Shield, Search, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-export default function LandingPage({
-  params: { locale }
+export default async function LandingPage({
+  params
 }: {
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }) {
+  const { locale } = await params;
+  
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}

@@ -22,6 +22,7 @@
     "db:migrate": "pnpm --filter=@looper-hq/database migrate",
     "db:push": "pnpm --filter=@looper-hq/database db:push",
     "db:seed": "pnpm --filter=@looper-hq/database seed",
+    "db:seed:minimal": "pnpm --filter=@looper-hq/database seed:minimal",
     "db:studio": "pnpm --filter=@looper-hq/database studio",
     "migrate:all": "pnpm --filter=@looper-hq/migration migrate:all",
     "migrate:clients": "pnpm --filter=@looper-hq/migration migrate:clients",

@@ -149,6 +149,22 @@ pnpm dev:legal        # Run legal case search only
 pnpm dev:all          # Run both apps in parallel
 
 # Database
+pnpm db:push          # Sync schema to database (dev)
+pnpm db:migrate       # Create and apply migrations
+pnpm db:seed          # Seed database with sample data
+pnpm db:studio        # Open Prisma Studio
+
+# Crawlers (Public Case Tracking)
+pnpm crawler:all      # Run all crawlers (HK Judiciary + RSS)
+pnpm crawler:rss      # Run RSS news crawler only
+pnpm crawler:judiciary # Run HK Judiciary crawler only
+pnpm crawler:health   # Check crawler health status
+
+# Docker
+pnpm docker:up        # Start all services
+pnpm docker:down      # Stop all services
+
+# Database
 pnpm db:migrate       # Run database migrations
 pnpm db:push          # Push schema changes
 pnpm db:seed          # Seed database with test data
@@ -162,22 +178,10 @@ pnpm docker:down      # Stop all services
 pnpm build            # Build all apps
 pnpm test             # Run tests
 pnpm lint             # Run linters
-
-# Crawlers
-pnpm crawler:all      # Run all crawlers (HK Judiciary + RSS)
-pnpm crawler:judiciary # Run HK Judiciary crawler only
-pnpm crawler:rss      # Run RSS news crawler only
 ```
 
-## 🔧 Maintenance Notes
-
-### RSS Crawler (Currently Disabled)
-
-⚠️ **The automated RSS news crawler is currently disabled** due to source failures.
-
-See [docs/archive/rss-crawler-disabled.md](./docs/archive/rss-crawler-disabled.md) for details.
-
-To re-enable, update `.github/workflows/rss-crawler.yml` with working RSS sources.
+📚 **爬蟲系統快速參考**: [CRAWLER_QUICK_REFERENCE.md](./CRAWLER_QUICK_REFERENCE.md)  
+📖 **完整設置指南**: [docs/CRAWLER_SETUP_GUIDE.md](./docs/CRAWLER_SETUP_GUIDE.md)
 
 ---
 
@@ -185,19 +189,28 @@ To re-enable, update `.github/workflows/rss-crawler.yml` with working RSS source
 
 The system automatically tracks and aggregates legal cases from multiple sources:
 
+### Automated Crawlers ✅
+
+| Crawler | Schedule | Status | Sources |
+|---------|----------|--------|---------|
+| **Daily Case Tracking** | Every day 2:00 AM HKT | ✅ Active | HK Judiciary + RSS News |
+| **RSS News Crawler** | Every day 2:30 AM HKT | ✅ Active | Ming Pao, SCMP, RTHK |
+
 ### Data Sources
 
 1. **Hong Kong Judiciary** - Official court judgments (placeholder for future implementation)
-2. **South China Morning Post (SCMP)** - Legal news via RSS
-3. **RTHK (香港電台)** - Legal news via RSS
-4. **HKLII** - Hong Kong Legal Information Institute (planned)
+2. **Ming Pao (明報)** - Legal news via RSS
+3. **South China Morning Post (SCMP)** - Legal news via RSS (planned)
+4. **RTHK (香港電台)** - Legal news via RSS (planned)
 
 ### Features
 
-- **Automated Daily Tracking** - GitHub Actions runs at 2am HKT daily
-- **Keyword Filtering** - Smart filtering for legal-related content
-- **Deduplication** - Prevents duplicate entries via unique source + externalId
+- **Automated Daily Tracking** - GitHub Actions runs twice daily
+- **Keyword Filtering** - Smart filtering for legal-related content (繁中/EN)
+- **Deduplication** - Prevents duplicate entries via unique (source, externalId) constraint
 - **Search & Filtering** - Full-text search with source, category, and court filters
+- **Error Handling** - Automatic retry logic with exponential backoff
+- **Health Monitoring** - Success rate tracking and error logging
 - **Multi-language** - Supports both English and Traditional Chinese
 
 ### Manual Execution

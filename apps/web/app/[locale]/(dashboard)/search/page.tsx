@@ -32,7 +32,7 @@ interface SearchParams {
 }
 
 interface SearchPageProps {
-  searchParams: Promise<SearchParams>
+  searchParams: SearchParams
 }
 
 // Fetch public cases from database
@@ -148,8 +148,7 @@ function truncate(text: string | null, length: number): string {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  // Await searchParams (Next.js 15 requirement)
-  const params = await searchParams
+  const params = searchParams
   
   // Get search results
   const results = params.q || params.category || params.status 

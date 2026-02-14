@@ -12,11 +12,11 @@ import { requireAuth } from '@/lib/api/auth'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     await requireAuth()
-    const { id } = await params
+    const { id } = params
 
     // Check if case exists
     const caseData = await prisma.case.findUnique({

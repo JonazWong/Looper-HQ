@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-// Root layout for the root page redirect
+// Root layout delegates html/body to locale layout
 export default function RootLayout({ children }: { children: ReactNode }) {
   return children
 }

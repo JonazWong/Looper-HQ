@@ -46,7 +46,7 @@ import { formatHKDate, formatHKDateTime } from "@/lib/utils"
 import { getLocalizedField } from "@looper-hq/utils"
 
 interface CaseDetailPageProps {
-  params: Promise<{ id: string; locale: string }>
+  params: { id: string; locale: string }
 }
 
 // Constants
@@ -183,7 +183,7 @@ function formatFileSize(bytes: number): string {
 }
 
 export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
-  const { id, locale } = await params
+  const { id, locale } = params
   const case_ = await getCaseDetails(id)
 
   if (!case_) {

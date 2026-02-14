@@ -49,7 +49,7 @@ interface SearchParams {
 
 interface CasesPageProps {
   params: Promise<{ locale: string }>
-  searchParams: Promise<SearchParams>
+  searchParams: SearchParams
 }
 
 // Constants
@@ -201,14 +201,13 @@ function formatCategory(category: CaseCategory): string {
   return category.replace('_', ' ')
 }
 
-export default async function CasesPage({ params: paramsPromise, searchParams }: CasesPageProps) {
-  // Await searchParams and params (Next.js 15 requirement)
-  const params = await searchParams
-  const { locale } = await paramsPromise
-  
+export default async function CasesPage({ params, searchParams }: CasesPageProps) {
+  const { locale } = await params
+  const resolvedSearchParams = searchParams
+
   // Fetch data in parallel
   const [{ cases, totalCases, currentPage, totalPages }, stats] = await Promise.all([
-    getCases(params),
+    getCases(resolvedSearchParams),
     getCaseStats(),
   ])
 

@@ -126,9 +126,73 @@ export async function GET(request: NextRequest) {
 
 ## 🎨 Design System - "Black Veil Empress"
 
-**Colors**: Premier black backgrounds (`#0a0a0a`), luxury golds (`#D4AF37`), mystery purples
-**Components**: All use `class-variance-authority` with premier- prefixed custom colors
-**Styling**: Glass morphism effects via `glass-card.tsx`, gradient borders via `gradient-border.tsx`
+**Complete Color Palette** (`apps/web/tailwind.config.ts`):
+- **Blacks**: `premier-black` (#0a0a0a), `premier-black-light` (#1a1a1a)
+- **Golds**: `premier-gold` (#D4AF37), `premier-gold-rose` (#B8860B), `premier-gold-champagne` (#F7E7CE)
+- **Mystery Accents**: `premier-mystery-violet` (#4A148C), `premier-mystery-purple` (#6A1B9A), `premier-mystery-blue` (#1A237E)
+- **Neutrals**: `premier-pearl` (#F5F5F5), `premier-pearl-gray` (#C0C0C0)
+
+**Component Styling**:
+- All UI components use `class-variance-authority` (cva) for variant management
+- Glass morphism effects via `glass-card` class (backdrop-blur with opacity)
+- Gradient backgrounds: `bg-premier-gold`, `bg-premier-mystery`, `bg-premier-dark`
+- Custom shadows: `shadow-premier-xs` through `shadow-premier-glow-lg` with gold tints
+- Border radius: `rounded-premier-sm` (8px) through `rounded-premier-2xl` (24px)
+- Typography: Inter/Noto Sans TC (sans), Playfair Display/Noto Serif TC (serif), JetBrains Mono (mono)
+
+**Example Component Pattern**:
+```typescript
+import { cva } from 'class-variance-authority'
+
+const buttonVariants = cva(
+  'premier-base-styles',
+  {
+    variants: {
+      variant: {
+        primary: 'bg-gradient-to-r from-premier-gold to-premier-gold-rose',
+        secondary: 'glass-card border border-premier-gold/30',
+        mystery: 'bg-gradient-to-r from-premier-mystery-violet to-premier-mystery-purple',
+      },
+    },
+  }
+)
+```
+
+## 🌐 Internationalization (i18n)
+
+**Framework**: next-intl with App Router integration
+
+**Locale Strategy**:
+- **Supported locales**: `zh` (Traditional Chinese), `en` (English)
+- **Default locale**: `zh` (Traditional Chinese)
+- **URL pattern**: `/[locale]/path` (locale prefix always present)
+- **Messages**: JSON files in `apps/web/messages/` (`zh.json`, `en.json`)
+
+**Combined Middleware** (`apps/web/middleware.ts`):
+- Handles both i18n routing (next-intl) and authentication (NextAuth.js v5)
+- i18n middleware runs first, prepends locale to all routes
+- Auth middleware protects `/[locale]/dashboard/*` and API routes (except `/api/auth/*`, `/api/health`, `/api/public-cases`, `/api/translate`)
+- Public paths: `/`, `/login`, `/register`, `/case-search`, `/landing`
+
+**Usage in Components**:
+```typescript
+import { useTranslations } from 'next-intl'
+
+function MyComponent() {
+  const t = useTranslations('namespace')
+  return <h1>{t('key')}</h1>
+}
+```
+
+**Server Components**:
+```typescript
+import { getTranslations } from 'next-intl/server'
+
+async function ServerComponent({ params: { locale } }: { params: { locale: string } }) {
+  const t = await getTranslations({ locale, namespace: 'namespace' })
+  return <h1>{t('key')}</h1>
+}
+```
 
 ## 🔐 Authentication & Authorization
 
@@ -271,6 +335,14 @@ KEYCLOAK_ISSUER="http://localhost:8080/realms/looper-hq"
 
 # OpenAI (OPTIONAL - for AI features)
 OPENAI_API_KEY="sk-..."
+OPENAI_MODEL="gpt-4o-mini"
+OPENAI_BASE_URL="https://openrouter.ai/api/v1"  # OpenRouter proxy support
+
+# Crawler Configuration (OPTIONAL)
+CRAWLER_ENABLED="true"
+CRAWLER_SCHEDULE="0 18 * * *"  # Daily at 2am HKT (18:00 UTC)
+RSS_TIMEOUT="30000"
+RSS_MAX_RETRIES="3"
 ```
 
 **Docker Services** (`infrastructure/docker/docker-compose.yml`):

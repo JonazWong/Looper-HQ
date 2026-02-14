@@ -15,11 +15,11 @@ import { updateCaseSchema } from '@/lib/validations/schemas'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     await requireAuth()
-    const { id } = await params
+    const { id } = params
 
     const caseData = await prisma.case.findUnique({
       where: { id },
@@ -107,11 +107,11 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await requireAuth()
-    const { id } = await params
+    const { id } = params
     const body = await request.json()
 
     // Validate input
@@ -180,11 +180,11 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await requireAuth()
-    const { id } = await params
+    const { id } = params
 
     // Check if case exists
     const existingCase = await prisma.case.findUnique({

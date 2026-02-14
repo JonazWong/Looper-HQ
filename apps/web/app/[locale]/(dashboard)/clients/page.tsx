@@ -44,7 +44,7 @@ interface SearchParams {
 }
 
 interface ClientsPageProps {
-  searchParams: Promise<SearchParams>
+  searchParams: SearchParams
 }
 
 // Constants
@@ -152,8 +152,7 @@ function getTypeColor(type: ClientType): string {
 }
 
 export default async function ClientsPage({ searchParams }: ClientsPageProps) {
-  // Await searchParams (Next.js 15 requirement)
-  const params = await searchParams
+  const params = searchParams
   
   // Fetch data in parallel
   const [{ clients, totalClients, currentPage, totalPages }, stats] = await Promise.all([

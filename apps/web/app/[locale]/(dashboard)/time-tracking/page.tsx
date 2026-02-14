@@ -45,7 +45,7 @@ interface SearchParams {
 }
 
 interface TimeTrackingPageProps {
-  searchParams: Promise<SearchParams>
+  searchParams: SearchParams
 }
 
 // Constants
@@ -225,7 +225,7 @@ async function getCasesForFilter() {
 }
 
 export default async function TimeTrackingPage({ searchParams }: TimeTrackingPageProps) {
-  const params = await searchParams
+  const params = searchParams
   
   const [{ timeLogs, totalLogs, currentPage, totalPages }, stats, cases] = await Promise.all([
     getTimeLogs(params),

@@ -8,11 +8,12 @@ import { Home, Search, FileText, Lock, UserPlus, LogIn, LayoutDashboard } from "
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
 import { PremierButton } from "@/components/ui/premier-button"
 
-export default function SitemapPage({
-  params: { locale }
+export default async function SitemapPage({
+  params
 }: {
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }) {
+  const { locale } = await params;
   return (
     <div className="min-h-screen bg-premier-dark p-8">
       <div className="max-w-6xl mx-auto space-y-8">

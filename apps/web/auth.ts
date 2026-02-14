@@ -89,8 +89,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
 
   pages: {
-    signIn: "/login",
-    error: "/login",
+    signIn: "/zh/login",  // 使用默認 locale 前綴
+    error: "/zh/login",
   },
 
   callbacks: {
@@ -169,29 +169,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       return session
     },
-
-    /**
-     * Authorized callback - controls access to pages
-     * This runs on middleware-protected routes
-     */
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user
-      const isOnDashboard = nextUrl.pathname.startsWith("/dashboard")
-      const isOnAuth = nextUrl.pathname.startsWith("/login") || 
-                       nextUrl.pathname.startsWith("/register")
-
-      // Redirect authenticated users away from auth pages
-      if (isLoggedIn && isOnAuth) {
-        return Response.redirect(new URL("/dashboard", nextUrl))
-      }
-
-      // Require authentication for dashboard
-      if (isOnDashboard) {
-        return isLoggedIn
-      }
-
-      return true
-    },
+    
+    // NOTE: authorized() callback removed - all auth logic handled in middleware.ts
+    // This prevents conflicts between NextAuth's routing and our custom i18n middleware
   },
 
   events: {
