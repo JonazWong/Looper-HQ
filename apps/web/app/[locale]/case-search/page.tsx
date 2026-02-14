@@ -5,7 +5,7 @@
  * 公開案件搜尋頁面 - 客戶可在此查看每日更新的法律案件資料
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { 
@@ -91,11 +91,7 @@ export default function PublicCasesPage() {
     court: searchParams.get('court') || '',
   });
 
-  useEffect(() => {
-    handleSearch(1);
-  }, []);
-
-  const handleSearch = async (page = 1) => {
+  const handleSearch = useCallback(async (page = 1) => {
     setLoading(true);
     
     try {
@@ -132,7 +128,11 @@ export default function PublicCasesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    handleSearch(1);
+  }, [handleSearch]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));

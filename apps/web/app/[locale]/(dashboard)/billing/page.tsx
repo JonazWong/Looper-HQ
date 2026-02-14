@@ -42,7 +42,7 @@ interface SearchParams {
 }
 
 interface BillingPageProps {
-  searchParams: SearchParams
+  searchParams: Promise<SearchParams>
 }
 
 // Constants
@@ -167,7 +167,7 @@ function isOverdue(dueDate: Date, status: InvoiceStatus): boolean {
 }
 
 export default async function BillingPage({ searchParams }: BillingPageProps) {
-  const params = searchParams
+  const params = await searchParams
   
   const [{ invoices, totalInvoices, currentPage, totalPages }, stats] = await Promise.all([
     getInvoices(params),
