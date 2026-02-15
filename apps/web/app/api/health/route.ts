@@ -3,18 +3,26 @@ import { prisma } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
+interface HealthCheckResponse {
+  status: 'healthy' | 'unhealthy';
+  timestamp: string;
+  uptime: number;
+  environment: string;
+  database: 'connected' | 'disconnected';
+}
+
 export async function GET() {
-  const healthcheck = {
+  const healthcheck: HealthCheckResponse = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV,
+    environment: process.env.NODE_ENV || 'development',
+    database: 'connected',
   };
 
   try {
     // Test database connection
     await prisma.$queryRaw`SELECT 1`;
-    healthcheck.database = 'connected';
   } catch (error) {
     // Error intentionally not logged to avoid exposing internal details
     healthcheck.database = 'disconnected';

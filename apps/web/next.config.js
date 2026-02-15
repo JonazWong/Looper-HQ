@@ -8,6 +8,9 @@ const nextConfig = {
   // Turborepo optimization - transpile workspace packages
   transpilePackages: ['@looper-hq/utils', '@looper-hq/database'],
   
+  // External packages for server components (prevents bundling issues)
+  serverExternalPackages: ['@prisma/client', 'prisma'],
+  
   // Image optimization
   images: {
     domains: ['localhost'],
@@ -29,8 +32,6 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '2mb',
     },
-    // External packages for server components (prevents bundling issues)
-    serverComponentsExternalPackages: ['@prisma/client', 'prisma'],
   },
 
   // Production standalone output for Docker
