@@ -9,7 +9,7 @@ Missing prisma script
 Environment configuration issue (DATABASE_URL not available at build time)
 ```
 
-## ✅ 已修復的問題 (4 個)
+## ✅ 已修復的問題 (5 個)
 
 ### 1. 重複的 Prisma Schema 檔案
 **問題：** 存在兩個 Prisma schema 造成衝突
@@ -35,7 +35,14 @@ Environment configuration issue (DATABASE_URL not available at build time)
 - Prisma generate 只需要環境變數存在，不需要真實連接
 - 運行時會使用真實的 DATABASE_URL (從 app.yaml 注入)
 
-### 4. DATABASE_URL 重複定義 (已移除)
+### 4. 缺少 'prisma' script
+**問題：** Digital Ocean 自動檢測期望在 database package 中找到名為 'prisma' 的 script
+
+**修復：**
+- 在 `packages/database/package.json` 添加 `"prisma": "prisma generate"` script
+- 保留原有的 `"generate"` script 以保持向後兼容
+
+### 5. DATABASE_URL 重複定義 (已移除)
 **問題：** `app.yaml` 中 `DATABASE_URL` 定義了兩次
 
 **修復：** 
@@ -184,3 +191,4 @@ RUN pnpm --filter=@looper-hq/database prisma generate
 3. 移除 app.yaml 中的 DATABASE_URL 重複定義
 4. 更新 .gitignore 防止重複 Prisma schema
 5. 添加 Prisma client 生成驗證步驟
+6. 在 packages/database/package.json 添加 'prisma' script（Digital Ocean 自動檢測需要）
