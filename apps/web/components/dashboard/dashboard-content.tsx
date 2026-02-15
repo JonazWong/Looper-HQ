@@ -28,6 +28,7 @@ import { ProgressRing } from "@/components/ui/progress-ring"
 import { ActivityTimeline, type Activity } from "@/components/ui/activity-timeline"
 import { containerVariants, itemVariants } from "@/lib/animations"
 import { PremierSearchCard } from "./premier-search-card"
+import { getLocalizedField } from "@looper-hq/utils"
 import type { MembershipTier } from "@prisma/client"
 
 // Icon mapping for activity types
@@ -50,7 +51,8 @@ interface CaseSegment {
 interface RecentCase {
   id: string
   caseNumber: string
-  title: string
+  title_zh: string
+  title_en: string
   status: string
   client: {
     id: string
@@ -268,7 +270,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
                         <FolderOpen className="h-5 w-5 text-premier-gold" />
                       </div>
                       <div>
-                        <div className="font-medium text-premier-pearl">{case_.title}</div>
+                        <div className="font-medium text-premier-pearl">{getLocalizedField(case_, 'title', locale as 'zh' | 'en')}</div>
                         <div className="text-sm text-premier-pearl-gray">
                           {case_.caseNumber} • {case_.client.name}
                         </div>
