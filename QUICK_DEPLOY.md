@@ -315,7 +315,7 @@ GitHub Actions 會自動處理：
 # 本地驗證部署配置
 ./scripts/validate-deployment.sh
 
-# 診斷部署問題 (待創建)
+# 診斷部署問題
 ./scripts/diagnose-deployment.sh
 ```
 

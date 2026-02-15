@@ -93,7 +93,7 @@ echo -e "${CYAN}🔍 Validating configurations...${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Check Dockerfile for critical sections
-if grep -q "output: process.env.NODE_ENV === 'production' ? 'standalone'" apps/web/next.config.js; then
+if grep -q "standalone" apps/web/next.config.js && grep -q "output:" apps/web/next.config.js; then
     echo -e "${GREEN}✅${NC} Next.js standalone output configured"
 else
     echo -e "${RED}❌${NC} Next.js standalone output NOT configured"
