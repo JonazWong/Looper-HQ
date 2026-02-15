@@ -185,13 +185,14 @@ RUN pnpm --filter=@looper-hq/database prisma generate
 ---
 
 **修復完成時間：** 2026-02-16  
-**最後更新：** 2026-02-16 (修復 Next.js standalone .prisma 複製問題)
+**最後更新：** 2026-02-16 18:00 (添加 Prisma client 生成 fallback 機制)
 
 **修復內容：**
 1. 在 Dockerfile 構建階段添加佔位符 DATABASE_URL
 2. 修正 app.yaml 中 DATABASE_URL scope 為 `RUN_AND_BUILD_TIME`
 3. 移除 app.yaml 中的 DATABASE_URL 重複定義
 4. 更新 .gitignore 防止重複 Prisma schema
-5. 在 packages/database/package.json 添加 'prisma' script（Digital Ocean 檢測需要）
-6. 確保從 builder 階段複製 Prisma client 到 runner 階段（Next.js standalone 不自動包含）
-7. 添加 Prisma client 複製驗證步驟
+5. 在 packages/database/package.json 添加 'prisma' script
+6. 在 builder 階段生成後驗證 Prisma client
+7. 在 runner 階段添加智能 fallback（複製失敗則重新生成）
+8. 使用容錯的 COPY 指令（|| true）避免構建中斷
