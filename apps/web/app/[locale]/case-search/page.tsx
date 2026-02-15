@@ -12,8 +12,12 @@ import {
 import { PremierButton } from "@/components/ui/premier-button";
 import { CaseSearchClient } from './search-client';
 
-export default function PublicCasesPage({ params }: { params: { locale: string } }) {
-  const { locale } = params;
+export default async function PublicCasesPage({
+  params
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params;
 
   return (
     <div className="min-h-screen bg-premier-dark">
