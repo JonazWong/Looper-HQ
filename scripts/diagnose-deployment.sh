@@ -80,7 +80,7 @@ for file in "${FILES[@]}"; do
         echo -e "${GREEN}✅${NC} $file"
     else
         echo -e "${RED}❌${NC} $file (MISSING)"
-        ((ISSUES_FOUND++))
+        ((++ISSUES_FOUND))
     fi
 done
 
