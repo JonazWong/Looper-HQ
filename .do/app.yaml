@@ -14,8 +14,8 @@ services:
     # Force Docker build (disable buildpack auto-detection)
     dockerfile_path: Dockerfile
     
-    # Port configuration (Dockerfile exposes 3000)
-    http_port: 3000
+    # Port configuration (Dockerfile exposes 3005)
+    http_port: 3005
     
     # Instance configuration
     instance_count: 1
