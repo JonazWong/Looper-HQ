@@ -282,9 +282,9 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                           {formatDate(caseItem.startDate)}
                         </span>
                       </div>
-                      {getLocalizedField(caseItem, 'publicNote', locale) && (
+                      {getLocalizedField(caseItem, 'publicNote', locale as 'zh' | 'en') && (
                         <p className="text-sm text-premier-pearl-gray line-clamp-3 mt-2">
-                          {truncate(getLocalizedField(caseItem, 'publicNote', locale), 120)}
+                          {truncate(getLocalizedField(caseItem, 'publicNote', locale as 'zh' | 'en'), 120)}
                         </p>
                       )}
                     </GlassCardContent>
