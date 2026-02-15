@@ -3,6 +3,9 @@ region: sgp
 
 services:
   - name: web
+    # Source directory - CRITICAL: Must be root for monorepo
+    source_dir: /
+    
     github:
       repo: JonazWong/Looper-HQ
       branch: main
