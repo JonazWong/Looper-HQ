@@ -422,14 +422,14 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                   </p>
                   <div className="flex gap-2">
                     {currentPage > 1 && (
-                      <Link href={`/documents?${new URLSearchParams({ ...params, page: String(currentPage - 1) })}`}>
+                      <Link href={`/documents?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage - 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
                           Previous
                         </PremierButton>
                       </Link>
                     )}
                     {currentPage < totalPages && (
-                      <Link href={`/documents?${new URLSearchParams({ ...params, page: String(currentPage + 1) })}`}>
+                      <Link href={`/documents?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage + 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
                           Next
                         </PremierButton>

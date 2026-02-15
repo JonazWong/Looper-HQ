@@ -168,10 +168,10 @@ function isOverdue(dueDate: Date, status: InvoiceStatus): boolean {
 }
 
 export default async function BillingPage({ searchParams }: BillingPageProps) {
-  const params = await searchParams
+  const resolvedSearchParams = await searchParams
   
   const [{ invoices, totalInvoices, currentPage, totalPages }, stats] = await Promise.all([
-    getInvoices(params),
+    getInvoices(resolvedSearchParams),
     getBillingStats(),
   ])
 
@@ -376,14 +376,14 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
                   </p>
                   <div className="flex gap-2">
                     {currentPage > 1 && (
-                      <Link href={`/billing?${new URLSearchParams({ ...params, page: String(currentPage - 1) })}`}>
+                      <Link href={`/billing?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage - 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
                           Previous
                         </PremierButton>
                       </Link>
                     )}
                     {currentPage < totalPages && (
-                      <Link href={`/billing?${new URLSearchParams({ ...params, page: String(currentPage + 1) })}`}>
+                      <Link href={`/billing?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage + 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
                           Next
                         </PremierButton>

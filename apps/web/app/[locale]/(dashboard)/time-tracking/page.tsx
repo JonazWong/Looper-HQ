@@ -516,14 +516,14 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
                   </p>
                   <div className="flex gap-2">
                     {currentPage > 1 && (
-                      <Link href={`/time-tracking?${new URLSearchParams({ ...params, page: String(currentPage - 1) })}`}>
+                      <Link href={`/time-tracking?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage - 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
                           Previous
                         </PremierButton>
                       </Link>
                     )}
                     {currentPage < totalPages && (
-                      <Link href={`/time-tracking?${new URLSearchParams({ ...params, page: String(currentPage + 1) })}`}>
+                      <Link href={`/time-tracking?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage + 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
                           Next
                         </PremierButton>
