@@ -1,0 +1,13 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Allow search engines to crawl case search page
+Allow: /case-search
+
+# Disallow admin and dashboard areas
+Disallow: /dashboard
+Disallow: /api
+
+# Sitemap location (placeholder - to be implemented)
+# Sitemap: https://looper-hq.com/sitemap.xml
