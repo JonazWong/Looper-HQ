@@ -29,6 +29,8 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '2mb',
     },
+    // External packages for server components (prevents bundling issues)
+    serverComponentsExternalPackages: ['@prisma/client', 'prisma'],
   },
 
   // Production standalone output for Docker

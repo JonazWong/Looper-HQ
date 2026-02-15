@@ -1,24 +1,27 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
+  const healthcheck = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV,
+  };
+
   try {
+    // Test database connection
     await prisma.$queryRaw`SELECT 1`;
-    
-    return NextResponse.json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      database: 'connected',
-    });
+    healthcheck.database = 'connected';
   } catch (error) {
     // Error intentionally not logged to avoid exposing internal details
-    return NextResponse.json(
-      {
-        status: 'unhealthy',
-        timestamp: new Date().toISOString(),
-        database: 'disconnected',
-      },
-      { status: 503 }
-    );
+    healthcheck.database = 'disconnected';
+    healthcheck.status = 'unhealthy';
   }
+
+  const statusCode = healthcheck.status === 'healthy' ? 200 : 503;
+  
+  return NextResponse.json(healthcheck, { status: statusCode });
 }
