@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         user,
         message: "註冊成功，請使用 Keycloak 或 OAuth 提供者登入。",
       },
-      201
+      201  // HTTP 201 Created
     )
   } catch (error) {
     console.error("Registration error:", error)

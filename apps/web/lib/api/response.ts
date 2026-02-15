@@ -19,15 +19,44 @@ export interface ApiResponse<T = any> {
 /**
  * Create a successful API response
  */
+// Overload 1: data + status code
 export function successResponse<T>(
   data: T,
-  meta?: ApiResponse['meta']
+  status: number
+): NextResponse<ApiResponse<T>>
+
+// Overload 2: data + meta + optional status
+export function successResponse<T>(
+  data: T,
+  meta?: ApiResponse['meta'],
+  status?: number
+): NextResponse<ApiResponse<T>>
+
+// Implementation
+export function successResponse<T>(
+  data: T,
+  metaOrStatus?: ApiResponse['meta'] | number,
+  status?: number
 ): NextResponse<ApiResponse<T>> {
-  return NextResponse.json({
-    success: true,
-    data,
-    ...(meta && { meta }),
-  })
+  // Handle overloaded parameters
+  let meta: ApiResponse['meta'] | undefined
+  let responseStatus = 200
+
+  if (typeof metaOrStatus === 'number') {
+    responseStatus = metaOrStatus
+  } else {
+    meta = metaOrStatus
+    responseStatus = status ?? 200
+  }
+
+  return NextResponse.json(
+    {
+      success: true,
+      data,
+      ...(meta && { meta }),
+    },
+    { status: responseStatus }
+  )
 }
 
 /**
