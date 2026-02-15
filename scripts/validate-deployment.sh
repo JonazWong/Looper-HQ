@@ -34,7 +34,7 @@ check_file() {
         echo -e "${GREEN}✅${NC} $description: ${file}"
     else
         echo -e "${RED}❌${NC} $description: ${file} (MISSING)"
-        ((ERRORS++))
+        ERRORS=$((ERRORS + 1))
     fi
 }
 
@@ -47,7 +47,7 @@ check_dir() {
         echo -e "${GREEN}✅${NC} $description: ${dir}"
     else
         echo -e "${RED}❌${NC} $description: ${dir} (MISSING)"
-        ((ERRORS++))
+        ERRORS=$((ERRORS + 1))
     fi
 }
 
@@ -61,7 +61,7 @@ check_command() {
         echo -e "${GREEN}✅${NC} $description: $version"
     else
         echo -e "${YELLOW}⚠️${NC} $description: Not installed (optional for deployment)"
-        ((WARNINGS++))
+        WARNINGS=$((WARNINGS + 1))
     fi
 }
 
@@ -95,18 +95,18 @@ if command -v python3 &> /dev/null; then
         echo -e "${GREEN}✅${NC} app.yaml: Valid YAML syntax"
     else
         echo -e "${RED}❌${NC} app.yaml: Invalid YAML syntax"
-        ((ERRORS++))
+        ERRORS=$((ERRORS + 1))
     fi
     
     if python3 -c "import yaml; yaml.safe_load(open('.github/workflows/deploy-production.yml'))" 2>/dev/null; then
         echo -e "${GREEN}✅${NC} deploy-production.yml: Valid YAML syntax"
     else
         echo -e "${RED}❌${NC} deploy-production.yml: Invalid YAML syntax"
-        ((ERRORS++))
+        ERRORS=$((ERRORS + 1))
     fi
 else
     echo -e "${YELLOW}⚠️${NC} Python3 not found - skipping YAML validation"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
 fi
 
 # Check Dockerfile structure
@@ -114,14 +114,36 @@ if grep -q "FROM node:20-alpine AS deps" Dockerfile; then
     echo -e "${GREEN}✅${NC} Dockerfile: Multi-stage build configured"
 else
     echo -e "${RED}❌${NC} Dockerfile: Multi-stage build not found"
-    ((ERRORS++))
+    ERRORS=$((ERRORS + 1))
 fi
 
 if grep -q "HEALTHCHECK" Dockerfile; then
     echo -e "${GREEN}✅${NC} Dockerfile: Health check configured"
 else
     echo -e "${YELLOW}⚠️${NC} Dockerfile: No health check found"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+# Check Next.js standalone output configuration
+if [ -f "apps/web/next.config.js" ]; then
+    if grep -q "output.*standalone" apps/web/next.config.js; then
+        echo -e "${GREEN}✅${NC} Next.js: standalone output configured"
+    else
+        echo -e "${RED}❌${NC} Next.js: standalone output NOT configured"
+        echo -e "${YELLOW}    Add 'output: \"standalone\"' to next.config.js${NC}"
+        ERRORS=$((ERRORS + 1))
+    fi
+fi
+
+# Check for port consistency between Dockerfile and app.yaml
+DOCKERFILE_PORT=$(grep -oP 'EXPOSE \K[0-9]+' Dockerfile | head -1)
+APPYAML_PORT=$(grep -oP 'http_port: \K[0-9]+' .do/app.yaml | head -1)
+
+if [ "$DOCKERFILE_PORT" = "$APPYAML_PORT" ]; then
+    echo -e "${GREEN}✅${NC} Port configuration: Dockerfile ($DOCKERFILE_PORT) matches app.yaml ($APPYAML_PORT)"
+else
+    echo -e "${RED}❌${NC} Port mismatch: Dockerfile exposes $DOCKERFILE_PORT but app.yaml expects $APPYAML_PORT"
+    ERRORS=$((ERRORS + 1))
 fi
 
 echo ""
@@ -143,14 +165,14 @@ if [ -f "apps/web/package.json" ]; then
         echo -e "${GREEN}✅${NC} Web app: build script exists"
     else
         echo -e "${RED}❌${NC} Web app: build script missing"
-        ((ERRORS++))
+        ERRORS=$((ERRORS + 1))
     fi
     
     if grep -q '"start"' apps/web/package.json; then
         echo -e "${GREEN}✅${NC} Web app: start script exists"
     else
         echo -e "${RED}❌${NC} Web app: start script missing"
-        ((ERRORS++))
+        ERRORS=$((ERRORS + 1))
     fi
 fi
 
@@ -159,7 +181,7 @@ if [ -f "packages/database/package.json" ]; then
         echo -e "${GREEN}✅${NC} Database: Prisma installed"
     else
         echo -e "${RED}❌${NC} Database: Prisma not found"
-        ((ERRORS++))
+        ERRORS=$((ERRORS + 1))
     fi
 fi
 
@@ -172,21 +194,21 @@ if grep -q "NEXTAUTH_SECRET" .do/app.yaml; then
     echo -e "${GREEN}✅${NC} app.yaml: NEXTAUTH_SECRET configured"
 else
     echo -e "${YELLOW}⚠️${NC} app.yaml: NEXTAUTH_SECRET not found"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
 fi
 
 if grep -q "DATABASE_URL" .do/app.yaml; then
     echo -e "${GREEN}✅${NC} app.yaml: DATABASE_URL configured"
 else
     echo -e "${RED}❌${NC} app.yaml: DATABASE_URL not found"
-    ((ERRORS++))
+    ERRORS=$((ERRORS + 1))
 fi
 
 if grep -q "OPENAI_API_KEY" .do/app.yaml; then
     echo -e "${GREEN}✅${NC} app.yaml: OPENAI_API_KEY configured"
 else
     echo -e "${YELLOW}⚠️${NC} app.yaml: OPENAI_API_KEY not found (AI features may not work)"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
 fi
 
 # Check for database configuration
@@ -194,7 +216,7 @@ if grep -q "databases:" .do/app.yaml; then
     echo -e "${GREEN}✅${NC} app.yaml: Database service configured"
 else
     echo -e "${RED}❌${NC} app.yaml: Database service not configured"
-    ((ERRORS++))
+    ERRORS=$((ERRORS + 1))
 fi
 
 # Check for pre-deploy migration job
@@ -202,7 +224,7 @@ if grep -q "kind: PRE_DEPLOY" .do/app.yaml; then
     echo -e "${GREEN}✅${NC} app.yaml: Pre-deploy migration job configured"
 else
     echo -e "${YELLOW}⚠️${NC} app.yaml: No pre-deploy migration job (migrations must be run manually)"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
 fi
 
 echo ""
@@ -213,14 +235,14 @@ if [ -f "apps/web/app/api/health/route.ts" ]; then
     echo -e "${GREEN}✅${NC} Health check endpoint exists: /api/health"
 else
     echo -e "${RED}❌${NC} Health check endpoint missing: /api/health"
-    ((ERRORS++))
+    ERRORS=$((ERRORS + 1))
 fi
 
 if grep -q "http_path: /api/health" .do/app.yaml; then
     echo -e "${GREEN}✅${NC} Health check configured in app.yaml"
 else
     echo -e "${YELLOW}⚠️${NC} Health check path not configured in app.yaml"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
 fi
 
 echo ""
