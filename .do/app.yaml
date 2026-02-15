@@ -18,10 +18,6 @@ region: sgp
 services:
 - dockerfile_path: Dockerfile
   envs:
-  - key: DATABASE_URL
-    scope: RUN_TIME
-    type: SECRET
-    value: EV[1:hdOVmHNLZgE9UIReC8+D5C5O5RIhtAu+:2dfKW4Jq5yRqf6jlT4uKEYIynYxLJawkCqhCcWmz6Kh+mNRzSd+1sVvM5OLNisXbQ7TezfzLLsj12amCtPSB40Lrip/PWwMNnuMD4Drcax8YmgugNXx259K9tVCJI0H4yB7Ej7piVOr2qGfODmd09AhI+PNmTAlEe3YKGn6QqyzeIU9RbZ7Xux4OCrGBCrAIJrSCqeBa85z7Ix7vYQQmt5w=]
   - key: NODE_ENV
     scope: RUN_AND_BUILD_TIME
     value: production
@@ -74,7 +70,7 @@ services:
     scope: RUN_AND_BUILD_TIME
     value: "3"
   - key: DATABASE_URL
-    scope: RUN_TIME
+    scope: RUN_AND_BUILD_TIME
     value: ${db-postgresql-sgp1-75753.DATABASE_URL}
   github:
     branch: main

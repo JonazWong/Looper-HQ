@@ -5,6 +5,9 @@ build/
 .env
 .env.local
 .env.production
+
+# Prevent duplicate Prisma schemas (only use packages/database/prisma)
+apps/*/prisma/
 .DS_Store
 .turbo/
 *.log
