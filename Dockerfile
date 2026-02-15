@@ -33,12 +33,16 @@ COPY packages/database/prisma ./packages/database/prisma
 # Install dependencies (including dev dependencies for build)
 RUN pnpm install --frozen-lockfile
 
+# ⭐ Critical fix: Set placeholder DATABASE_URL for Prisma generation
+# Prisma generate requires this env var to exist (even if not connecting to DB)
+ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+
 # ⭐ Critical fix: Explicitly generate Prisma client in deps stage
 # This ensures .prisma directory exists and can be copied to runner stage
 RUN pnpm --filter=@looper-hq/database prisma generate
 
 # Verify Prisma client was generated successfully
-RUN ls -la /app/node_modules/.prisma/client || echo "Warning: .prisma/client not found after generation"
+RUN ls -la /app/node_modules/.prisma/client && echo "✅ Prisma client generated successfully"
 
 # =============================================================================
 # Stage 2: Builder - Build the application
@@ -63,6 +67,9 @@ COPY tsconfig.json ./
 COPY apps ./apps
 COPY packages ./packages
 COPY scripts ./scripts
+
+# ⭐ Set placeholder DATABASE_URL for Prisma generation in builder stage
+ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
 
 # Generate Prisma Client (required before build)
 RUN pnpm --filter=@looper-hq/database prisma generate
