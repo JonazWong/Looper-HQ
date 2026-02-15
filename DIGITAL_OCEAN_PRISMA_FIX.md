@@ -188,14 +188,14 @@ RUN cd packages/database && npx prisma generate && cd /app
 ---
 
 **修復完成時間：** 2026-02-16  
-**最後更新：** 2026-02-16 20:00 (改用 npx prisma generate 直接執行，移除致命驗證)
+**最後更新：** 2026-02-16 21:00 (修復 COPY 命令語法錯誤，簡化為始終在 runner 生成)
 
 **修復內容：**
-1. 使用 `npx prisma generate` 直接在 schema 目錄執行（更可靠）
-2. 移除會導致構建中斷的強制驗證步驟
-3. 改為寬容的驗證（使用 || echo warning 而不是 && exit 1）
-4. 添加詳細的調試日誌以追蹤生成過程
-5. 在所有階段設置標準格式的 DATABASE_URL
-6. 確保 runner 階段有 fallback 自動生成機制
+1. 修復 COPY 命令語法錯誤（移除不支持的 `|| true`）
+2. 確保所有 COPY 多文件時目標路徑以 `/` 結尾  
+3. 簡化策略：在 runner 階段始終重新生成 Prisma client（最可靠）
+4. 使用 `npx prisma generate` 直接在 schema 目錄執行
+5. 添加詳細日誌和驗證步驟
+6. 在所有階段設置標準格式的 DATABASE_URL
 7. 修正 app.yaml 中 DATABASE_URL scope 為 `RUN_AND_BUILD_TIME`
 8. 在 packages/database/package.json 添加 'prisma' script

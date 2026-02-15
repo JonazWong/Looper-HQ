@@ -28,7 +28,7 @@ COPY packages/config/package.json ./packages/config/
 COPY packages/migration/package.json ./packages/migration/
 
 # Copy Prisma schema files BEFORE installing dependencies
-COPY packages/database/prisma ./packages/database/prisma
+COPY packages/database/prisma ./packages/database/prisma/
 
 # Install dependencies (including dev dependencies for build)
 RUN pnpm install --frozen-lockfile
@@ -65,9 +65,9 @@ COPY --from=deps /app ./
 COPY tsconfig.json ./
 
 # Copy source code (adds source files while keeping node_modules from deps)
-COPY apps ./apps
-COPY packages ./packages
-COPY scripts ./scripts
+COPY apps ./apps/
+COPY packages ./packages/
+COPY scripts ./scripts/
 
 # ⭐ Set DATABASE_URL for Prisma generation (required even for schema validation)
 ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
@@ -119,42 +119,32 @@ RUN npm install -g pnpm@9.15.2
 # Copy necessary files from builder
 # Note: Next.js standalone output includes all dependencies
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static/
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public/
 
 # Copy Prisma schema and client for migrations
-COPY --from=builder --chown=nextjs:nodejs /app/packages/database/prisma ./packages/database/prisma
-COPY --from=builder --chown=nextjs:nodejs /app/packages/database/package.json ./packages/database/package.json
-
-# ⭐ Critical fix: Copy Prisma client from builder (Next.js standalone doesn't include it)
-# Use || true to continue even if copy fails (fallback will regenerate)
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma || true
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma || true
+COPY --from=builder --chown=nextjs:nodejs /app/packages/database/prisma ./packages/database/prisma/
+COPY --from=builder --chown=nextjs:nodejs /app/packages/database/package.json ./packages/database/
 
 # Copy compiled workspace packages
-COPY --from=builder --chown=nextjs:nodejs /app/packages/utils/dist ./packages/utils/dist
-COPY --from=builder --chown=nextjs:nodejs /app/packages/utils/package.json ./packages/utils/package.json
+COPY --from=builder --chown=nextjs:nodejs /app/packages/utils/dist ./packages/utils/dist/
+COPY --from=builder --chown=nextjs:nodejs /app/packages/utils/package.json ./packages/utils/
 
 # Copy package.json files for reference
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
+COPY --from=builder --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./
 
 # ⭐ Set DATABASE_URL placeholder (will be overridden by app.yaml at runtime)
 ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
 
-# ⭐ Ensure Prisma client exists (regenerate if missing)
-RUN echo "=== Checking Prisma Client in Runner Stage ===" && \
-    if [ -d "./node_modules/.prisma/client" ]; then \
-      echo "✅ Prisma client found (copied from builder)"; \
-    else \
-      echo "⚠️  Prisma client missing, generating now..."; \
-      cd packages/database && \
-      npx prisma generate && \
-      cd /app; \
-    fi && \
-    echo "Final verification:" && \
-    ls -la ./node_modules/.prisma/ && \
-    echo "=== Prisma Client Ready ==="
+# ⭐ Generate Prisma client in runner stage (ensures it always exists)
+RUN echo "=== Generating Prisma Client in Runner Stage ===" && \
+    cd packages/database && \
+    npx prisma generate && \
+    cd /app && \
+    echo "Verifying Prisma client..." && \
+    ls -la ./node_modules/.prisma/client/ && \
+    echo "✅ Prisma Client Ready"
 
 # Switch to non-root user
 USER nextjs
