@@ -376,7 +376,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
                 No time logs found
               </h3>
               <p className="text-sm text-premier-pearl-gray mb-6 text-center max-w-md">
-                {params.caseId || params.billable || params.startDate || params.endDate
+                {resolvedSearchParams.caseId || resolvedSearchParams.billable || resolvedSearchParams.startDate || resolvedSearchParams.endDate
                   ? 'Try adjusting your filters to find what you\'re looking for.'
                   : 'Get started by adding your first time log.'}
               </p>
