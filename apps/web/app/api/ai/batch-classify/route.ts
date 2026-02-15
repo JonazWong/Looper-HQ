@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
         id: true,
         title_zh: true,
         title_en: true,
-        description: true,
+        description_zh: true,
+        description_en: true,
       },
     });
     
@@ -49,25 +50,26 @@ export async function POST(request: NextRequest) {
     
     // Batch classification
     const casesToClassify = unclassifiedCases.map(c => ({
-      id: c.id,
-      title: c.title,
-      description: c.description || undefined,
+      title: c.title_zh || c.title_en || '',
+      content: c.description_zh || c.description_en || '',
     }));
     const results = await batchClassifyCases(casesToClassify);
     
     // Update database
     const updates = [];
-    for (const [caseId, classification] of results) {
+    for (let i = 0; i < results.length; i++) {
+      const caseData = unclassifiedCases[i];
+      const classification = results[i];
+      
       updates.push(
         prisma.publicCase.update({
-          where: { id: caseId },
+          where: { id: caseData.id },
           data: {
             category: classification.category,
-            court: classification.extractedInfo.court,
-            judge: classification.extractedInfo.judge,
-            judgmentDate: safeParseDate(classification.extractedInfo.judgmentDate),
+            court: classification.court,
+            judge: classification.judge,
+            judgmentDate: classification.judgmentDate,
             keywords: classification.keywords,
-            tags: classification.relatedCases || [],
           },
         })
       );
