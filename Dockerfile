@@ -33,6 +33,13 @@ COPY packages/database/prisma ./packages/database/prisma
 # Install dependencies (including dev dependencies for build)
 RUN pnpm install --frozen-lockfile
 
+# ⭐ Critical fix: Explicitly generate Prisma client in deps stage
+# This ensures .prisma directory exists and can be copied to runner stage
+RUN pnpm --filter=@looper-hq/database prisma generate
+
+# Verify Prisma client was generated successfully
+RUN ls -la /app/node_modules/.prisma/client || echo "Warning: .prisma/client not found after generation"
+
 # =============================================================================
 # Stage 2: Builder - Build the application
 # =============================================================================
@@ -99,8 +106,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 # Copy Prisma schema and generated client for migrations
 COPY --from=builder --chown=nextjs:nodejs /app/packages/database/prisma ./packages/database/prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+
+# ⭐ Critical fix: Copy Prisma client from deps stage (where it was generated)
+# This ensures the client is available even if builder stage had issues
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 
 # Copy compiled workspace packages
 COPY --from=builder --chown=nextjs:nodejs /app/packages/utils/dist ./packages/utils/dist
@@ -109,6 +119,16 @@ COPY --from=builder --chown=nextjs:nodejs /app/packages/utils/package.json ./pac
 # Copy package.json files for reference
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/packages/database/package.json ./packages/database/package.json
+COPY --from=builder --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+
+# ⭐ Fallback: Generate Prisma client at runtime if not present
+# This provides redundancy in case the copy from deps stage fails
+RUN if [ ! -d "./node_modules/.prisma/client" ]; then \
+      echo "⚠️  Prisma client not found, generating at runtime..."; \
+      pnpm --filter=@looper-hq/database prisma generate; \
+    else \
+      echo "✅ Prisma client found, skipping runtime generation"; \
+    fi
 
 # Switch to non-root user
 USER nextjs
