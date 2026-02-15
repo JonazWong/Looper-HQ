@@ -106,7 +106,7 @@ if grep -q "outputFileTracingRoot" apps/web/next.config.js; then
 else
     echo -e "${YELLOW}⚠️${NC}  outputFileTracingRoot not configured"
     echo -e "   ${YELLOW}→ Add 'outputFileTracingRoot: path.join(__dirname, \"../../\")' to next.config.js${NC}"
-    ((WARNINGS++))
+    ((++WARNINGS))
 fi
 
 # Check .do/app.yaml for required configurations
