@@ -9,5 +9,5 @@ Allow: /case-search
 Disallow: /dashboard
 Disallow: /api
 
-# Sitemap location
-Sitemap: https://looper-hq.com/sitemap.xml
+# Sitemap location (placeholder - to be implemented)
+# Sitemap: https://looper-hq.com/sitemap.xml
