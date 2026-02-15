@@ -114,10 +114,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 # Copy Prisma schema and generated client for migrations
 COPY --from=builder --chown=nextjs:nodejs /app/packages/database/prisma ./packages/database/prisma
 
-# ⭐ Critical fix: Copy Prisma client from deps stage (where it was generated)
-# This ensures the client is available even if builder stage had issues
-COPY --from=deps --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=deps --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+# ⭐ Critical fix: Copy Prisma client from builder stage (has latest generated client)
+# Next.js standalone doesn't include .prisma by default, so we copy it explicitly
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 
 # Copy compiled workspace packages
 COPY --from=builder --chown=nextjs:nodejs /app/packages/utils/dist ./packages/utils/dist
@@ -128,13 +128,15 @@ COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/packages/database/package.json ./packages/database/package.json
 COPY --from=builder --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
-# ⭐ Fallback: Generate Prisma client at runtime if not present
-# This provides redundancy in case the copy from deps stage fails
-RUN if [ ! -d "./node_modules/.prisma/client" ]; then \
-      echo "⚠️  Prisma client not found, generating at runtime..."; \
-      pnpm --filter=@looper-hq/database prisma generate; \
+# ⭐ Verify Prisma client was copied successfully
+RUN if [ -d "./node_modules/.prisma/client" ]; then \
+      echo "✅ Prisma client found in ./node_modules/.prisma/client"; \
+      ls -la ./node_modules/.prisma/client | head -5; \
     else \
-      echo "✅ Prisma client found, skipping runtime generation"; \
+      echo "❌ Prisma client missing"; \
+      echo "Contents of ./node_modules/:"; \
+      ls -la ./node_modules/ | head -10 || echo "node_modules not found"; \
+      exit 1; \
     fi
 
 # Switch to non-root user
