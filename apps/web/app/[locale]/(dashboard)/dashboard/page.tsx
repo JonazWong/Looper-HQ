@@ -163,7 +163,7 @@ async function getRecentActivities() {
         initials: getInitials(activity.user.name || UNKNOWN_USER),
       },
       action: activity.action,
-      description: activity.description || `${activity.action} - ${activity.case?.title || 'System'}`,
+      description: activity.description || `${activity.action} - ${activity.case ? (activity.case.title_zh || activity.case.title_en || 'Unknown Case') : 'System'}`,
       timestamp: activity.createdAt.toISOString(),
       iconType: activity.type, // Send icon type instead of component
     }))

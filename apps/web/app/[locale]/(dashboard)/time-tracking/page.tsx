@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { formatHKDate } from "@/lib/utils"
+import { getLocalizedField } from "@looper-hq/utils"
 
 interface SearchParams {
   caseId?: string
@@ -45,6 +46,7 @@ interface SearchParams {
 }
 
 interface TimeTrackingPageProps {
+  params: Promise<{ locale: string }>
   searchParams: Promise<SearchParams>
 }
 
@@ -226,12 +228,13 @@ async function getCasesForFilter() {
   }
 }
 
-export default async function TimeTrackingPage({ searchParams }: TimeTrackingPageProps) {
-  const params = await searchParams
+export default async function TimeTrackingPage({ params, searchParams }: TimeTrackingPageProps) {
+  const { locale } = await params
+  const resolvedSearchParams = await searchParams
   
   const [{ timeLogs, totalLogs, currentPage, totalPages }, stats, cases] = await Promise.all([
-    getTimeLogs(params),
-    getTimeTrackingStats(params),
+    getTimeLogs(resolvedSearchParams),
+    getTimeTrackingStats(resolvedSearchParams),
     getCasesForFilter(),
   ])
 
@@ -288,13 +291,13 @@ export default async function TimeTrackingPage({ searchParams }: TimeTrackingPag
                 <label className="text-sm text-premier-pearl">Case</label>
                 <select
                   name="caseId"
-                  defaultValue={params.caseId || ''}
+                  defaultValue={resolvedSearchParams.caseId || ''}
                   className="w-full px-3 py-2 bg-premier-charcoal/50 border border-premier-gold/30 rounded-md text-premier-pearl text-sm focus:outline-none focus:ring-2 focus:ring-premier-gold"
                 >
                   <option value="">All Cases</option>
                   {cases.map((case_) => (
                     <option key={case_.id} value={case_.id}>
-                      {case_.caseNumber} - {case_.title}
+                      {case_.caseNumber} - {getLocalizedField(case_, 'title', locale as 'zh' | 'en')}
                     </option>
                   ))}
                 </select>
@@ -305,7 +308,7 @@ export default async function TimeTrackingPage({ searchParams }: TimeTrackingPag
                 <label className="text-sm text-premier-pearl">Billable</label>
                 <select
                   name="billable"
-                  defaultValue={params.billable || ''}
+                  defaultValue={resolvedSearchParams.billable || ''}
                   className="w-full px-3 py-2 bg-premier-charcoal/50 border border-premier-gold/30 rounded-md text-premier-pearl text-sm focus:outline-none focus:ring-2 focus:ring-premier-gold"
                 >
                   <option value="">All</option>
@@ -320,7 +323,7 @@ export default async function TimeTrackingPage({ searchParams }: TimeTrackingPag
                 <Input
                   type="date"
                   name="startDate"
-                  defaultValue={params.startDate}
+                  defaultValue={resolvedSearchParams.startDate}
                   className="bg-premier-charcoal/50 border-premier-gold/30 text-premier-pearl text-sm"
                 />
               </div>
@@ -331,7 +334,7 @@ export default async function TimeTrackingPage({ searchParams }: TimeTrackingPag
                 <Input
                   type="date"
                   name="endDate"
-                  defaultValue={params.endDate}
+                  defaultValue={resolvedSearchParams.endDate}
                   className="bg-premier-charcoal/50 border-premier-gold/30 text-premier-pearl text-sm"
                 />
               </div>

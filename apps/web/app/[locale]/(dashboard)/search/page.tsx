@@ -32,6 +32,7 @@ interface SearchParams {
 }
 
 interface SearchPageProps {
+  params: Promise<{ locale: string }>
   searchParams: Promise<SearchParams>
 }
 
@@ -47,7 +48,8 @@ async function searchPublicCases(params: SearchParams) {
     if (params.q) {
       where.OR = [
         { caseNumber: { contains: params.q, mode: 'insensitive' } },
-        { title: { contains: params.q, mode: 'insensitive' } },
+        { title_zh: { contains: params.q, mode: 'insensitive' } },
+        { title_en: { contains: params.q, mode: 'insensitive' } },
         { description: { contains: params.q, mode: 'insensitive' } },
         { publicNote: { contains: params.q, mode: 'insensitive' } },
       ]
@@ -152,22 +154,23 @@ function truncate(text: string | null, length: number): string {
   return text.length > length ? text.substring(0, length) + '...' : text
 }
 
-export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const params = await searchParams
+export default async function SearchPage({ params, searchParams }: SearchPageProps) {
+  const { locale } = await params
+  const resolvedSearchParams = await searchParams
   
   // Get search results
-  const results = params.q || params.category || params.status 
-    ? await searchPublicCases(params)
+  const results = resolvedSearchParams.q || resolvedSearchParams.category || resolvedSearchParams.status 
+    ? await searchPublicCases(resolvedSearchParams)
     : []
 
   // Log search if there's a query
-  if (params.q) {
+  if (resolvedSearchParams.q) {
     const headersList = await headers()
     const ipAddress = getClientIp(headersList)
-    await logSearch(params.q, results.length, ipAddress)
+    await logSearch(resolvedSearchParams.q, results.length, ipAddress)
   }
 
-  const hasSearched = Boolean(params.q || params.category || params.status)
+  const hasSearched = Boolean(resolvedSearchParams.q || resolvedSearchParams.category || resolvedSearchParams.status)
   const totalResults = results.length
 
   return (
@@ -189,9 +192,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <GlassCard variant="gold">
         <GlassCardContent className="pt-6">
           <SearchForm
-            initialQuery={params.q}
-            initialCategory={params.category}
-            initialStatus={params.status}
+            initialQuery={resolvedSearchParams.q}
+            initialCategory={resolvedSearchParams.category}
+            initialStatus={resolvedSearchParams.status}
           />
         </GlassCardContent>
       </GlassCard>
@@ -206,12 +209,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           />
           <StatCard
             title="Search Query"
-            value={params.q || 'Filtered'}
+            value={resolvedSearchParams.q || 'Filtered'}
             icon={FileText}
           />
           <StatCard
             title="Filters Applied"
-            value={(params.category ? 1 : 0) + (params.status ? 1 : 0)}
+            value={(resolvedSearchParams.category ? 1 : 0) + (resolvedSearchParams.status ? 1 : 0)}
             icon={AlertCircle}
           />
         </div>
@@ -251,7 +254,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                             {caseItem.caseNumber}
                           </GlassCardTitle>
                           <GlassCardDescription className="mt-1 line-clamp-2">
-                            {caseItem.title}
+                            {getLocalizedField(caseItem, 'title', locale as 'zh' | 'en')}
                           </GlassCardDescription>
                         </div>
                         <Badge 
