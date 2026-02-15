@@ -62,8 +62,15 @@ function createClient(): OpenAI {
   })
 }
 
-// Singleton client instance
-const client = createClient()
+// Lazy initialization - only create client when first needed
+let client: OpenAI | null = null
+
+function getClient(): OpenAI {
+  if (!client) {
+    client = createClient()
+  }
+  return client
+}
 
 export interface CompletionParams {
   systemPrompt?: string
@@ -96,7 +103,7 @@ export async function generateCompletion(params: CompletionParams): Promise<stri
   messages.push({ role: 'user', content: userPrompt })
 
   try {
-    const response = await client.chat.completions.create({
+    const response = await getClient().chat.completions.create({
       model,
       messages,
       temperature,
@@ -132,7 +139,7 @@ export async function* generateStreamingCompletion(params: CompletionParams): As
   messages.push({ role: 'user', content: userPrompt })
 
   try {
-    const stream = await client.chat.completions.create({
+    const stream = await getClient().chat.completions.create({
       model,
       messages,
       temperature,
