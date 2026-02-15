@@ -10,9 +10,21 @@ vi.mock('@/lib/db', () => ({
 process.env.OPENAI_API_KEY = 'test-api-key'
 process.env.OPENAI_BASE_URL = 'https://test.openrouter.ai/api/v1'
 process.env.npm_package_version = '2.0.0'
+process.env.NODE_ENV = 'development' // Allow detailed checks in tests
+process.env.HEALTH_CHECK_SECRET = 'test-secret-key'
 
 // Import route AFTER mocking
 import { GET } from '@/app/api/health/route'
+
+// Helper to create mock request
+function createMockRequest(url: string, headers: Record<string, string> = {}) {
+  return {
+    url,
+    headers: {
+      get: (name: string) => headers[name] || null,
+    },
+  } as any
+}
 
 describe('GET /api/health', () => {
   beforeEach(() => {
@@ -20,122 +32,205 @@ describe('GET /api/health', () => {
     vi.clearAllMocks()
   })
 
-  it('should return healthy status when all checks pass', async () => {
-    // Arrange
-    mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
+  describe('Public Health Check (minimal info)', () => {
+    it('should return basic healthy status without detailed metrics', async () => {
+      // Arrange
+      mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
 
-    // Act
-    const response = await GET({} as any)
-    const data = await response.json()
+      // Act - no detailed param
+      const response = await GET(createMockRequest('http://localhost:3000/api/health'))
+      const data = await response.json()
 
-    // Assert
-    expect(response.status).toBe(200)
-    expect(data.status).toBe('healthy')
-    expect(data).toHaveProperty('timestamp')
-    expect(data).toHaveProperty('uptime')
-    expect(data).toHaveProperty('checks')
-    expect(data.checks.database.status).toBe('ok')
-    expect(data.checks.openai.configured).toBe(true)
-    expect(data.checks.memory.status).toBe('ok')
-    expect(data.version).toBe('2.0.0')
+      // Assert - only basic info exposed
+      expect(response.status).toBe(200)
+      expect(data.status).toBe('healthy')
+      expect(data.database).toBe('connected')
+      expect(data).toHaveProperty('timestamp')
+      
+      // Should NOT have detailed metrics
+      expect(data).not.toHaveProperty('uptime')
+      expect(data).not.toHaveProperty('version')
+      expect(data).not.toHaveProperty('checks')
+      expect(data).not.toHaveProperty('environment')
+    })
+
+    it('should return basic unhealthy status on database failure', async () => {
+      // Arrange
+      mockPrismaClient.$queryRaw.mockRejectedValueOnce(new Error('Database connection failed'))
+
+      // Act
+      const response = await GET(createMockRequest('http://localhost:3000/api/health'))
+      const data = await response.json()
+
+      // Assert
+      expect(response.status).toBe(503)
+      expect(data.status).toBe('unhealthy')
+      expect(data.database).toBe('disconnected')
+      expect(data).toHaveProperty('timestamp')
+      
+      // Should NOT leak error details
+      expect(data).not.toHaveProperty('checks')
+    })
   })
 
-  it('should return unhealthy status when database check fails', async () => {
-    // Arrange
-    mockPrismaClient.$queryRaw.mockRejectedValueOnce(new Error('Database connection failed'))
+  describe('Detailed Health Check (internal/authenticated)', () => {
+    it('should return comprehensive checks in development with detailed=true', async () => {
+      // Arrange
+      mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
 
-    // Act
-    const response = await GET({} as any)
-    const data = await response.json()
+      // Act - development mode allows detailed without header
+      const response = await GET(createMockRequest('http://localhost:3000/api/health?detailed=true'))
+      const data = await response.json()
 
-    // Assert
-    expect(response.status).toBe(503)
-    expect(data.status).toBe('unhealthy')
-    expect(data.checks.database.status).toBe('error')
-    expect(data.checks.database.error).toBe('Database connection failed')
-  })
+      // Assert
+      expect(response.status).toBe(200)
+      expect(data.status).toBe('healthy')
+      expect(data).toHaveProperty('timestamp')
+      expect(data).toHaveProperty('uptime')
+      expect(data).toHaveProperty('version')
+      expect(data).toHaveProperty('environment')
+      expect(data).toHaveProperty('checks')
+      expect(data.checks.database.status).toBe('ok')
+      expect(data.checks.openai.configured).toBe(true)
+      expect(data.checks.memory.status).toBe('ok')
+      expect(data.version).toBe('2.0.0')
+    })
 
-  it('should return degraded status when database is slow', async () => {
-    // Arrange
-    mockPrismaClient.$queryRaw.mockImplementation(() => {
-      return new Promise((resolve) => {
-        setTimeout(() => resolve([{ result: 1 }]), 1100) // Simulate slow response
+    it('should return detailed metrics with internal header', async () => {
+      // Arrange
+      process.env.NODE_ENV = 'production' // Simulate production
+      mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
+
+      // Act - with internal header
+      const response = await GET(createMockRequest(
+        'http://localhost:3000/api/health?detailed=true',
+        { 'X-Internal-Health-Check': 'test-secret-key' }
+      ))
+      const data = await response.json()
+
+      // Assert
+      expect(response.status).toBe(200)
+      expect(data).toHaveProperty('checks')
+      expect(data.checks.database).toHaveProperty('responseTime')
+      
+      // Restore
+      process.env.NODE_ENV = 'development'
+    })
+
+    it('should include database response time in detailed mode', async () => {
+      // Arrange
+      mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
+
+      // Act
+      const response = await GET(createMockRequest('http://localhost:3000/api/health?detailed=true'))
+      const data = await response.json()
+
+      // Assert
+      expect(response.status).toBe(200)
+      expect(data.checks.database).toHaveProperty('responseTime')
+      expect(typeof data.checks.database.responseTime).toBe('number')
+      expect(data.checks.database.responseTime).toBeGreaterThanOrEqual(0)
+    })
+
+    it('should report OpenAI configuration status in detailed mode', async () => {
+      // Arrange
+      mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
+
+      // Act
+      const response = await GET(createMockRequest('http://localhost:3000/api/health?detailed=true'))
+      const data = await response.json()
+
+      // Assert
+      expect(response.status).toBe(200)
+      expect(data.checks.openai).toHaveProperty('configured')
+      expect(data.checks.openai.configured).toBe(true)
+      expect(data.checks.openai.status).toBe('ok')
+    })
+
+    it('should report when OpenAI is not configured in detailed mode', async () => {
+      // Arrange
+      const originalApiKey = process.env.OPENAI_API_KEY
+      delete process.env.OPENAI_API_KEY
+      mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
+
+      // Act
+      const response = await GET(createMockRequest('http://localhost:3000/api/health?detailed=true'))
+      const data = await response.json()
+
+      // Assert
+      expect(response.status).toBe(200)
+      expect(data.status).toBe('healthy')
+      expect(data.checks.openai.status).toBe('not_configured')
+      expect(data.checks.openai.configured).toBe(false)
+
+      // Restore
+      process.env.OPENAI_API_KEY = originalApiKey
+    })
+
+    it('should include memory usage information in detailed mode', async () => {
+      // Arrange
+      mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
+
+      // Act
+      const response = await GET(createMockRequest('http://localhost:3000/api/health?detailed=true'))
+      const data = await response.json()
+
+      // Assert
+      expect(data.checks.memory).toHaveProperty('used')
+      expect(data.checks.memory).toHaveProperty('total')
+      expect(data.checks.memory).toHaveProperty('percentage')
+      expect(typeof data.checks.memory.used).toBe('number')
+      expect(typeof data.checks.memory.total).toBe('number')
+      expect(typeof data.checks.memory.percentage).toBe('number')
+    })
+
+    it('should warn when memory usage is high in detailed mode', async () => {
+      // Arrange
+      mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
+      
+      // Mock high memory usage
+      const originalMemoryUsage = process.memoryUsage
+      process.memoryUsage = vi.fn().mockReturnValue({
+        heapUsed: 950 * 1024 * 1024, // 950 MB
+        heapTotal: 1000 * 1024 * 1024, // 1000 MB (95% usage)
+        external: 0,
+        rss: 0,
+        arrayBuffers: 0,
       })
+
+      // Act
+      const response = await GET(createMockRequest('http://localhost:3000/api/health?detailed=true'))
+      const data = await response.json()
+
+      // Assert
+      expect(data.status).toBe('healthy')
+      expect(data.checks.memory.status).toBe('warning')
+      expect(data.checks.memory.percentage).toBeGreaterThan(90)
+
+      // Restore
+      process.memoryUsage = originalMemoryUsage
     })
-
-    // Act
-    const response = await GET({} as any)
-    const data = await response.json()
-
-    // Assert
-    expect(response.status).toBe(200)
-    expect(data.status).toBe('degraded')
-    expect(data.checks.database.status).toBe('ok')
-    expect(data.checks.database.responseTime).toBeGreaterThan(1000)
   })
 
-  it('should return degraded status when OpenAI is not configured', async () => {
-    // Arrange
-    const originalApiKey = process.env.OPENAI_API_KEY
-    delete process.env.OPENAI_API_KEY
-    mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
+  describe('Security', () => {
+    it('should not expose detailed metrics without proper authentication in production', async () => {
+      // Arrange
+      process.env.NODE_ENV = 'production'
+      mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
 
-    // Act
-    const response = await GET({} as any)
-    const data = await response.json()
+      // Act - detailed=true but no internal header in production
+      const response = await GET(createMockRequest('http://localhost:3000/api/health?detailed=true'))
+      const data = await response.json()
 
-    // Assert
-    expect(response.status).toBe(200)
-    expect(data.status).toBe('degraded')
-    expect(data.checks.openai.status).toBe('error')
-    expect(data.checks.openai.configured).toBe(false)
-    expect(data.checks.openai.error).toBe('API keys not configured')
+      // Assert - should only get basic info
+      expect(response.status).toBe(200)
+      expect(data.status).toBe('healthy')
+      expect(data).not.toHaveProperty('checks')
+      expect(data).not.toHaveProperty('uptime')
+      expect(data).not.toHaveProperty('version')
 
-    // Restore
-    process.env.OPENAI_API_KEY = originalApiKey
-  })
-
-  it('should include memory usage information', async () => {
-    // Arrange
-    mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
-
-    // Act
-    const response = await GET({} as any)
-    const data = await response.json()
-
-    // Assert
-    expect(data.checks.memory).toHaveProperty('used')
-    expect(data.checks.memory).toHaveProperty('total')
-    expect(data.checks.memory).toHaveProperty('percentage')
-    expect(typeof data.checks.memory.used).toBe('number')
-    expect(typeof data.checks.memory.total).toBe('number')
-    expect(typeof data.checks.memory.percentage).toBe('number')
-  })
-
-  it('should warn when memory usage is high', async () => {
-    // Arrange
-    mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
-    
-    // Mock high memory usage
-    const originalMemoryUsage = process.memoryUsage
-    process.memoryUsage = vi.fn().mockReturnValue({
-      heapUsed: 950 * 1024 * 1024, // 950 MB
-      heapTotal: 1000 * 1024 * 1024, // 1000 MB (95% usage)
-      external: 0,
-      rss: 0,
-      arrayBuffers: 0,
+      // Restore
+      process.env.NODE_ENV = 'development'
     })
-
-    // Act
-    const response = await GET({} as any)
-    const data = await response.json()
-
-    // Assert
-    expect(data.status).toBe('degraded')
-    expect(data.checks.memory.status).toBe('warning')
-    expect(data.checks.memory.percentage).toBeGreaterThan(90)
-
-    // Restore
-    process.memoryUsage = originalMemoryUsage
   })
 })

@@ -8,6 +8,9 @@ const nextConfig = {
   // Turborepo optimization - transpile workspace packages
   transpilePackages: ['@looper-hq/utils', '@looper-hq/database'],
   
+  // External packages for server components (prevents bundling issues)
+  serverExternalPackages: ['@prisma/client', 'prisma'],
+  
   // Image optimization
   images: {
     domains: ['localhost'],
