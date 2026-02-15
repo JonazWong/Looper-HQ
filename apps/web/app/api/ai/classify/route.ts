@@ -42,11 +42,10 @@ export async function POST(request: NextRequest) {
         where: { id: publicCaseId },
         data: {
           category: classification.category,
-          court: classification.extractedInfo.court,
-          judge: classification.extractedInfo.judge,
-          judgmentDate: safeParseDate(classification.extractedInfo.judgmentDate),
+          court: classification.court,
+          judge: classification.judge,
+          judgmentDate: classification.judgmentDate,
           keywords: classification.keywords,
-          tags: classification.relatedCases || [],
         },
       });
     }
