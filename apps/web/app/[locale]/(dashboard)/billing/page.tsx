@@ -229,7 +229,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
             <Link href="/billing">
               <Badge 
                 variant="outline"
-                className={!params.status 
+                className={!resolvedSearchParams.status 
                   ? 'bg-premier-gold/20 text-premier-gold border-premier-gold/40'
                   : 'bg-premier-charcoal/50 text-premier-pearl-gray border-premier-gold/20 hover:bg-premier-gold/10 cursor-pointer'
                 }
@@ -241,7 +241,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
               <Link key={status} href={`/billing?status=${status}`}>
                 <Badge 
                   variant="outline"
-                  className={params.status === status
+                  className={resolvedSearchParams.status === status
                     ? 'bg-premier-gold/20 text-premier-gold border-premier-gold/40'
                     : 'bg-premier-charcoal/50 text-premier-pearl-gray border-premier-gold/20 hover:bg-premier-gold/10 cursor-pointer'
                   }
@@ -273,7 +273,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
                 No invoices found
               </h3>
               <p className="text-sm text-premier-pearl-gray mb-6 text-center max-w-md">
-                {params.status
+                {resolvedSearchParams.status
                   ? 'Try adjusting your filters to find what you\'re looking for.'
                   : 'Get started by creating your first invoice.'}
               </p>
