@@ -107,11 +107,14 @@ export async function GET(request: NextRequest) {
       },
     })
 
+    const totalHours = Number(stats._sum.hours) || 0
+    const billableHours = Number(billableStats._sum.hours) || 0
+
     const statistics = {
-      totalHours: stats._sum.hours || 0,
+      totalHours,
       totalLogs: stats._count.id || 0,
-      billableHours: billableStats._sum.hours || 0,
-      nonBillableHours: (stats._sum.hours || 0) - (billableStats._sum.hours || 0),
+      billableHours,
+      nonBillableHours: totalHours - billableHours,
     }
 
     return successResponse(
