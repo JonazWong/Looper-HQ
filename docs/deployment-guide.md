@@ -229,10 +229,28 @@ These are already set in `.do/app.yaml` and don't need manual configuration:
 git clone https://github.com/JonazWong/Looper-HQ.git
 cd Looper-HQ
 
+# Run pre-deployment validation script
+./scripts/validate-deployment.sh
+
+# This checks:
+# ✅ Required files exist (Dockerfile, app.yaml, etc.)
+# ✅ YAML syntax is valid
+# ✅ Health check endpoint exists
+# ✅ Required tools are installed
+# ✅ Package scripts are configured
+
+# If deploying with local environment, check env vars
+export $(cat .env | xargs)
+./scripts/check-env.sh
+
+# This validates:
+# ✅ Required: DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL
+# ⚠️  Optional: OPENAI_API_KEY, KEYCLOAK_*, CRAWLER_*
+
 # Review the app spec
 cat .do/app.yaml
 
-# Verify Dockerfile
+# Test Dockerfile build locally (optional but recommended)
 docker build -t looper-hq-test .
 ```
 
@@ -704,6 +722,38 @@ curl -v https://your-app.ondigitalocean.app/api/health
 2. Check all required env vars are present
 3. Ensure health check path is correct: `/api/health`
 
+#### Issue: Missing environment variables
+
+**Check locally**:
+```bash
+# Export your .env file
+export $(cat .env | xargs)
+
+# Run validation script
+./scripts/check-env.sh
+
+# This will show which required variables are missing
+```
+
+**Check in Digital Ocean**:
+```bash
+# Via doctl
+doctl apps spec get YOUR_APP_ID
+
+# Or in DO Console:
+# Apps → Your App → Settings → App-Level Environment Variables
+```
+
+**Required variables**:
+- `DATABASE_URL` - Auto-injected from database service
+- `NEXTAUTH_SECRET` - Generate with: `openssl rand -base64 32`
+- `NEXTAUTH_URL` - Your app URL (e.g., `https://your-app.ondigitalocean.app`)
+
+**Optional but recommended**:
+- `OPENAI_API_KEY` - For AI features
+- `KEYCLOAK_CLIENT_ID`, `KEYCLOAK_ISSUER` - For OAuth
+- `CRAWLER_ENABLED` - For automated case crawling
+
 #### Issue: Database connection refused
 
 **Check environment variables**:
@@ -780,6 +830,15 @@ pnpm --filter=@looper-hq/database prisma migrate deploy
 ```
 
 ### Getting Help
+
+**Pre-Deployment Validation**:
+```bash
+# Always run validation scripts before deploying
+./scripts/validate-deployment.sh  # Check all deployment files
+./scripts/check-env.sh           # Verify environment variables
+
+# These scripts help catch configuration issues early
+```
 
 **Digital Ocean Support**:
 - Free tier: Community support
