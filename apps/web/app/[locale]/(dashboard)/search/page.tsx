@@ -14,6 +14,7 @@ import {
 import { prisma } from "@/lib/db"
 import { Badge } from "@/components/ui/badge"
 import { StatCard } from "@/components/ui/stat-card"
+import { getLocalizedField } from '@looper-hq/utils'
 import { 
   GlassCard, 
   GlassCardHeader, 
@@ -50,8 +51,10 @@ async function searchPublicCases(params: SearchParams) {
         { caseNumber: { contains: params.q, mode: 'insensitive' } },
         { title_zh: { contains: params.q, mode: 'insensitive' } },
         { title_en: { contains: params.q, mode: 'insensitive' } },
-        { description: { contains: params.q, mode: 'insensitive' } },
-        { publicNote: { contains: params.q, mode: 'insensitive' } },
+        { description_zh: { contains: params.q, mode: 'insensitive' } },
+        { description_en: { contains: params.q, mode: 'insensitive' } },
+        { publicNote_zh: { contains: params.q, mode: 'insensitive' } },
+        { publicNote_en: { contains: params.q, mode: 'insensitive' } },
       ]
     }
 
@@ -80,7 +83,8 @@ async function searchPublicCases(params: SearchParams) {
         category: true,
         status: true,
         startDate: true,
-        publicNote: true,
+        publicNote_zh: true,
+        publicNote_en: true,
       },
     })
 
@@ -278,9 +282,9 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                           {formatDate(caseItem.startDate)}
                         </span>
                       </div>
-                      {caseItem.publicNote && (
+                      {getLocalizedField(caseItem, 'publicNote', locale) && (
                         <p className="text-sm text-premier-pearl-gray line-clamp-3 mt-2">
-                          {truncate(caseItem.publicNote, 120)}
+                          {truncate(getLocalizedField(caseItem, 'publicNote', locale), 120)}
                         </p>
                       )}
                     </GlassCardContent>
