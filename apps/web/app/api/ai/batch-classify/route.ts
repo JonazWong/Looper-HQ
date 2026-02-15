@@ -79,8 +79,8 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      message: `Successfully classified ${results.size} cases`,
-      processed: results.size,
+      message: `Successfully classified ${results.length} cases`,
+      processed: results.length,
       total: unclassifiedCases.length,
     });
   } catch (error: any) {
