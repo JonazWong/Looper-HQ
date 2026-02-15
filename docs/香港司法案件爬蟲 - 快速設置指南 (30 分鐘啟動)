@@ -1,0 +1,561 @@
+# 香港司法案件爬蟲 - 快速設置指南 (30 分鐘啟動)
+
+## 一句話總結
+
+**在您現有的 Next.js 法律專案中集成香港司法案件自動爬蟲，每天凌晨 2:00 自動抓取最新案件並存入數據庫。**
+
+---
+
+## 快速啟動清單
+
+### Step 1: 安裝依賴 (5 分鐘)
+
+```bash
+# 進入項目目錄
+cd your-legal-project
+
+# 安裝爬蟲依賴
+npm install cheerio axios node-cron crypto
+
+# 開發依賴
+npm install --save-dev @types/node-cron
+```
+
+### Step 2: 數據庫遷移 (5 分鐘)
+
+```bash
+# 1. 更新 Prisma Schema（复製下面的模型）
+# prisma/schema.prisma
+
+model JudiciaryCase {
+  id            String   @id @default(cuid())
+  caseNumber    String   @unique
+  caseTitle     String
+  court         String   @db.VarChar(100)
+  category      String   @db.VarChar(100)
+  filingDate    DateTime?
+  dateOfJudgment DateTime?
+  judge         String?  @db.Text
+  summary       String?  @db.Text
+  fullText      String?  @db.LongText
+  parties       CaseParty[]
+  documentUrl   String?
+  status        String   @db.VarChar(50)
+  sourceUrl     String   @db.Text
+  sourceSite    String   @db.VarChar(50)
+  contentHash   String?  @db.VarChar(64)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  scrapedAt     DateTime @default(now())
+  @@index([caseNumber])
+  @@index([court])
+  @@index([dateOfJudgment])
+}
+
+model CaseParty {
+  id    String @id @default(cuid())
+  caseId String
+  case  JudiciaryCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  name  String
+  role  String @db.VarChar(50)
+  type  String @db.VarChar(50)
+  @@unique([caseId, name, role])
+}
+
+model ScraperLog {
+  id        String   @id @default(cuid())
+  runDate   DateTime @default(now())
+  source    String   @db.VarChar(50)
+  status    String   @db.VarChar(20)
+  totalCases Int
+  newCases  Int
+  updatedCases Int
+  errors    String?  @db.LongText
+  duration  Int?
+  createdAt DateTime @default(now())
+  @@index([source])
+  @@index([runDate])
+}
+
+# 2. 運行遷移
+npx prisma migrate dev --name add_judiciary_tables
+
+# 3. 生成 Prisma 客户端
+npx prisma generate
+```
+
+### Step 3: 創建爬蟲文件 (10 分鐘)
+
+**創建文件 `lib/scrapers/judiciary-scraper.ts`**：
+
+```typescript
+import axios from "axios";
+import * as cheerio from "cheerio";
+import crypto from "crypto";
+
+export interface CaseData {
+  caseNumber: string;
+  caseTitle: string;
+  court: string;
+  category: string;
+  dateOfJudgment?: Date;
+  judge?: string;
+  parties: Array<{ name: string; role: string }>;
+  sourceUrl: string;
+  contentHash: string;
+}
+
+export class HKJudiciaryScraper {
+  private readonly baseUrl = "https://www.judiciary.hk";
+  private readonly delayMs = 2000;
+
+  private async delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private calculateContentHash(content: string): string {
+    return crypto.createHash('md5').update(content).digest('hex');
+  }
+
+  async scrapeCourtOfAppeal(): Promise<CaseData[]> {
+    try {
+      const url = "/en/services/opinions/index.html";
+      await this.delay(this.delayMs);
+
+      const response = await axios.get(`${this.baseUrl}${url}`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; HKLegal-Scraper/1.0)',
+        },
+      });
+
+      const $ = cheerio.load(response.data);
+      const cases: CaseData[] = [];
+
+      $('table tbody tr').each((_, element) => {
+        const $row = $(element);
+        const caseNumber = $row.find('td:nth-child(1)').text().trim();
+        const caseTitle = $row.find('td:nth-child(2)').text().trim();
+        const dateStr = $row.find('td:nth-child(3)').text().trim();
+
+        if (!caseNumber) return;
+
+        cases.push({
+          caseNumber,
+          caseTitle,
+          court: "Court of Appeal",
+          category: "Civil Appeal",
+          dateOfJudgment: this.parseDate(dateStr),
+          sourceUrl: `${this.baseUrl}${url}`,
+          contentHash: this.calculateContentHash(caseNumber + caseTitle),
+          parties: this.extractParties(caseTitle),
+        });
+      });
+
+      console.log(`✅ 高等法院: ${cases.length} 個案件`);
+      return cases;
+    } catch (error) {
+      console.error(`❌ 高等法院抓取失敗:`, error);
+      return [];
+    }
+  }
+
+  private parseDate(dateStr: string): Date | undefined {
+    if (!dateStr) return undefined;
+    try {
+      const date = new Date(dateStr);
+      return isNaN(date.getTime()) ? undefined : date;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private extractParties(caseTitle: string): Array<{ name: string; role: string }> {
+    const parts = caseTitle.split(/\s+v\s+/i);
+    if (parts.length >= 2) {
+      return [
+        { name: parts[0].trim(), role: "Plaintiff" },
+        { name: parts[1].trim(), role: "Defendant" },
+      ];
+    }
+    return [];
+  }
+}
+
+export const judiciaryScraper = new HKJudiciaryScraper();
+```
+
+### Step 4: 創建數據庫服務 (5 分鐘)
+
+**創建文件 `lib/services/case-service.ts`**：
+
+```typescript
+import { db } from "@/lib/db";
+import type { CaseData } from "@/lib/scrapers/judiciary-scraper";
+
+export class CaseService {
+  async saveCases(cases: CaseData[]): Promise<{ created: number; updated: number }> {
+    let created = 0;
+    let updated = 0;
+
+    for (const caseData of cases) {
+      try {
+        const existing = await db.judicaryCase.findUnique({
+          where: { caseNumber: caseData.caseNumber },
+        });
+
+        if (existing && existing.contentHash === caseData.contentHash) {
+          continue;
+        }
+
+        if (existing) {
+          await db.judicaryCase.update({
+            where: { id: existing.id },
+            data: { updatedAt: new Date() },
+          });
+          updated++;
+        } else {
+          const judicaryCase = await db.judicaryCase.create({
+            data: {
+              caseNumber: caseData.caseNumber,
+              caseTitle: caseData.caseTitle,
+              court: caseData.court,
+              category: caseData.category,
+              dateOfJudgment: caseData.dateOfJudgment,
+              status: "Decided",
+              sourceUrl: caseData.sourceUrl,
+              sourceSite: "judiciary_hk",
+              contentHash: caseData.contentHash,
+            },
+          });
+
+          for (const party of caseData.parties) {
+            await db.caseParty.create({
+              data: {
+                caseId: judicaryCase.id,
+                name: party.name,
+                role: party.role,
+                type: "Individual",
+              },
+            });
+          }
+
+          created++;
+        }
+      } catch (error) {
+        console.error(`保存案件 ${caseData.caseNumber} 失敗:`, error);
+      }
+    }
+
+    console.log(`✅ 案件保存: ${created} 新增, ${updated} 更新`);
+    return { created, updated };
+  }
+
+  async logScraperRun(source: string, status: string, stats: any) {
+    await db.scraperLog.create({
+      data: {
+        source,
+        status,
+        totalCases: stats.total || 0,
+        newCases: stats.created || 0,
+        updatedCases: stats.updated || 0,
+        errors: stats.errors,
+      },
+    });
+  }
+}
+
+export const caseService = new CaseService();
+```
+
+### Step 5: 創建 Cron 端點 (5 分鐘)
+
+**創建文件 `app/api/cron/scrape-judiciary/route.ts`**：
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import { judiciaryScraper } from "@/lib/scrapers/judiciary-scraper";
+import { caseService } from "@/lib/services/case-service";
+
+export async function GET(request: NextRequest) {
+  try {
+    // 驗證 Cron Secret
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    console.log("🚀 開始爬蟲任務...");
+
+    // 抓取案件
+    const cases = await judiciaryScraper.scrapeCourtOfAppeal();
+
+    // 保存到數據庫
+    const result = await caseService.saveCases(cases);
+
+    // 記錄日誌
+    await caseService.logScraperRun("judiciary_hk", "success", {
+      total: cases.length,
+      ...result,
+    });
+
+    console.log("✅ 爬蟲任務完成");
+
+    return NextResponse.json({
+      success: true,
+      cases: cases.length,
+      created: result.created,
+      updated: result.updated,
+    });
+  } catch (error) {
+    console.error("❌ 爬蟲失敗:", error);
+
+    await caseService.logScraperRun("judiciary_hk", "failed", {
+      total: 0,
+      created: 0,
+      updated: 0,
+      errors: error instanceof Error ? error.message : "Unknown error",
+    });
+
+    return NextResponse.json(
+      { error: "Scraper failed" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Step 6: 設置環境變數 (2 分鐘)
+
+**編輯 `.env.production`**：
+
+```bash
+# Cron 安全密鑰（用於防止未授權訪問）
+CRON_SECRET=your-super-secret-key-here-change-this
+
+# 如果使用 Vercel Cron
+# vercel.json 中添加：
+# {
+#   "crons": [{
+#     "path": "/api/cron/scrape-judiciary",
+#     "schedule": "0 2 * * *"
+#   }]
+# }
+```
+
+### Step 7: 測試爬蟲 (2 分鐘)
+
+```bash
+# 本地測試
+curl -H "Authorization: Bearer your-super-secret-key-here-change-this" \
+  http://localhost:3000/api/cron/scrape-judiciary
+
+# 生產測試
+curl -H "Authorization: Bearer your-super-secret-key-here-change-this" \
+  https://your-domain.com/api/cron/scrape-judiciary
+```
+
+---
+
+## 集成選項
+
+### 選項 1: Vercel Cron (推薦，自動化最簡單)
+
+**設置 `vercel.json`**：
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/scrape-judiciary",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}
+```
+
+✅ **優點**: 無需額外配置，Vercel 自動觸發  
+❌ **缺點**: 僅限 Vercel 平台
+
+### 選項 2: EasyCron (第三方服務)
+
+1. 進入 [easycron.com](https://www.easycron.com/)
+2. 創建新 Cron 任務
+3. URL: `https://your-domain.com/api/cron/scrape-judiciary`
+4. Headers: `Authorization: Bearer your-super-secret-key`
+5. 每天 02:00 運行
+
+✅ **優點**: 支持所有部署平台  
+❌ **缺點**: 需要第三方服務
+
+### 選項 3: 本地 Cron (自託管)
+
+**創建 `lib/cron-scheduler.ts`**：
+
+```typescript
+import cron from "node-cron";
+import { judiciaryScraper } from "@/lib/scrapers/judiciary-scraper";
+import { caseService } from "@/lib/services/case-service";
+
+export function initializeCronJobs() {
+  // 每天 02:00 運行
+  cron.schedule("0 2 * * *", async () => {
+    console.log("📅 Cron: 開始爬蟲任務");
+    
+    try {
+      const cases = await judiciaryScraper.scrapeCourtOfAppeal();
+      const result = await caseService.saveCases(cases);
+      await caseService.logScraperRun("judiciary_hk", "success", {
+        total: cases.length,
+        ...result,
+      });
+    } catch (error) {
+      console.error("❌ Cron 失敗:", error);
+    }
+  });
+}
+
+// 在 app.ts 或 server.ts 中調用
+initializeCronJobs();
+```
+
+---
+
+## 查看結果
+
+### 在您的應用中顯示最新案件
+
+```typescript
+// app/(dashboard)/judiciary/page.tsx
+
+import { db } from "@/lib/db";
+
+export default async function JudiciaryCasesPage() {
+  const cases = await db.judicaryCase.findMany({
+    orderBy: { scrapedAt: "desc" },
+    take: 20,
+    include: { parties: true },
+  });
+
+  return (
+    <div>
+      <h1>最新司法案件</h1>
+      <div className="space-y-4">
+        {cases.map(caseItem => (
+          <div key={caseItem.id} className="border p-4 rounded">
+            <h2 className="font-bold">{caseItem.caseNumber}</h2>
+            <p>{caseItem.caseTitle}</p>
+            <p className="text-gray-600">{caseItem.court}</p>
+            <p className="text-sm">
+              更新時間: {caseItem.scrapedAt.toLocaleDateString('zh-HK')}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## 故障排查
+
+### 問題 1: "Cron 任務沒有運行"
+
+**解決方案**:
+1. 檢查 CRON_SECRET 是否正確設置
+2. 驗證 Vercel/外部服務的 URL 是否正確
+3. 檢查 CloudFlare 是否攔截了請求
+
+### 問題 2: "未授權錯誤 401"
+
+```bash
+# 確保 CRON_SECRET 正確
+# 在 vercel.json 中不需要設置，Vercel 自動處理
+
+# 如果使用 EasyCron，確保 Header 正確：
+# Authorization: Bearer YOUR-SECRET-HERE
+```
+
+### 問題 3: "數據庫連接失敗"
+
+```bash
+# 檢查 DATABASE_URL
+echo $DATABASE_URL
+
+# 測試連接
+npx prisma db execute --stdin < /dev/null
+```
+
+### 問題 4: "爬蟲速度太慢"
+
+```typescript
+// 增加 delayMs，但不要低於 2 秒（遵守 robots.txt）
+private readonly delayMs = 3000; // 改為 3 秒
+```
+
+---
+
+## 監控與維護
+
+### 檢查爬蟲日誌
+
+```typescript
+// app/api/admin/scraper-logs/route.ts
+
+import { db } from "@/lib/db";
+
+export async function GET() {
+  const logs = await db.scraperLog.findMany({
+    orderBy: { runDate: "desc" },
+    take: 10,
+  });
+
+  return Response.json(logs);
+}
+```
+
+### 設置告警（可選）
+
+```typescript
+// 如果爬蟲失敗，發送 Slack 通知
+
+async function notifySlack(message: string) {
+  await fetch(process.env.SLACK_WEBHOOK_URL!, {
+    method: "POST",
+    body: JSON.stringify({ text: message }),
+  });
+}
+```
+
+---
+
+## 下一步
+
+### 擴展功能
+
+1. **抓取更多法院** - 添加 District Court, Magistrates' Court
+2. **全文搜索** - 使用 PostgreSQL Full-Text Search
+3. **客戶端通知** - 當新案件相關客戶時通知
+4. **AI 摘要** - 使用 Claude/GPT 自動生成案件摘要
+
+### 性能優化
+
+1. **分布式爬蟲** - 同時抓取多個來源
+2. **增量更新** - 僅抓取最近 24 小時的案件
+3. **緩存** - 使用 Redis 緩存
+
+---
+
+## 相關文檔
+
+📄 **完整實現指南**: `HK-Judiciary-Case-Scraper-Guide.md` (31KB)  
+📚 **技術細節**: 包含爬蟲架構、數據模型、部署清單
+
+---
+
+**版本**: v1.0  
+**最後更新**: 2026-01-28  
+**設置時間**: 約 30 分鐘  
+**依賴**: Node.js 18+, Prisma, PostgreSQL  
+**作者**: Monica AI Assistant

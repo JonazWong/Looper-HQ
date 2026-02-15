@@ -2,8 +2,8 @@ name: Daily Case Tracking
 
 on:
   schedule:
-    # Daily at 2:00 AM HKT (18:00 UTC previous day)
-    - cron: '0 18 * * *'
+    # Daily at 4:00 AM HKT (20:00 UTC previous day)
+    - cron: '0 20 * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:

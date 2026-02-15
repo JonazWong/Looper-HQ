@@ -1,12 +1,12 @@
 name: RSS News Crawler
 
-# Daily RSS crawler - runs once per day at 2:30 AM HKT (18:30 UTC)
-# Adjusted from 15-minute interval to daily to reduce load and avoid rate limiting
+# Daily RSS crawler - runs once per day at 4:30 AM HKT (20:30 UTC)
+# Runs 30 minutes after daily case tracking
 
 on:
   schedule:
-    # Daily at 2:30 AM HKT (18:30 UTC) - 30 minutes after daily case tracking
-    - cron: '30 18 * * *'
+    # Daily at 4:30 AM HKT (20:30 UTC) - 30 minutes after judiciary crawler
+    - cron: '30 20 * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:

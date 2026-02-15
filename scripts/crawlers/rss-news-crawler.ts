@@ -112,10 +112,10 @@ export async function trackRssNews(): Promise<number> {
               source: source.source as CaseSource,
               publishedAt: { gte: getCutoffTimestamp() },
             },
-            select: { title: true, id: true, externalId: true },
+            select: { title_zh: true, title_en: true, id: true, externalId: true },
           });
 
-          const existingTitles = recentCases.map(c => c.title);
+          const existingTitles = recentCases.map(c => c.title_zh || c.title_en);
           const existingIds = new Set(recentCases.map(c => c.externalId));
 
           // Upsert each case with deduplication
@@ -147,8 +147,10 @@ export async function trackRssNews(): Promise<number> {
                 },
               },
               update: {
-                title: caseData.title,
-                description: caseData.description,
+                title_zh: caseData.title,
+                title_en: caseData.title, // RSS usually in Chinese, use same for both
+                description_zh: caseData.description,
+                description_en: caseData.description,
                 category: caseData.category,
                 keywords: caseData.keywords,
                 tags: caseData.tags,
@@ -158,8 +160,10 @@ export async function trackRssNews(): Promise<number> {
                 source: caseData.source,
                 externalId: caseData.externalId,
                 sourceUrl: caseData.sourceUrl,
-                title: caseData.title,
-                description: caseData.description,
+                title_zh: caseData.title,
+                title_en: caseData.title,
+                description_zh: caseData.description,
+                description_en: caseData.description,
                 category: caseData.category,
                 publishedAt: caseData.publishedAt,
                 author: caseData.author,
