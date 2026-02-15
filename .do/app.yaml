@@ -1,163 +1,94 @@
+databases:
+- cluster_name: db-postgresql-sgp1-75753
+  db_name: defaultdb
+  db_user: doadmin
+  engine: PG
+  name: db-postgresql-sgp1-75753
+  production: true
+  version: "16"
+ingress:
+  rules:
+  - component:
+      name: web
+    match:
+      path:
+        prefix: /
 name: looper-hq
 region: sgp
-
 services:
-  - name: web
-    # Source directory - CRITICAL: Must be root for monorepo
-    source_dir: /
-    
-    github:
-      repo: JonazWong/Looper-HQ
-      branch: main
-      deploy_on_push: true
-    
-    # Force Docker build (disable buildpack auto-detection)
-    dockerfile_path: Dockerfile
-    
-    # Port configuration (Dockerfile exposes 3000)
-    http_port: 3000
-    
-    # Instance configuration
-    instance_count: 1
-    instance_size_slug: basic-xs
-
-    health_check:
-      http_path: /api/health
-      initial_delay_seconds: 60
-      period_seconds: 30
-      timeout_seconds: 10
-      success_threshold: 1
-      failure_threshold: 3
-    
-    # Environment variables for web service
-    envs:
-      # =====================================
-      # Database Configuration (Auto-injected)
-      # =====================================
-      - key: DATABASE_URL
-        scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: ${db.DATABASE_URL}
-      
-      # =====================================
-      # Node Environment
-      # =====================================
-      - key: NODE_ENV
-        scope: RUN_AND_BUILD_TIME
-        value: production
-      
-      - key: TZ
-        scope: RUN_AND_BUILD_TIME
-        value: Asia/Hong_Kong
-      
-      # =====================================
-      # NextAuth Configuration
-      # REQUIRED: Set in DO App Platform UI
-      # =====================================
-      - key: NEXTAUTH_URL
-        scope: RUN_AND_BUILD_TIME
-        value: ${APP_URL}
-      
-      - key: NEXTAUTH_SECRET
-        scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        # MUST BE SET IN DO CONSOLE - Generate with: openssl rand -base64 32
-      
-      # =====================================
-      # Keycloak OAuth (Optional)
-      # Set these if using Keycloak authentication
-      # =====================================
-      - key: KEYCLOAK_CLIENT_ID
-        scope: RUN_AND_BUILD_TIME
-        # Optional - for OAuth integration
-      
-      - key: KEYCLOAK_ISSUER
-        scope: RUN_AND_BUILD_TIME
-        # Optional - e.g., https://your-keycloak.com/realms/looper-hq
-      
-      # =====================================
-      # AI Provider Configuration
-      # REQUIRED: Set OpenAI/OpenRouter API key
-      # =====================================
-      - key: AI_PROVIDER
-        scope: RUN_AND_BUILD_TIME
-        value: openai
-      
-      - key: OPENAI_API_KEY
-        scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        # MUST BE SET IN DO CONSOLE - Your OpenAI or OpenRouter API key
-      
-      - key: OPENAI_MODEL
-        scope: RUN_AND_BUILD_TIME
-        value: gpt-4o-mini
-      
-      - key: OPENAI_BASE_URL
-        scope: RUN_AND_BUILD_TIME
-        value: https://openrouter.ai/api/v1
-      
-      - key: AI_MAX_TOKENS
-        scope: RUN_AND_BUILD_TIME
-        value: "2048"
-      
-      - key: AI_TEMPERATURE
-        scope: RUN_AND_BUILD_TIME
-        value: "0.3"
-      
-      - key: AI_DEFAULT_LOCALE
-        scope: RUN_AND_BUILD_TIME
-        value: zh-HK
-      
-      # =====================================
-      # Crawler Configuration
-      # =====================================
-      - key: CRAWLER_ENABLED
-        scope: RUN_AND_BUILD_TIME
-        value: "true"
-      
-      - key: CRAWLER_SCHEDULE
-        scope: RUN_AND_BUILD_TIME
-        value: "0 18 * * *"  # Daily at 2am HKT (18:00 UTC previous day)
-      
-      - key: RSS_TIMEOUT
-        scope: RUN_AND_BUILD_TIME
-        value: "30000"
-      
-      - key: RSS_MAX_RETRIES
-        scope: RUN_AND_BUILD_TIME
-        value: "3"
-
-# =============================================================================
-# Database Configuration
-# =============================================================================
-databases:
-  - name: db
-    engine: PG
-    version: "16"
-    production: true
-    cluster_name: looper-hq-db
-
-# =============================================================================
-# Database Migration Job (DISABLED - Using db:push instead)
-# =============================================================================
-# Note: This project uses Prisma's db:push for schema sync (no migrations yet).
-# After first deployment, run: pnpm bootstrap:data via DO Console
-#
-# jobs:
-#   - name: db-migrate
-#     kind: PRE_DEPLOY
-#     github:
-#       repo: JonazWong/Looper-HQ
-#       branch: main
-#     dockerfile_path: Dockerfile
-#     instance_count: 1
-#     instance_size_slug: basic-xxs
-#     run_command: |
-#       npx prisma db push --schema=/app/packages/database/prisma/schema.prisma --accept-data-loss
-#     envs:
-#       - key: DATABASE_URL
-#         scope: RUN_TIME
-#         type: SECRET
-#         value: ${db.DATABASE_URL}
-
-
+- dockerfile_path: Dockerfile
+  envs:
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:hdOVmHNLZgE9UIReC8+D5C5O5RIhtAu+:2dfKW4Jq5yRqf6jlT4uKEYIynYxLJawkCqhCcWmz6Kh+mNRzSd+1sVvM5OLNisXbQ7TezfzLLsj12amCtPSB40Lrip/PWwMNnuMD4Drcax8YmgugNXx259K9tVCJI0H4yB7Ej7piVOr2qGfODmd09AhI+PNmTAlEe3YKGn6QqyzeIU9RbZ7Xux4OCrGBCrAIJrSCqeBa85z7Ix7vYQQmt5w=]
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+  - key: TZ
+    scope: RUN_AND_BUILD_TIME
+    value: Asia/Hong_Kong
+  - key: NEXTAUTH_URL
+    scope: RUN_AND_BUILD_TIME
+    value: ${APP_URL}
+  - key: NEXTAUTH_SECRET
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:a+xxK+RdpAWW8EiZXar3VPDGqTUabI/W:KhEkutPVg790uZfoKohPoA==]
+  - key: KEYCLOAK_CLIENT_ID
+    scope: RUN_AND_BUILD_TIME
+  - key: KEYCLOAK_ISSUER
+    scope: RUN_AND_BUILD_TIME
+  - key: AI_PROVIDER
+    scope: RUN_AND_BUILD_TIME
+    value: openai
+  - key: OPENAI_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:GK9PI1btiFluEcFrVraVr0qK0MDeLORf:S8a5viNg50y36Is4JohuJA==]
+  - key: OPENAI_MODEL
+    scope: RUN_AND_BUILD_TIME
+    value: gpt-4o-mini
+  - key: OPENAI_BASE_URL
+    scope: RUN_AND_BUILD_TIME
+    value: https://openrouter.ai/api/v1
+  - key: AI_MAX_TOKENS
+    scope: RUN_AND_BUILD_TIME
+    value: "2048"
+  - key: AI_TEMPERATURE
+    scope: RUN_AND_BUILD_TIME
+    value: "0.3"
+  - key: AI_DEFAULT_LOCALE
+    scope: RUN_AND_BUILD_TIME
+    value: zh-HK
+  - key: CRAWLER_ENABLED
+    scope: RUN_AND_BUILD_TIME
+    value: "true"
+  - key: CRAWLER_SCHEDULE
+    scope: RUN_AND_BUILD_TIME
+    value: 0 18 * * *
+  - key: RSS_TIMEOUT
+    scope: RUN_AND_BUILD_TIME
+    value: "30000"
+  - key: RSS_MAX_RETRIES
+    scope: RUN_AND_BUILD_TIME
+    value: "3"
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    value: ${db-postgresql-sgp1-75753.DATABASE_URL}
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: JonazWong/Looper-HQ
+  health_check:
+    failure_threshold: 3
+    http_path: /api/health
+    initial_delay_seconds: 60
+    period_seconds: 30
+    success_threshold: 1
+    timeout_seconds: 10
+  http_port: 3005
+  instance_count: 1
+  instance_size_slug: basic-xs
+  name: web
+  source_dir: /
