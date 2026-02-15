@@ -151,6 +151,6 @@ services:
 #         value: ${db.DATABASE_URL}
 
 databases:
-  - name: db
+  - name: db-postgresql-sgp1-75753
     engine: PG
     version: "16"
