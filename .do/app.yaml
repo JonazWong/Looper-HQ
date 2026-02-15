@@ -14,8 +14,8 @@ services:
     # Force Docker build (disable buildpack auto-detection)
     dockerfile_path: Dockerfile
     
-    # Port configuration (Dockerfile exposes 3005)
-    http_port: 3005
+    # Port configuration (Dockerfile exposes 3000)
+    http_port: 3000
     
     # Instance configuration
     instance_count: 1
@@ -35,7 +35,7 @@ services:
       # Database Configuration (Auto-injected)
       # =====================================
       - key: DATABASE_URL
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         value: ${db.DATABASE_URL}
       
@@ -59,7 +59,7 @@ services:
         value: ${APP_URL}
       
       - key: NEXTAUTH_SECRET
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         type: SECRET
         # MUST BE SET IN DO CONSOLE - Generate with: openssl rand -base64 32
       
@@ -126,6 +126,16 @@ services:
       - key: RSS_MAX_RETRIES
         scope: RUN_AND_BUILD_TIME
         value: "3"
+
+# =============================================================================
+# Database Configuration
+# =============================================================================
+databases:
+  - name: db
+    engine: PG
+    version: "16"
+    production: true
+    cluster_name: looper-hq-db
 
 # =============================================================================
 # Database Migration Job (DISABLED - Using db:push instead)

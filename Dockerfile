@@ -7,7 +7,7 @@
 FROM node:20-alpine AS deps
 
 # Install system dependencies
-RUN apk add --no-cache libc6-compat openssl
+RUN apk update && apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
@@ -46,7 +46,7 @@ RUN ls -la /app/node_modules/.prisma/client || echo "Warning: .prisma/client not
 FROM node:20-alpine AS builder
 
 # Install system dependencies
-RUN apk add --no-cache libc6-compat openssl
+RUN apk update && apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
@@ -83,7 +83,7 @@ RUN pnpm --filter=@looper-hq/web build
 FROM node:20-alpine AS runner
 
 # Install curl for health checks
-RUN apk add --no-cache curl openssl
+RUN apk update && apk add --no-cache curl openssl
 
 WORKDIR /app
 
