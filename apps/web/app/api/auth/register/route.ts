@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       return errorResponse(
-        result.error.errors[0]?.message || "無效輸入",
+        result.error.issues[0]?.message || "無效輸入",
         400
       )
     }
