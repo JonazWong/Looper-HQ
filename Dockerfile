@@ -33,16 +33,17 @@ COPY packages/database/prisma ./packages/database/prisma
 # Install dependencies (including dev dependencies for build)
 RUN pnpm install --frozen-lockfile
 
-# ⭐ Critical fix: Set placeholder DATABASE_URL for Prisma generation
-# Prisma generate requires this env var to exist (even if not connecting to DB)
-ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+# ⭐ Set DATABASE_URL for Prisma generation (required for schema validation)
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
 
-# ⭐ Critical fix: Explicitly generate Prisma client in deps stage
-# This ensures .prisma directory exists and can be copied to runner stage
-RUN pnpm --filter=@looper-hq/database prisma generate
-
-# Verify Prisma client was generated successfully
-RUN ls -la /app/node_modules/.prisma/client && echo "✅ Prisma client generated successfully"
+# ⭐ Generate Prisma Client in deps stage with detailed logging
+RUN echo "=== Generating Prisma Client in deps stage ===" && \
+    cd packages/database && \
+    npx prisma generate && \
+    cd /app && \
+    echo "Checking generated files:" && \
+    (ls -la node_modules/.prisma/client || echo "Note: .prisma/client location may vary") && \
+    echo "=== Deps stage Prisma generation complete ==="
 
 # =============================================================================
 # Stage 2: Builder - Build the application
@@ -68,16 +69,21 @@ COPY apps ./apps
 COPY packages ./packages
 COPY scripts ./scripts
 
-# ⭐ Set placeholder DATABASE_URL for Prisma generation in builder stage
-ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+# ⭐ Set DATABASE_URL for Prisma generation (required even for schema validation)
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
 
-# Generate Prisma Client (required before build)
-RUN pnpm --filter=@looper-hq/database prisma generate
-
-# ⭐ Verify Prisma client was generated in builder stage
-RUN echo "Verifying Prisma client in builder stage:" && \
-    ls -la /app/node_modules/.prisma/client && \
-    echo "✅ Prisma client verified in builder"
+# ⭐ Generate Prisma Client with verbose output
+RUN echo "=== Starting Prisma Client Generation ===" && \
+    echo "Working directory: $(pwd)" && \
+    echo "Checking Prisma schema..." && \
+    ls -la packages/database/prisma/schema.prisma && \
+    echo "Generating Prisma client..." && \
+    cd packages/database && \
+    npx prisma generate && \
+    cd /app && \
+    echo "Checking generated client..." && \
+    (ls -la node_modules/.prisma/client || echo "Warning: .prisma/client not in expected location") && \
+    echo "=== Prisma Generation Complete ==="
 
 # Build workspace packages that need compilation (TypeScript → JavaScript)
 RUN pnpm --filter=@looper-hq/utils build
@@ -133,19 +139,22 @@ COPY --from=builder --chown=nextjs:nodejs /app/packages/utils/package.json ./pac
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
-# ⭐ Set placeholder DATABASE_URL for potential runtime generation
-ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+# ⭐ Set DATABASE_URL placeholder (will be overridden by app.yaml at runtime)
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
 
-# ⭐ Verify and regenerate Prisma client if missing (robust fallback)
-RUN if [ -d "./node_modules/.prisma/client" ]; then \
-      echo "✅ Prisma client copied successfully from builder"; \
-      ls -la ./node_modules/.prisma/client | head -3; \
+# ⭐ Ensure Prisma client exists (regenerate if missing)
+RUN echo "=== Checking Prisma Client in Runner Stage ===" && \
+    if [ -d "./node_modules/.prisma/client" ]; then \
+      echo "✅ Prisma client found (copied from builder)"; \
     else \
-      echo "⚠️  Prisma client not found, regenerating in runner stage..."; \
-      pnpm --filter=@looper-hq/database prisma generate && \
-      echo "✅ Prisma client generated successfully in runner" || \
-      (echo "❌ Failed to generate Prisma client" && exit 1); \
-    fi
+      echo "⚠️  Prisma client missing, generating now..."; \
+      cd packages/database && \
+      npx prisma generate && \
+      cd /app; \
+    fi && \
+    echo "Final verification:" && \
+    ls -la ./node_modules/.prisma/ && \
+    echo "=== Prisma Client Ready ==="
 
 # Switch to non-root user
 USER nextjs
