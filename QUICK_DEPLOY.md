@@ -127,20 +127,28 @@ GitHub Actions 將自動：
 
 ### Step 5: 初始化資料庫 (首次部署後)
 
-部署完成後，需要初始化資料庫數據：
+部署完成後，需要初始化資料庫：
 
 1. 進入 DO Console → 你的 App → Console Tab
 2. 運行以下命令：
 
 ```bash
-# 同步資料庫結構
-pnpm --filter=@looper-hq/database prisma db push
+# 方式一：使用 Prisma 遷移（推薦用於生產環境）
+pnpm --filter=@looper-hq/database prisma migrate deploy
+
+# 方式二：僅用於首次空資料庫（會跳過遷移歷史）
+# ⚠️ 警告：db push 會直接同步結構，可能導致數據丟失！
+# 僅在確認資料庫為空且無現有數據時使用
+pnpm --filter=@looper-hq/database prisma db push --accept-data-loss
 
 # 初始化種子數據 (可選)
 pnpm bootstrap:data
 ```
 
-**註：** 目前 pre-deploy migration job 已禁用，改用手動執行 `db:push`
+**重要說明：**
+- **生產環境推薦使用 `prisma migrate deploy`**，它會應用已提交的遷移文件
+- **`prisma db push` 僅適用於開發環境或首次空資料庫**，因為它會直接修改結構而不記錄遷移歷史
+- 如果資料庫已有數據，務必使用 `migrate deploy` 以避免數據丟失
 
 ---
 
@@ -148,19 +156,42 @@ pnpm bootstrap:data
 
 ### 1. 檢查健康端點
 
+健康檢查端點支持兩種模式：
+
+#### 基本健康檢查（公開訪問）
 ```bash
-# 替換為你的 App URL
+# 僅返回基本狀態（適用於負載均衡器和公開監控）
 curl https://your-app.ondigitalocean.app/api/health
 ```
 
-**預期輸出：**
+**預期輸出（基本模式）：**
 ```json
 {
   "status": "healthy",
-  "timestamp": "2026-02-15T09:50:00.000Z",
+  "timestamp": "2026-02-15T10:00:00.000Z",
+  "database": "connected"
+}
+```
+
+#### 詳細健康檢查（內部監控）
+```bash
+# 開發環境：直接使用 ?detailed=true
+curl https://your-app.ondigitalocean.app/api/health?detailed=true
+
+# 生產環境：需要內部密鑰（設置 HEALTH_CHECK_SECRET 環境變數）
+curl -H "X-Internal-Health-Check: your-secret-key" \
+     https://your-app.ondigitalocean.app/api/health?detailed=true
+```
+
+**預期輸出（詳細模式）：**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-02-15T10:00:00.000Z",
   "database": "connected",
-  "uptime": 123.45,
+  "uptime": 3600,
   "version": "2.0.0",
+  "environment": "production",
   "checks": {
     "database": { "status": "ok", "responseTime": 45 },
     "openai": { "status": "ok", "configured": true },
@@ -168,6 +199,11 @@ curl https://your-app.ondigitalocean.app/api/health
   }
 }
 ```
+
+**安全說明：**
+- 基本模式不需要認證，適合公開的健康檢查（如 DO 的 HTTP health check）
+- 詳細模式需要內部密鑰或開發環境，避免洩露系統信息
+- 在生產環境設置 `HEALTH_CHECK_SECRET` 環境變數以啟用內部監控
 
 ### 2. 訪問應用
 
