@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/table"
 import { CasesFilters } from "@/components/cases/cases-filters"
 import { CasesPagination } from "@/components/cases/cases-pagination"
-import { CaseStatus, Priority, CaseCategory } from "@prisma/client"
+import { CaseStatus, Priority, CaseCategory } from "@looper-hq/database"
 import { getLocalizedField } from "@looper-hq/utils"
 
 interface SearchParams {

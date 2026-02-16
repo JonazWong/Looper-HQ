@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { search } from '@/lib/services/search-engine';
-import { CaseSource } from '@prisma/client';
+import { CaseSource } from '@looper-hq/database';
 import { z } from 'zod';
 
 const searchSchema = z.object({

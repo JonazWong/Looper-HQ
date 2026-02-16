@@ -6,7 +6,7 @@
  */
 
 import { DefaultSession } from "next-auth"
-import { UserRole } from "@prisma/client"
+import { UserRole } from "@looper-hq/database"
 
 declare module "next-auth" {
   /**

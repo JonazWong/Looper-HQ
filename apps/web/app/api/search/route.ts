@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { search, searchSuggestions } from '@/lib/services/search-engine';
 import { z } from 'zod';
-import { CaseSource } from '@prisma/client';
+import { CaseSource } from '@looper-hq/database';
 
 const searchSchema = z.object({
   q: z.string().min(1, 'Search query is required'),

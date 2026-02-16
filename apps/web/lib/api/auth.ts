@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import { UnauthorizedError, ForbiddenError } from './errors'
 import type { Session as NextAuthSession } from 'next-auth'
-import { UserRole } from '@prisma/client'
+import { UserRole } from '@looper-hq/database'
 
 // Re-export Session type from NextAuth
 export type Session = NextAuthSession

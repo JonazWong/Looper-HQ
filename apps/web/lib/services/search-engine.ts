@@ -5,7 +5,7 @@
  */
 
 import { prisma } from '@/lib/db';
-import { CaseSource, CaseCategory } from '@prisma/client';
+import { CaseSource, CaseCategory } from '@looper-hq/database';
 
 export interface SearchOptions {
   query: string;

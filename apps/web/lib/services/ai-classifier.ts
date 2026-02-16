@@ -1,5 +1,5 @@
 import { generateCompletion } from '@looper-hq/utils';
-import { CaseCategory } from '@prisma/client';
+import { CaseCategory } from '@looper-hq/database';
 
 export interface ClassificationResult {
   category: CaseCategory;

@@ -33,7 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { InvoiceStatus } from "@prisma/client"
+import { InvoiceStatus } from "@looper-hq/database"
 import { formatHKDate } from "@/lib/utils"
 
 interface SearchParams {

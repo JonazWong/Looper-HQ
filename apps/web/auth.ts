@@ -3,7 +3,7 @@ import { JWT } from "next-auth/jwt"
 import Keycloak from "next-auth/providers/keycloak"
 import Credentials from "next-auth/providers/credentials"
 import { prisma } from "@/lib/db"
-import { UserRole } from "@prisma/client"
+import { UserRole } from "@looper-hq/database"
 
 // Extend NextAuth types for custom session properties
 declare module "next-auth" {

@@ -33,17 +33,8 @@ COPY packages/database/prisma ./packages/database/prisma/
 # Install dependencies (including dev dependencies for build)
 RUN pnpm install --frozen-lockfile
 
-# ⭐ Set DATABASE_URL for Prisma generation (required for schema validation)
-ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
-
-# ⭐ Generate Prisma Client in deps stage with detailed logging
-RUN echo "=== Generating Prisma Client in deps stage ===" && \
-    cd packages/database && \
-    npx prisma generate && \
-    cd /app && \
-    echo "Checking generated files:" && \
-    (ls -la node_modules/.prisma/client || echo "Note: .prisma/client location may vary") && \
-    echo "=== Deps stage Prisma generation complete ==="
+# Note: We don't generate Prisma Client here because source code will be copied
+# in the builder stage, which would overwrite it. Generation happens in builder stage.
 
 # =============================================================================
 # Stage 2: Builder - Build the application
@@ -72,17 +63,22 @@ COPY scripts ./scripts/
 # ⭐ Set DATABASE_URL for Prisma generation (required even for schema validation)
 ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
 
-# ⭐ Generate Prisma Client with verbose output
+# ⭐ CRITICAL: Generate Prisma Client AFTER copying source code
+# This ensures the schema.prisma and all dependencies are in place
 RUN echo "=== Starting Prisma Client Generation ===" && \
     echo "Working directory: $(pwd)" && \
     echo "Checking Prisma schema..." && \
     ls -la packages/database/prisma/schema.prisma && \
+    echo "Package.json exists:" && \
+    ls -la packages/database/package.json && \
     echo "Generating Prisma client..." && \
     cd packages/database && \
-    npx prisma generate && \
+    npx prisma generate --schema=./prisma/schema.prisma && \
     cd /app && \
-    echo "Checking generated client..." && \
-    (ls -la node_modules/.prisma/client || echo "Warning: .prisma/client not in expected location") && \
+    echo "Verifying generated Prisma Client..." && \
+    find . -type d -name ".prisma" 2>/dev/null && \
+    echo "Checking if Prisma Client can be imported..." && \
+    node -e "const { InvoiceStatus } = require('@prisma/client'); console.log('✅ InvoiceStatus:', InvoiceStatus);" && \
     echo "=== Prisma Generation Complete ==="
 
 # Build workspace packages that need compilation (TypeScript → JavaScript)

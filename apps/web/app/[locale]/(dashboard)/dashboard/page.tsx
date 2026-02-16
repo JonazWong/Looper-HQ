@@ -17,7 +17,7 @@ import { DashboardContent } from "@/components/dashboard/dashboard-content"
 import { type Activity } from "@/components/ui/activity-timeline"
 import { prisma } from "@/lib/db"
 import { requireAuth } from "@/lib/api/auth"
-import type { MembershipTier } from "@prisma/client"
+import type { MembershipTier } from "@looper-hq/database"
 
 // Icon mapping for activities
 const activityIconMap: Record<string, LucideIcon> = {

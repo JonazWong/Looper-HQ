@@ -41,7 +41,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { ActivityTimeline, type Activity } from "@/components/ui/activity-timeline"
-import { CaseStatus, Priority, CaseCategory, ActivityType } from "@prisma/client"
+import { CaseStatus, Priority, CaseCategory, ActivityType } from "@looper-hq/database"
 import { formatHKDate, formatHKDateTime } from "@/lib/utils"
 import { getLocalizedField } from "@looper-hq/utils"
 

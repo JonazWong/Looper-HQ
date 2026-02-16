@@ -29,7 +29,7 @@ import { ActivityTimeline, type Activity } from "@/components/ui/activity-timeli
 import { containerVariants, itemVariants } from "@/lib/animations"
 import { PremierSearchCard } from "./premier-search-card"
 import { getLocalizedField } from "@looper-hq/utils"
-import type { MembershipTier } from "@prisma/client"
+import type { MembershipTier } from "@looper-hq/database"
 
 // Icon mapping for activity types
 const activityIconMap: Record<string, LucideIcon> = {

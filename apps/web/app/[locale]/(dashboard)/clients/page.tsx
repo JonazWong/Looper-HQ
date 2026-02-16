@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/table"
 import { ClientsFilters } from "@/components/clients/clients-filters"
 import { ClientsPagination } from "@/components/clients/clients-pagination"
-import { MembershipTier, ClientType } from "@prisma/client"
+import { MembershipTier, ClientType } from "@looper-hq/database"
 
 interface SearchParams {
   search?: string

@@ -24,7 +24,7 @@ import {
   GlassCardFooter
 } from "@/components/ui/glass-card"
 import { SearchForm } from "@/components/search/search-form"
-import { CaseStatus, CaseCategory } from "@prisma/client"
+import { CaseStatus, CaseCategory } from "@looper-hq/database"
 
 interface SearchParams {
   q?: string

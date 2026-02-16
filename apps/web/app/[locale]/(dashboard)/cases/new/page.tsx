@@ -27,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { CaseCategory, Priority } from "@prisma/client"
+import { CaseCategory, Priority } from "@looper-hq/database"
 
 interface Client {
   id: string

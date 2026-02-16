@@ -34,7 +34,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
-import { DocumentCategory } from "@prisma/client"
+import { DocumentCategory } from "@looper-hq/database"
 import { formatHKDate } from "@/lib/utils"
 
 interface SearchParams {

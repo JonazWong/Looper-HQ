@@ -5,7 +5,7 @@ import { Brain, Loader2 } from 'lucide-react';
 import { PremierButton } from '@/components/ui/premier-button';
 import { useToast } from '@/hooks/use-toast';
 import { ClassificationResult } from '@/lib/services/ai-classifier';
-import { CaseCategory } from '@prisma/client';
+import { CaseCategory } from '@looper-hq/database';
 
 // Category name mapping for user-friendly display
 const CATEGORY_NAMES: Record<CaseCategory, string> = {
