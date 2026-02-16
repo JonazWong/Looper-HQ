@@ -66,8 +66,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 COPY --from=builder /app/packages/database/prisma ./packages/database/prisma
 COPY --from=builder /app/packages/database/package.json ./packages/database/package.json
 
-# Install ONLY Prisma CLI (as root, before switching to nextjs user)
-RUN cd packages/database && pnpm add -D prisma@5.17.0
+# Install ONLY Prisma CLI and tsx (as root, before switching to nextjs user)
+RUN cd packages/database && pnpm add -D prisma@5.17.0 tsx@4.7.0
 
 # Copy startup script from build context
 COPY scripts/startup.sh ./scripts/startup.sh

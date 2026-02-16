@@ -27,6 +27,13 @@ if [ -d "/app/packages/database/prisma" ]; then
   }
   
   echo "✅ Database schema sync completed"
+  
+  # Create admin user if database is empty
+  echo "🔐 Checking for admin user..."
+  npx tsx prisma/seed-admin.ts 2>&1 || {
+    echo "⚠️  Admin creation skipped or failed (this is OK if users already exist)"
+  }
+  
   cd /app
 else
   echo "⚠️  Prisma directory not found, skipping schema sync"
