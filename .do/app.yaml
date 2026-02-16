@@ -5,18 +5,20 @@ databases:
   engine: PG
   name: db-postgresql-sgp1-75753
   production: true
-  version: "16"
+features:
 ingress:
   rules:
   - component:
-      name: web
+      name: looper-hq
     match:
+      authority:
+        exact: ""
       path:
         prefix: /
-name: looper-hq
+name: lp-app
 region: sgp
 services:
-- dockerfile_path: Dockerfile
+- dockerfile_path: /Dockerfile
   envs:
   - key: NODE_ENV
     scope: RUN_AND_BUILD_TIME
@@ -30,7 +32,7 @@ services:
   - key: NEXTAUTH_SECRET
     scope: RUN_TIME
     type: SECRET
-    value: EV[1:a+xxK+RdpAWW8EiZXar3VPDGqTUabI/W:KhEkutPVg790uZfoKohPoA==]
+    value: EV[1:OLM4nbXfbN9Xw5TQ7x9sci25NgLlBdgj:z3TnCffpK55CPJ8bZBfMNAU75qGQTJ90GX5oNI+E+chedW4iAqIta8vwYZhHZp90RbfUigdJBw8VjlpL]
   - key: KEYCLOAK_CLIENT_ID
     scope: RUN_AND_BUILD_TIME
   - key: KEYCLOAK_ISSUER
@@ -41,7 +43,7 @@ services:
   - key: OPENAI_API_KEY
     scope: RUN_AND_BUILD_TIME
     type: SECRET
-    value: EV[1:GK9PI1btiFluEcFrVraVr0qK0MDeLORf:S8a5viNg50y36Is4JohuJA==]
+    value: EV[1:z/Enip1HuKR/rOgZismNG9W0q6LyAymv:hvc6b4xT4P6+RITOUe49MGOHFMXQcxDLPWxbbv6lCRYi2dSqE2oaamsUm/bTiFsHouNnLfbXZVHZLWzPN73I6GtKYL5w/TjqS6UCopCsslCmUsX5CAPnHlk=]
   - key: OPENAI_MODEL
     scope: RUN_AND_BUILD_TIME
     value: gpt-4o-mini
@@ -76,15 +78,8 @@ services:
     branch: main
     deploy_on_push: true
     repo: JonazWong/Looper-HQ
-  health_check:
-    failure_threshold: 3
-    http_path: /api/health
-    initial_delay_seconds: 60
-    period_seconds: 30
-    success_threshold: 1
-    timeout_seconds: 10
   http_port: 3000
-  instance_count: 1
-  instance_size_slug: basic-xs
-  name: web
+  instance_count: 2
+  instance_size_slug: apps-s-1vcpu-1gb
+  name: looper-hq
   source_dir: /
