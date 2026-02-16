@@ -87,21 +87,31 @@ GOOGLE_CLIENT_SECRET=<Google OAuth Client Secret>
 
 初次部署大約需要 **5-10 分鐘**。
 
-### 5. 初始化數據
+### 5. 初始化數據（可選）
 
-部署完成後，使用 DigitalOcean Console 或 SSH 執行：
+**🎉 新版本自動創建管理員！**
+
+部署後會自動執行以下操作：
+1. ✅ 同步數據庫 schema（`prisma db push`）
+2. ✅ 自動創建管理員賬戶（如果不存在）
+
+**默認管理員賬號：**
+- Email: `admin@looperhq.hk`
+- Password: 任意密碼（開發模式）
+
+如需創建測試數據（本地開發用），可在 DigitalOcean Console 執行：
 
 ```bash
 pnpm bootstrap:data
 ```
 
-這會創建：
-- 默認法律事務所
-- 管理員賬戶（admin@looper-hq.app / admin123）
-- AI 配置
-- 系統活動日誌
+這會額外創建：
+- 測試法律事務所
+- 測試律師和客戶賬戶
+- 模擬案件數據
+- AI 配置示例
 
-**⚠️ 重要：首次登入後請立即更改密碼！**
+**⚠️ 生產環境不建議運行 `pnpm bootstrap:data`**
 
 ### 6. 驗證部署
 
@@ -276,10 +286,13 @@ curl -X POST https://你的域名/api/translate \
 
 現在你的 Looper-HQ 已成功部署到 DigitalOcean！
 
-訪問：`https://你的域名.ondigitalocean.app`
+訪問：`https://你的域名.ondigitalocean.app` 或 `https://www.looperhq.hk`
 
-默認管理員賬戶：
-- Email: `admin@looper-hq.app`
-- Password: `admin123`
+**默認管理員賬戶（自動創建）：**
+- Email: `admin@looperhq.hk`
+- Password: 任意密碼（當前為開發模式，接受任意密碼）
 
-**請立即更改密碼！** 🔒
+**⚠️ 安全建議：**
+- 生產環境應修改 NextAuth Credentials Provider 以驗證真實密碼
+- 首次登入後設置強密碼
+- 考慮啟用 Google OAuth 或 Keycloak SSO
