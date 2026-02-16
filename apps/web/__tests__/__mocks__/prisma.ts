@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import type { PrismaClient } from '@prisma/client'
+import type { PrismaClient } from '@looper-hq/database'
 
 // Mock Prisma Client
 export const mockPrismaClient = {

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { classifyCase, ClassificationResult } from '@/lib/services/ai-classifier'
-import { CaseCategory } from '@prisma/client'
+import { CaseCategory } from '@looper-hq/database'
 
 // Mock OpenAI
 const mockCreate = vi.fn()
