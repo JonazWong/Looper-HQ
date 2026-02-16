@@ -7,6 +7,9 @@ import {
 import { handleApiError } from '@/lib/api/errors'
 import { requireAuth } from '@/lib/api/auth'
 
+// Force dynamic rendering (required for auth checks)
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/dashboard/stats - Dashboard statistics
  */

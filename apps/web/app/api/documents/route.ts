@@ -13,6 +13,9 @@ import {
   documentFilterSchema 
 } from '@/lib/validations/schemas'
 
+// Force dynamic rendering (required for auth checks)
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/documents - List all documents with filters
  */

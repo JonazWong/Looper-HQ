@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTrendingSearches } from '@/lib/services/search-engine';
 
+// Force dynamic rendering (handles query parameters)
+export const dynamic = 'force-dynamic'
+
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
 

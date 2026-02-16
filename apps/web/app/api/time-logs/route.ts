@@ -13,6 +13,9 @@ import {
   timeLogFilterSchema 
 } from '@/lib/validations/schemas'
 
+// Force dynamic rendering (required for auth checks)
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/time-logs - List all time logs with filters and statistics
  */

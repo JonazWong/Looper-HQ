@@ -9,6 +9,9 @@ import { handleApiError, NotFoundError } from '@/lib/api/errors'
 import { requireAuth } from '@/lib/api/auth'
 import { updateDocumentSchema } from '@/lib/validations/schemas'
 
+// Force dynamic rendering (required for auth checks and dynamic params)
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/documents/[id] - Get document details
  */

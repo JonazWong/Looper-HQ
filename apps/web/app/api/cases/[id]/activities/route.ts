@@ -7,6 +7,9 @@ import {
 import { handleApiError, NotFoundError } from '@/lib/api/errors'
 import { requireAuth } from '@/lib/api/auth'
 
+// Force dynamic rendering (required for auth checks and dynamic params)
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/cases/[id]/activities - Get case activity log
  */

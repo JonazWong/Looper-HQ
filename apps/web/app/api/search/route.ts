@@ -4,6 +4,9 @@ import { search, searchSuggestions } from '@/lib/services/search-engine';
 import { z } from 'zod';
 import { CaseSource } from '@looper-hq/database';
 
+// Force dynamic rendering (handles query parameters)
+export const dynamic = 'force-dynamic'
+
 const searchSchema = z.object({
   q: z.string().min(1, 'Search query is required'),
   source: z.nativeEnum(CaseSource).optional(),

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchSuggestions } from '@/lib/services/search-engine';
 
+// Force dynamic rendering (handles query parameters)
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/search/suggestions - Get search suggestions for autocomplete
  */

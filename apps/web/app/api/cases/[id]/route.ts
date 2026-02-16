@@ -10,6 +10,9 @@ import { handleApiError, NotFoundError } from '@/lib/api/errors'
 import { requireAuth } from '@/lib/api/auth'
 import { updateCaseSchema } from '@/lib/validations/schemas'
 
+// Force dynamic rendering (required for auth checks and dynamic params)
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/cases/[id] - Get case details
  */

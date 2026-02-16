@@ -9,6 +9,9 @@ import { handleApiError } from '@/lib/api/errors'
 import { requireAuth } from '@/lib/api/auth'
 import { caseSchema, paginationSchema, caseFilterSchema } from '@/lib/validations/schemas'
 
+// Force dynamic rendering (required for auth checks)
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/cases - List all cases with filters
  */

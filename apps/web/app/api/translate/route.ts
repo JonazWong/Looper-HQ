@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { translateText, autoTranslate } from '@/lib/services/translator';
 import { z } from 'zod';
 
+// Force dynamic rendering (handles dynamic translation requests)
+export const dynamic = 'force-dynamic'
+
 const translateSchema = z.object({
   text: z.string().min(1),
   direction: z.enum(['zh-to-en', 'en-to-zh', 'auto']).optional().default('auto'),

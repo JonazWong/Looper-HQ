@@ -13,6 +13,9 @@ import {
   invoiceFilterSchema 
 } from '@/lib/validations/schemas'
 
+// Force dynamic rendering (required for auth checks)
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/invoices - List all invoices with filters
  */

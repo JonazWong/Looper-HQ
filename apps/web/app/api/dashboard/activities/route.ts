@@ -8,6 +8,9 @@ import { handleApiError } from '@/lib/api/errors'
 import { requireAuth } from '@/lib/api/auth'
 import { paginationSchema } from '@/lib/validations/schemas'
 
+// Force dynamic rendering (required for auth checks)
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/dashboard/activities - Recent activity feed
  */

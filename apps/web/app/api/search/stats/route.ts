@@ -6,6 +6,9 @@ import {
 } from '@/lib/api/response'
 import { handleApiError } from '@/lib/api/errors'
 
+// Force dynamic rendering (handles query parameters)
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/search/stats - Search statistics
  */

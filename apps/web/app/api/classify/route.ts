@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/api/auth';
 import { classifyCase } from '@/lib/services/ai-classifier';
 
+// Force dynamic rendering (required for auth checks)
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const session = await requireAuth();

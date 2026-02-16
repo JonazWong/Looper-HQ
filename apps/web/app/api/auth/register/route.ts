@@ -3,6 +3,9 @@ import { prisma } from "@/lib/db"
 import { successResponse, errorResponse } from "@/lib/api/response"
 import { z } from "zod"
 
+// Force dynamic rendering (handles POST requests)
+export const dynamic = 'force-dynamic'
+
 const registerSchema = z.object({
   name: z.string().min(2, "姓名至少需要 2 個字符"),
   email: z.string().email("無效的電郵地址"),
