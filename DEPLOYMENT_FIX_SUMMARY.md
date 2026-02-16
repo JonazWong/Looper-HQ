@@ -35,12 +35,11 @@ This PR resolves the Digital Ocean App Platform deployment failures that were oc
 **Fix**: Added complete database configuration:
 ```yaml
 databases:
-  - name: db
+  - name: db-postgresql-sgp1-75753
     engine: PG
     version: "16"
     production: true
-    cluster_name: looper-hq-db
-```
+    cluster_name: looper-hq
 
 ### 4. **Validation Script Issues** ⚠️ → ✅
 **Problem**: 
