@@ -28,7 +28,7 @@ services:
     value: Asia/Hong_Kong
   - key: NEXTAUTH_URL
     scope: RUN_AND_BUILD_TIME
-    value: ${APP_URL}
+    value: https://www.looperhq.hk
   - key: NEXTAUTH_SECRET
     scope: RUN_TIME
     type: SECRET

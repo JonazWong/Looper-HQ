@@ -30,6 +30,9 @@ declare module "next-auth/jwt" {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  // Trust host in production (required for custom domains)
+  trustHost: true,
+  
   providers: [
     // Keycloak OAuth provider (disabled until configured)
     ...(process.env.KEYCLOAK_CLIENT_ID && process.env.KEYCLOAK_ISSUER
