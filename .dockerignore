@@ -1,51 +1,172 @@
-# Node modules
-node_modules/
-npm-debug.log
-yarn-error.log
-pnpm-debug.log
+# =============================================================================
+# Looper HQ - Docker Build Exclusions
+# =============================================================================
+# Files and directories to exclude from Docker build context
+# Optimizes build performance by reducing context size
 
-# Build outputs
+# ==============================================================================
+# Version Control
+# ==============================================================================
+.git/
+.github/
+.gitignore
+.gitattributes
+
+# ==============================================================================
+# Dependencies (will be installed in container)
+# ==============================================================================
+node_modules/
+npm-debug.log*
+yarn-error.log*
+yarn-debug.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# ==============================================================================
+# Build Outputs (will be generated in container)
+# ==============================================================================
 .next/
 dist/
 build/
 out/
-
-# Development files
+*.tsbuildinfo
 .turbo/
-.git/
-.github/
+
+# ==============================================================================
+# Development Files
+# ==============================================================================
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
 
-# Environment files
+# ==============================================================================
+# Environment & Secrets
+# ==============================================================================
 .env
 .env.local
 .env.development
 .env.test
+.env.*.local
+*.key
+*.pem
 
+# ==============================================================================
 # Logs
+# ==============================================================================
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# Documentation
-*.md
-docs/
-
-# Test files
+# ==============================================================================
+# Test & Coverage
+# ==============================================================================
 coverage/
+.nyc_output/
 *.test.ts
 *.test.tsx
 *.spec.ts
 *.spec.tsx
+__tests__/
+**/__tests__/
+test/
+tests/
 
-# Build info
-*.tsbuildinfo
+# ==============================================================================
+# Documentation (not needed in runtime)
+# ==============================================================================
+*.md
+!README.md
+docs/
+.vuepress/
+.docusaurus/
 
-# Infrastructure (not needed in container)
+# ==============================================================================
+# Infrastructure (not needed in app container)
+# ==============================================================================
 infrastructure/deployment/
 infrastructure/monitoring/
 infrastructure/keycloak/
 infrastructure/postgres/
+infrastructure/secrets/
+
+# ==============================================================================
+# Docker Files (avoid recursive Docker builds)
+# ==============================================================================
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# ==============================================================================
+# CI/CD
+# ==============================================================================
+.circleci/
+.travis.yml
+.gitlab-ci.yml
+azure-pipelines.yml
+.drone.yml
+
+# ==============================================================================
+# Legacy/Archive
+# ==============================================================================
+v1_*
+v2_*
+v3_*
+v4_*
+*.backup
+*.bak
+*.old
+
+# ==============================================================================
+# Scripts (not needed in runtime)
+# ==============================================================================
+scripts/
+*.sh
+*.bat
+*.ps1
+
+# ==============================================================================
+# Database Files
+# ==============================================================================
+*.sqlite
+*.sqlite3
+*.db
+
+# ==============================================================================
+# Temporary Files
+# ==============================================================================
+tmp/
+temp/
+*.tmp
+.cache/
+
+# ==============================================================================
+# Package Manager Lock Files (will use pnpm-lock.yaml)
+# ==============================================================================
+package-lock.json
+yarn.lock
+
+# ==============================================================================
+# Editor Configs (not needed in runtime)
+# ==============================================================================
+.editorconfig
+.prettierrc*
+.eslintrc*
+.eslintignore
+tsconfig.*.json
+
+# ==============================================================================
+# Misc Development Tools
+# ==============================================================================
+.husky/
+.commitlintrc*
+.lintstagedrc*
+.nvmrc
+.node-version

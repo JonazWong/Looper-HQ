@@ -1,0 +1,328 @@
+# =============================================================================
+# Looper HQ - Complete Application Stack
+# =============================================================================
+# Production-ready Docker Compose configuration for the full Looper HQ platform
+# including databases, applications, and supporting services.
+#
+# Usage:
+#   Development: docker compose up
+#   Production:  docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+#   With tools:  docker compose --profile tools up
+
+services:
+  # ===========================================================================
+  # Infrastructure Services
+  # ===========================================================================
+
+  # PostgreSQL 16 - Primary Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: looper-hq-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-looper_hq}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+      TZ: Asia/Hong_Kong
+      PGTZ: Asia/Hong_Kong
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - looper-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-looper_hq}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Redis 7 - Cache and Session Storage
+  redis:
+    image: redis:7-alpine
+    container_name: looper-hq-redis
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}
+    environment:
+      TZ: Asia/Hong_Kong
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - looper-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  # ===========================================================================
+  # Application Services
+  # ===========================================================================
+
+  # Web Application - Main Looper HQ Platform
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web-runner
+      args:
+        NODE_ENV: ${NODE_ENV:-production}
+    image: looper-hq/web:latest
+    container_name: looper-hq-web
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-looper_hq}
+      
+      # Redis
+      REDIS_URL: redis://${REDIS_PASSWORD:+:${REDIS_PASSWORD}@}redis:6379
+      
+      # NextAuth
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3005}
+      
+      # Keycloak
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-looper-hq-web}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+      KEYCLOAK_ISSUER: ${KEYCLOAK_FRONTEND_URL:-http://localhost:8080}/realms/${KEYCLOAK_REALM:-looper-hq}
+      
+      # AI Configuration
+      AI_PROVIDER: ${AI_PROVIDER:-openai}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      AI_DEFAULT_LOCALE: ${AI_DEFAULT_LOCALE:-zh-HK}
+      AI_MAX_TOKENS: ${AI_MAX_TOKENS:-2048}
+      AI_TEMPERATURE: ${AI_TEMPERATURE:-0.3}
+      
+      # Application Settings
+      NODE_ENV: ${NODE_ENV:-production}
+      TZ: Asia/Hong_Kong
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+      
+      # Crawler Settings
+      CRAWLER_ENABLED: ${CRAWLER_ENABLED:-true}
+      CRAWLER_SCHEDULE: ${CRAWLER_SCHEDULE:-30 18 * * *}
+      RSS_TIMEOUT: ${RSS_TIMEOUT:-30000}
+      RSS_MAX_RETRIES: ${RSS_MAX_RETRIES:-3}
+      RSS_USER_AGENT: ${RSS_USER_AGENT:-Looper-HQ/2.0 (Hong Kong Legal Case Management)}
+      
+      # Rate Limiting
+      RATE_LIMIT_REQUESTS: ${RATE_LIMIT_REQUESTS:-100}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+    ports:
+      - "${WEB_APP_PORT:-3005}:3000"
+    networks:
+      - looper-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # Legal Case Search Application
+  legal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: legal-runner
+      args:
+        NODE_ENV: ${NODE_ENV:-production}
+    image: looper-hq/legal-case-search:latest
+    container_name: looper-hq-legal
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-looper_hq}
+      
+      # Redis
+      REDIS_URL: redis://${REDIS_PASSWORD:+:${REDIS_PASSWORD}@}redis:6379
+      
+      # NextAuth
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${LEGAL_CASE_NEXTAUTH_URL:-http://localhost:3001}
+      
+      # Keycloak
+      KEYCLOAK_CLIENT_ID: ${LEGAL_CASE_SEARCH_CLIENT_ID:-legal-case-search}
+      KEYCLOAK_CLIENT_SECRET: ${LEGAL_CASE_SEARCH_CLIENT_SECRET}
+      KEYCLOAK_ISSUER: ${KEYCLOAK_FRONTEND_URL:-http://localhost:8080}/realms/${KEYCLOAK_REALM:-looper-hq}
+      
+      # Application Settings
+      NODE_ENV: ${NODE_ENV:-production}
+      TZ: Asia/Hong_Kong
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+    ports:
+      - "${LEGAL_CASE_SEARCH_PORT:-3001}:3000"
+    networks:
+      - looper-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # ===========================================================================
+  # Authentication & Authorization
+  # ===========================================================================
+
+  # Keycloak 23 - Identity and Access Management
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: looper-hq-keycloak
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${KEYCLOAK_DB:-keycloak}
+      KC_DB_USERNAME: ${POSTGRES_USER:-postgres}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      KC_HOSTNAME_STRICT: false
+      KC_HTTP_ENABLED: true
+      KC_FRONTEND_URL: ${KEYCLOAK_FRONTEND_URL:-http://localhost:8080}
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+      TZ: Asia/Hong_Kong
+    command: start-dev --import-realm
+    ports:
+      - "${KEYCLOAK_PORT:-8080}:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+      - ./infrastructure/keycloak/realms:/opt/keycloak/data/import:ro
+    networks:
+      - looper-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 && echo -e 'GET /health/ready HTTP/1.1\r\nhost: 127.0.0.1:8080\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '200 OK'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # ===========================================================================
+  # Development & Management Tools (Profile: tools)
+  # ===========================================================================
+
+  # pgAdmin 4 - Database Management UI
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: looper-hq-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@looper-hq.dev}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+      TZ: Asia/Hong_Kong
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - looper-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://localhost:80/misc/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    profiles:
+      - tools
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+# =============================================================================
+# Persistent Storage
+# =============================================================================
+volumes:
+  postgres_data:
+    driver: local
+    name: looper-hq-postgres-data
+  redis_data:
+    driver: local
+    name: looper-hq-redis-data
+  keycloak_data:
+    driver: local
+    name: looper-hq-keycloak-data
+  pgadmin_data:
+    driver: local
+    name: looper-hq-pgadmin-data
+
+# =============================================================================
+# Networking
+# =============================================================================
+networks:
+  looper-network:
+    driver: bridge
+    name: looper-hq-network
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
