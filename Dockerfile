@@ -59,6 +59,16 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
+# Copy Prisma files for runtime migrations
+COPY --from=builder --chown=nextjs:nodejs /app/packages/database/prisma ./packages/database/prisma
+COPY --from=builder --chown=nextjs:nodejs /app/packages/database/node_modules/.prisma ./packages/database/node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/packages/database/node_modules/@prisma ./packages/database/node_modules/@prisma
+COPY --from=builder --chown=nextjs:nodejs /app/packages/database/package.json ./packages/database/package.json
+
+# Copy startup script
+COPY --chown=nextjs:nodejs scripts/startup.sh ./scripts/startup.sh
+RUN chmod +x ./scripts/startup.sh
+
 # Switch to non-root user
 USER nextjs
 
@@ -69,5 +79,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
 
-# Start the application
-CMD ["node", "apps/web/server.js"]
+# Start the application with migration support
+CMD ["sh", "./scripts/startup.sh"]
