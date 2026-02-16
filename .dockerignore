@@ -127,8 +127,11 @@ v4_*
 # ==============================================================================
 # Scripts (not needed in runtime)
 # ==============================================================================
-scripts/
+# Ignore most scripts except startup.sh
+scripts/*
+!scripts/startup.sh
 *.sh
+!scripts/startup.sh
 *.bat
 *.ps1
 
