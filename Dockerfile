@@ -34,6 +34,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Turborepo handles dependency graph and parallel builds automatically
 RUN pnpm turbo build --filter=@looper-hq/web
 
+# Re-generate Prisma Client with correct binary targets for production
+RUN cd packages/database && npx prisma generate
+
 # =============================================================================
 # Stage 2: Web App Runner - Production runtime for @looper-hq/web (port 3000)
 # =============================================================================
@@ -62,16 +65,15 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-# Copy Prisma schema from builder stage for runtime migrations
+# Copy Prisma schema for runtime operations
 COPY --from=builder /app/packages/database/prisma ./packages/database/prisma
 COPY --from=builder /app/packages/database/package.json ./packages/database/package.json
 
-# Copy Prisma Client with Query Engine binaries (CRITICAL for runtime)
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-
-# Install ONLY Prisma CLI and tsx (as root, before switching to nextjs user)
-RUN cd packages/database && pnpm add -D prisma@5.17.0 tsx@4.7.0
+# Install Prisma CLI, tsx, and runtime dependencies
+RUN cd packages/database && \
+    pnpm add -D prisma@5.17.0 tsx@4.7.0 && \
+    pnpm add @prisma/client@5.17.0 && \
+    npx prisma generate
 
 # Copy startup script from build context
 COPY scripts/startup.sh ./scripts/startup.sh
