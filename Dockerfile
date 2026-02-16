@@ -62,16 +62,19 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-# Copy Prisma schema and install Prisma CLI for migrations
-COPY --chown=nextjs:nodejs packages/database/prisma ./packages/database/prisma
-COPY --chown=nextjs:nodejs packages/database/package.json ./packages/database/package.json
+# Copy Prisma schema from builder stage for runtime migrations
+COPY --from=builder /app/packages/database/prisma ./packages/database/prisma
+COPY --from=builder /app/packages/database/package.json ./packages/database/package.json
 
 # Install ONLY Prisma CLI (as root, before switching to nextjs user)
 RUN cd packages/database && pnpm add -D prisma@5.17.0
 
-# Copy startup script
-COPY --chown=nextjs:nodejs scripts/startup.sh ./scripts/startup.sh
+# Copy startup script from build context
+COPY scripts/startup.sh ./scripts/startup.sh
 RUN chmod +x ./scripts/startup.sh
+
+# Change ownership after all files are copied
+RUN chown -R nextjs:nodejs /app
 
 # Switch to non-root user
 USER nextjs
