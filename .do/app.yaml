@@ -83,7 +83,7 @@ services:
     period_seconds: 30
     success_threshold: 1
     timeout_seconds: 10
-  http_port: 3005
+  http_port: 3000
   instance_count: 1
   instance_size_slug: basic-xs
   name: web
