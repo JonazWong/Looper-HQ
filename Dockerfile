@@ -66,6 +66,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 COPY --from=builder /app/packages/database/prisma ./packages/database/prisma
 COPY --from=builder /app/packages/database/package.json ./packages/database/package.json
 
+# Copy Prisma Client with Query Engine binaries (CRITICAL for runtime)
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
 # Install ONLY Prisma CLI and tsx (as root, before switching to nextjs user)
 RUN cd packages/database && pnpm add -D prisma@5.17.0 tsx@4.7.0
 
