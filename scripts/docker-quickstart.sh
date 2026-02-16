@@ -32,7 +32,7 @@ check_prerequisites() {
     exit 1
   fi
   
-  if ! command -v docker compose &> /dev/null; then
+  if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null 2>&1; then
     log_error "Docker Compose is not available."
     exit 1
   fi
@@ -57,10 +57,10 @@ start_services() {
   
   if [[ "$mode" == "dev" ]]; then
     log_info "Starting infrastructure services only (databases, auth)..."
-    docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+    docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
   else
     log_info "Building and starting all services..."
-    docker compose up -d --build
+    docker-compose up -d --build
   fi
 }
 
@@ -72,7 +72,7 @@ wait_for_services() {
   local attempt=0
   
   while [[ $attempt -lt $max_attempts ]]; do
-    if docker compose ps | grep -q "unhealthy"; then
+    if docker-compose ps | grep -q "unhealthy"; then
       ((attempt++))
       echo -n "."
       sleep 2
@@ -100,23 +100,23 @@ show_urls() {
   echo "  🔐 Keycloak:        http://localhost:8080"
   echo ""
   
-  if docker compose ps | grep -q "looper-hq-web"; then
+  if docker-compose ps | grep -q "looper-hq-web"; then
     echo "  🌐 Web App:         http://localhost:3005"
   fi
   
-  if docker compose ps | grep -q "looper-hq-legal"; then
+  if docker-compose ps | grep -q "looper-hq-legal"; then
     echo "  ⚖️  Legal Search:    http://localhost:3001"
   fi
   
-  if docker compose ps | grep -q "looper-hq-pgadmin"; then
+  if docker-compose ps | grep -q "looper-hq-pgadmin"; then
     echo "  📊 pgAdmin:         http://localhost:5050"
   fi
   
   echo ""
   echo "Useful commands:"
-  echo "  View logs:          docker compose logs -f"
-  echo "  Stop services:      docker compose down"
-  echo "  Restart:            docker compose restart"
+  echo "  View logs:          docker-compose logs -f"
+  echo "  Stop services:      docker-compose down"
+  echo "  Restart:            docker-compose restart"
   echo ""
 }
 
