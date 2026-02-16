@@ -44,6 +44,9 @@ RUN apk add --no-cache curl openssl
 
 WORKDIR /app
 
+# Install pnpm for Prisma CLI installation
+RUN corepack enable && corepack prepare pnpm@9.15.2 --activate
+
 # Set production environment
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -59,11 +62,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-# Copy Prisma files for runtime migrations
-COPY --from=builder --chown=nextjs:nodejs /app/packages/database/prisma ./packages/database/prisma
-COPY --from=builder --chown=nextjs:nodejs /app/packages/database/node_modules/.prisma ./packages/database/node_modules/.prisma
-COPY --from=builder --chown=nextjs:nodejs /app/packages/database/node_modules/@prisma ./packages/database/node_modules/@prisma
-COPY --from=builder --chown=nextjs:nodejs /app/packages/database/package.json ./packages/database/package.json
+# Copy Prisma schema and install Prisma CLI for migrations
+COPY --chown=nextjs:nodejs packages/database/prisma ./packages/database/prisma
+COPY --chown=nextjs:nodejs packages/database/package.json ./packages/database/package.json
+
+# Install ONLY Prisma CLI (as root, before switching to nextjs user)
+RUN cd packages/database && pnpm add -D prisma@5.17.0
 
 # Copy startup script
 COPY --chown=nextjs:nodejs scripts/startup.sh ./scripts/startup.sh

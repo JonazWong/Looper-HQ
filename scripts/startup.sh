@@ -18,16 +18,19 @@ echo "✅ DATABASE_URL is configured"
 echo "📊 Syncing database schema..."
 if [ -d "/app/packages/database/prisma" ]; then
   cd /app/packages/database
-  # Use the Prisma CLI from standalone output
-  node ../../apps/web/node_modules/.bin/prisma db push --accept-data-loss --skip-generate || {
-    echo "⚠️  Schema sync failed, but continuing startup..."
-    echo "   Database tables might be missing - check DATABASE_URL"
+  
+  # Run db push using the Prisma CLI we installed
+  npx prisma db push --accept-data-loss --skip-generate 2>&1 || {
+    EXITCODE=$?
+    echo "⚠️  Schema sync failed with exit code $EXITCODE"
+    echo "   Continuing startup anyway - check DATABASE_URL and network connectivity"
   }
+  
   echo "✅ Database schema sync completed"
+  cd /app
 else
   echo "⚠️  Prisma directory not found, skipping schema sync"
 fi
 
 echo "🌐 Starting Next.js server on port ${PORT:-3000}..."
-cd /app
 exec node apps/web/server.js
