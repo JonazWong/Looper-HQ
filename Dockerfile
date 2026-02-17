@@ -60,15 +60,20 @@ ENV HOSTNAME="0.0.0.0"
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy Next.js standalone output (includes all runtime dependencies including Prisma Client)
+# Copy Next.js standalone output (includes all runtime dependencies)
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-# Copy Prisma schema for startup.sh db push
+# Copy Prisma schema for both runtime and startup scripts
 COPY --from=builder /app/packages/database/prisma ./prisma
 
-# Install Prisma CLI and tsx in separate /tools directory for startup scripts
+# Install Prisma Client in /app for Next.js runtime
+RUN echo '{"name":"looper-hq-runtime","private":true}' > package.json && \
+    pnpm add @prisma/client@5.17.0 && \
+    pnpm exec prisma generate --schema=./prisma/schema.prisma
+
+# Install Prisma CLI and tsx in /tools directory for startup scripts
 RUN mkdir -p /tools && cd /tools && \
     echo '{"name":"tools","private":true}' > package.json && \
     pnpm add -D prisma@5.17.0 tsx@4.7.0
