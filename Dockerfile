@@ -65,10 +65,13 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-# Copy Prisma schema and generated client from builder
+# Copy Prisma Client to where Next.js expects it (for runtime queries)
+COPY --from=builder /app/packages/database/node_modules/.prisma ./apps/web/.prisma
+COPY --from=builder /app/packages/database/node_modules/@prisma ./apps/web/node_modules/@prisma
+
+# Copy Prisma schema and complete node_modules for startup.sh scripts
 COPY --from=builder /app/packages/database/prisma ./packages/database/prisma
 COPY --from=builder /app/packages/database/package.json ./packages/database/package.json
-# Copy complete node_modules including Prisma Client, CLI, and tsx
 COPY --from=builder /app/packages/database/node_modules ./packages/database/node_modules
 
 # Copy startup script from build context
