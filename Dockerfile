@@ -34,8 +34,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Turborepo handles dependency graph and parallel builds automatically
 RUN pnpm turbo build --filter=@looper-hq/web
 
-# Re-generate Prisma Client with correct binary targets for production
-RUN cd packages/database && npx prisma generate
+# Re-generate Prisma Client with correct binary targets for production (pinned Prisma 5)
+RUN cd packages/database && npx prisma@5.17.0 generate
 
 # =============================================================================
 # Stage 2: Web App Runner - Production runtime for @looper-hq/web (port 3000)
@@ -73,7 +73,7 @@ COPY --from=builder /app/packages/database/package.json ./packages/database/pack
 RUN cd packages/database && \
     pnpm add -D prisma@5.17.0 tsx@4.7.0 && \
     pnpm add @prisma/client@5.17.0 && \
-    npx prisma generate
+    npx prisma@5.17.0 generate
 
 # Copy startup script from build context
 COPY scripts/startup.sh ./scripts/startup.sh

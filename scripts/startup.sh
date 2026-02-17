@@ -19,8 +19,8 @@ echo "📊 Syncing database schema..."
 if [ -d "/app/packages/database/prisma" ]; then
   cd /app/packages/database
   
-  # Run db push using the Prisma CLI we installed
-  npx prisma db push --accept-data-loss --skip-generate 2>&1 || {
+  # Run db push using the pinned Prisma CLI we installed
+  npx prisma@5.17.0 db push --accept-data-loss --skip-generate 2>&1 || {
     EXITCODE=$?
     echo "⚠️  Schema sync failed with exit code $EXITCODE"
     echo "   Continuing startup anyway - check DATABASE_URL and network connectivity"
