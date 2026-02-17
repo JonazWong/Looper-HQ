@@ -70,7 +70,7 @@ COPY --from=builder /app/packages/database/prisma ./prisma
 
 # Install Prisma CLI and tsx in separate /tools directory for startup scripts
 RUN mkdir -p /tools && cd /tools && \
-    pnpm init -y && \
+    echo '{"name":"tools","private":true}' > package.json && \
     pnpm add -D prisma@5.17.0 tsx@4.7.0
 
 # Copy seed script for admin creation
