@@ -71,9 +71,8 @@ COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
 # Copy Prisma schema for startup scripts
 COPY --from=builder /app/packages/database/prisma ./prisma
 
-# Install only Prisma CLI and tsx in /tools directory for startup scripts (lightweight)
-RUN mkdir -p /tools && cd /tools && \
-    echo '{"name":"tools","private":true}' > package.json && \
+# Install Prisma CLI and tsx in /app for startup scripts (creates /app/node_modules/.bin/)
+RUN echo '{"name":"looper-hq-runtime","private":true}' > package.json && \
     pnpm add -D prisma@5.17.0 tsx@4.7.0
 
 # Copy seed script for admin creation
