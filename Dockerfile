@@ -65,15 +65,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-# Copy Prisma schema for runtime operations
+# Copy Prisma schema and generated client from builder
 COPY --from=builder /app/packages/database/prisma ./packages/database/prisma
 COPY --from=builder /app/packages/database/package.json ./packages/database/package.json
-
-# Install Prisma CLI, tsx, and runtime dependencies
-RUN cd packages/database && \
-    pnpm add -D prisma@5.17.0 tsx@4.7.0 && \
-    pnpm add @prisma/client@5.17.0 && \
-    ./node_modules/.bin/prisma generate
+# Copy complete node_modules including Prisma Client, CLI, and tsx
+COPY --from=builder /app/packages/database/node_modules ./packages/database/node_modules
 
 # Copy startup script from build context
 COPY scripts/startup.sh ./scripts/startup.sh
