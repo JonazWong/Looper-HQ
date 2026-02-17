@@ -16,11 +16,11 @@ echo "✅ DATABASE_URL is configured"
 
 # Sync database schema (using db push since project doesn't use migrations)
 echo "📊 Syncing database schema..."
-if [ -d "/app/packages/database/prisma" ]; then
-  cd /app/packages/database
+if [ -d "/app/prisma" ]; then
+  cd /app
   
-  # Run db push using the pinned Prisma CLI we installed
-  ./node_modules/.bin/prisma db push --accept-data-loss --skip-generate 2>&1 || {
+  # Run db push using Prisma CLI from /tools
+  /tools/node_modules/.bin/prisma db push --accept-data-loss --skip-generate --schema=./prisma/schema.prisma 2>&1 || {
     EXITCODE=$?
     echo "⚠️  Schema sync failed with exit code $EXITCODE"
     echo "   Continuing startup anyway - check DATABASE_URL and network connectivity"
@@ -30,11 +30,9 @@ if [ -d "/app/packages/database/prisma" ]; then
   
   # Create admin user if database is empty
   echo "🔐 Checking for admin user..."
-  ./node_modules/.bin/tsx prisma/seed-admin.ts 2>&1 || {
+  /tools/node_modules/.bin/tsx ./prisma/seed-admin.ts 2>&1 || {
     echo "⚠️  Admin creation skipped or failed (this is OK if users already exist)"
   }
-  
-  cd /app
 else
   echo "⚠️  Prisma directory not found, skipping schema sync"
 fi

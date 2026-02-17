@@ -60,19 +60,21 @@ ENV HOSTNAME="0.0.0.0"
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy Next.js standalone output (includes all runtime dependencies)
+# Copy Next.js standalone output (includes all runtime dependencies including Prisma Client)
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-# Copy Prisma Client to where Next.js expects it (for runtime queries)
-COPY --from=builder /app/packages/database/node_modules/.prisma ./apps/web/.prisma
-COPY --from=builder /app/packages/database/node_modules/@prisma ./apps/web/node_modules/@prisma
+# Copy Prisma schema for startup.sh db push
+COPY --from=builder /app/packages/database/prisma ./prisma
 
-# Copy Prisma schema and complete node_modules for startup.sh scripts
-COPY --from=builder /app/packages/database/prisma ./packages/database/prisma
-COPY --from=builder /app/packages/database/package.json ./packages/database/package.json
-COPY --from=builder /app/packages/database/node_modules ./packages/database/node_modules
+# Install Prisma CLI and tsx in separate /tools directory for startup scripts
+RUN mkdir -p /tools && cd /tools && \
+    pnpm init -y && \
+    pnpm add -D prisma@5.17.0 tsx@4.7.0
+
+# Copy seed script for admin creation
+COPY --from=builder /app/packages/database/prisma/seed-admin.ts ./prisma/seed-admin.ts
 
 # Copy startup script from build context
 COPY scripts/startup.sh ./scripts/startup.sh
