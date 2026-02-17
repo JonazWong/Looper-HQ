@@ -20,7 +20,7 @@ if [ -d "/app/packages/database/prisma" ]; then
   cd /app/packages/database
   
   # Run db push using the pinned Prisma CLI we installed
-  npx prisma@5.17.0 db push --accept-data-loss --skip-generate 2>&1 || {
+  pnpm exec prisma db push --accept-data-loss --skip-generate 2>&1 || {
     EXITCODE=$?
     echo "⚠️  Schema sync failed with exit code $EXITCODE"
     echo "   Continuing startup anyway - check DATABASE_URL and network connectivity"
@@ -30,7 +30,7 @@ if [ -d "/app/packages/database/prisma" ]; then
   
   # Create admin user if database is empty
   echo "🔐 Checking for admin user..."
-  npx tsx prisma/seed-admin.ts 2>&1 || {
+  pnpm exec tsx prisma/seed-admin.ts 2>&1 || {
     echo "⚠️  Admin creation skipped or failed (this is OK if users already exist)"
   }
   

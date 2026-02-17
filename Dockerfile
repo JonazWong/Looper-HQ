@@ -35,7 +35,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm turbo build --filter=@looper-hq/web
 
 # Re-generate Prisma Client with correct binary targets for production (pinned Prisma 5)
-RUN cd packages/database && npx prisma@5.17.0 generate
+RUN cd packages/database && pnpm exec prisma generate
 
 # =============================================================================
 # Stage 2: Web App Runner - Production runtime for @looper-hq/web (port 3000)
@@ -73,7 +73,7 @@ COPY --from=builder /app/packages/database/package.json ./packages/database/pack
 RUN cd packages/database && \
     pnpm add -D prisma@5.17.0 tsx@4.7.0 && \
     pnpm add @prisma/client@5.17.0 && \
-    npx prisma@5.17.0 generate
+    pnpm exec prisma generate
 
 # Copy startup script from build context
 COPY scripts/startup.sh ./scripts/startup.sh
