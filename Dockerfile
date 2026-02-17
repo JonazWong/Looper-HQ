@@ -68,9 +68,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 # Copy Prisma schema for both runtime and startup scripts
 COPY --from=builder /app/packages/database/prisma ./prisma
 
-# Install Prisma Client in /app for Next.js runtime
+# Install Prisma Client and CLI in /app for Next.js runtime
 RUN echo '{"name":"looper-hq-runtime","private":true}' > package.json && \
-    pnpm add @prisma/client@5.17.0 && \
+    pnpm add @prisma/client@5.17.0 -D prisma@5.17.0 && \
     pnpm exec prisma generate --schema=./prisma/schema.prisma
 
 # Install Prisma CLI and tsx in /tools directory for startup scripts
