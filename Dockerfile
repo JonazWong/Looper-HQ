@@ -67,6 +67,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 # Copy pre-generated Prisma Client from builder (avoids memory-intensive regeneration)
 COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Copy Prisma schema for startup scripts
 COPY --from=builder /app/packages/database/prisma ./prisma
