@@ -67,7 +67,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 # Copy pre-generated Prisma Client from builder (avoids memory-intensive regeneration)
 COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# Create symlink for @prisma/client so tsx can find it
+RUN mkdir -p node_modules/@prisma && \
+    ln -sf /app/node_modules/.pnpm/@prisma+client@5.17.0_prisma@5.17.0/node_modules/@prisma/client node_modules/@prisma/client
 
 # Copy Prisma schema for startup scripts
 COPY --from=builder /app/packages/database/prisma ./prisma
