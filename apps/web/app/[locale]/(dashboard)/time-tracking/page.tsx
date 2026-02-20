@@ -250,7 +250,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
             Track billable hours and manage time logs
           </p>
         </div>
-        <PremierButton variant="primary" icon={Plus}>
+        <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
           Add Time Log
         </PremierButton>
       </div>
@@ -260,24 +260,24 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
         <StatCard
           title="Total Hours"
           value={stats.totalHours.toFixed(2)}
-          icon={Clock}
+          icon={<Clock className="h-4 w-4" />}
         />
         <StatCard
           title="Billable Hours"
           value={stats.billableHours.toFixed(2)}
-          icon={CheckCircle2}
+          icon={<CheckCircle2 className="h-4 w-4" />}
           variant="success"
         />
         <StatCard
           title="Total Revenue"
           value={`HKD ${stats.totalRevenue.toLocaleString()}`}
-          icon={DollarSign}
+          icon={<DollarSign className="h-4 w-4" />}
           variant="success"
         />
         <StatCard
           title="Time Entries"
           value={stats.totalLogs}
-          icon={Calendar}
+          icon={<Calendar className="h-4 w-4" />}
         />
       </div>
 
@@ -341,7 +341,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
             </div>
 
             <div className="flex gap-2">
-              <PremierButton type="submit" variant="primary" icon={Filter} size="sm">
+              <PremierButton type="submit" variant="primary" icon={<Filter className="h-4 w-4" />} size="sm">
                 Apply Filters
               </PremierButton>
               <Link href="/time-tracking">
@@ -349,7 +349,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
                   Clear Filters
                 </PremierButton>
               </Link>
-              <PremierButton type="button" variant="ghost" icon={Download} size="sm">
+              <PremierButton type="button" variant="ghost" icon={<Download className="h-4 w-4" />} size="sm">
                 Export
               </PremierButton>
             </div>
@@ -380,7 +380,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
                   ? 'Try adjusting your filters to find what you\'re looking for.'
                   : 'Get started by adding your first time log.'}
               </p>
-              <PremierButton variant="primary" icon={Plus}>
+              <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
                 Add Time Log
               </PremierButton>
             </div>

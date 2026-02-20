@@ -165,7 +165,7 @@ export async function PATCH(
       data: {
         userId: session.user.id,
         caseId: updatedCase.id,
-        type: 'CASE_UPDATED',
+        activityType: 'CASE_UPDATED',
         action: 'updated',
         description: `Updated case: ${updatedCase.title_zh} / ${updatedCase.title_en}`,
       },
@@ -211,7 +211,7 @@ export async function DELETE(
       data: {
         userId: session.user.id,
         caseId: archivedCase.id,
-        type: 'CASE_UPDATED',
+        activityType: 'CASE_UPDATED',
         action: 'archived',
         description: `Archived case: ${archivedCase.title_zh} / ${archivedCase.title_en}`,
       },

@@ -111,10 +111,10 @@ async function main() {
   await prisma.activity.create({
     data: {
       userId: adminUser.id,
-      type: 'CASE_CREATED',
+      activityType: 'CASE_CREATED',
       action: 'SYSTEM_BOOTSTRAP',
       description: `Initial system bootstrap completed - AI: ${aiProvider}/${aiModel}`,
-      metadata: {
+      metaData: {
         aiProvider,
         aiModel,
         aiLocale,

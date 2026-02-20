@@ -29,3 +29,7 @@ backups/
 packages/migration/logs/
 packages/migration/data/backups/
 packages/migration/data/transformed/
+
+# Page snapshots (preview tools)
+snapshots/
+reference/

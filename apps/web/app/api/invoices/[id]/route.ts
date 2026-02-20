@@ -125,7 +125,7 @@ export async function PATCH(
       data: {
         userId: session.user.id,
         caseId: existingInvoice.caseId,
-        type: 'PAYMENT_RECEIVED',
+        activityType: 'PAYMENT_RECEIVED',
         action: 'updated',
         description: `Updated invoice: ${existingInvoice.invoiceNumber}`,
       },
@@ -167,7 +167,7 @@ export async function DELETE(
       data: {
         userId: session.user.id,
         caseId: invoice.caseId,
-        type: 'PAYMENT_RECEIVED',
+        activityType: 'PAYMENT_RECEIVED',
         action: 'deleted',
         description: `Deleted invoice: ${invoice.invoiceNumber}`,
       },

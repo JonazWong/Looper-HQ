@@ -7,7 +7,7 @@
 
 import * as React from 'react'
 import { motion, HTMLMotionProps } from 'framer-motion'
-import { LucideIcon, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 import { buttonHoverVariants } from '@/lib/animations'
@@ -43,7 +43,7 @@ type MotionButtonProps = Omit<HTMLMotionProps<'button'>, 'ref' | 'children'>
 export interface PremierButtonProps
   extends MotionButtonProps,
     VariantProps<typeof premierButtonVariants> {
-  icon?: LucideIcon
+  icon?: React.ReactNode
   iconPosition?: 'left' | 'right'
   loading?: boolean
   children?: React.ReactNode
@@ -54,13 +54,13 @@ export interface PremierButtonProps
  * 
  * @example
  * ```tsx
- * <PremierButton variant="primary" icon={Plus}>
+ * <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
  *   New Case
  * </PremierButton>
  * ```
  */
 export const PremierButton = React.forwardRef<HTMLButtonElement, PremierButtonProps>(
-  ({ className, variant, size, icon: Icon, iconPosition = 'left', loading, children, ...props }, ref) => {
+  ({ className, variant, size, icon, iconPosition = 'left', loading, children, ...props }, ref) => {
     return (
       <motion.button
         className={cn(premierButtonVariants({ variant, size, className }))}
@@ -72,9 +72,9 @@ export const PremierButton = React.forwardRef<HTMLButtonElement, PremierButtonPr
         {...props}
       >
         {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-        {!loading && Icon && iconPosition === 'left' && <Icon className="h-4 w-4" />}
+        {!loading && icon && iconPosition === 'left' && icon}
         {children}
-        {!loading && Icon && iconPosition === 'right' && <Icon className="h-4 w-4" />}
+        {!loading && icon && iconPosition === 'right' && icon}
       </motion.button>
     )
   }

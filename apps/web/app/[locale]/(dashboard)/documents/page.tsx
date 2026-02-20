@@ -208,7 +208,7 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
             Manage and organize all case documents
           </p>
         </div>
-        <PremierButton variant="primary" icon={Upload}>
+        <PremierButton variant="primary" icon={<Upload className="h-4 w-4" />}>
           Upload Document
         </PremierButton>
       </div>
@@ -218,22 +218,22 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
         <StatCard
           title="Total Documents"
           value={stats.totalDocuments}
-          icon={FileText}
+          icon={<FileText className="h-4 w-4" />}
         />
         <StatCard
           title="Contracts"
           value={stats.contractsCount}
-          icon={File}
+          icon={<File className="h-4 w-4" />}
         />
         <StatCard
           title="Evidence"
           value={stats.evidenceCount}
-          icon={FolderOpen}
+          icon={<FolderOpen className="h-4 w-4" />}
         />
         <StatCard
           title="Storage Used"
           value={formatFileSize(stats.totalSize)}
-          icon={FileText}
+          icon={<FileText className="h-4 w-4" />}
         />
       </div>
 
@@ -316,7 +316,7 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                   ? 'Try adjusting your filters to find what you\'re looking for.'
                   : 'Get started by uploading your first document.'}
               </p>
-              <PremierButton variant="primary" icon={Upload}>
+              <PremierButton variant="primary" icon={<Upload className="h-4 w-4" />}>
                 Upload Document
               </PremierButton>
             </div>
@@ -396,12 +396,12 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                               <PremierButton 
                                 variant="ghost" 
                                 size="icon" 
-                                icon={Eye}
+                                icon={<Eye className="h-4 w-4" />}
                               />
                               <PremierButton 
                                 variant="ghost" 
                                 size="icon" 
-                                icon={Download}
+                                icon={<Download className="h-4 w-4" />}
                               />
                             </div>
                           </TableCell>

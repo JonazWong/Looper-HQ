@@ -143,7 +143,7 @@ model Client {
   userId String?
 
   // Personal/Company Info
-  type        ClientType @default(INDIVIDUAL)
+  clientType  ClientType @default(INDIVIDUAL)
   fullName    String
   companyName String?
   idNumber    String?    @unique
@@ -247,10 +247,10 @@ model Activity {
   case   Case?   @relation(fields: [caseId], references: [id])
 
   // Activity Details
-  type        ActivityType
-  action      String
-  description String?      @db.Text
-  metadata    Json? // Additional data
+  activityType ActivityType
+  action       String
+  description  String?      @db.Text
+  metaData     Json? // Additional data (renamed from metadata to avoid SQLAlchemy conflict)
 
   // Timestamp
   createdAt DateTime @default(now())
@@ -463,10 +463,10 @@ model LegalDocument {
   uploadedBy   User   @relation(fields: [uploadedById], references: [id])
 
   // File info
-  name String
-  type String // MIME type
-  size Int // bytes
-  url  String // Storage URL
+  name     String
+  fileType String // MIME type (renamed from type to avoid Python/SQLAlchemy conflict)
+  size     Int    // bytes
+  url      String // Storage URL
 
   // Timestamps
   createdAt DateTime @default(now())

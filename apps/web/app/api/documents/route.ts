@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
         data: {
           userId: session.user.id,
           caseId: data.caseId,
-          type: 'DOCUMENT_UPLOADED',
+          activityType: 'DOCUMENT_UPLOADED',
           action: 'uploaded',
           description: `Uploaded document: ${data.fileName}`,
         },

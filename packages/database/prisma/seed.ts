@@ -158,7 +158,7 @@ async function main() {
     data: [
       {
         userId: client1.id,
-        type: 'INDIVIDUAL',
+        clientType: 'INDIVIDUAL',
         fullName: 'Wong Tai Man',
         email: 'wong.client@example.com',
         phone: '+852 9456 7890',
@@ -168,7 +168,7 @@ async function main() {
       },
       {
         userId: client2.id,
-        type: 'INDIVIDUAL',
+        clientType: 'INDIVIDUAL',
         fullName: 'Li Ka Shing',
         email: 'li.family@example.com',
         phone: '+852 9567 8901',
@@ -178,7 +178,7 @@ async function main() {
       },
       {
         userId: client3.id,
-        type: 'COMPANY',
+        clientType: 'COMPANY',
         fullName: 'John Chan',
         companyName: 'ABC Limited',
         email: 'abc.ltd@example.com',
@@ -316,7 +316,7 @@ async function main() {
       {
         userId: lawyer1.id,
         caseId: case1.id,
-        type: 'CASE_CREATED',
+        activityType: 'CASE_CREATED',
         action: 'filed',
         description: 'New case: Wong v. Chan Property Dispute',
         createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
@@ -324,7 +324,7 @@ async function main() {
       {
         userId: lawyer2.id,
         caseId: case3.id,
-        type: 'DOCUMENT_UPLOADED',
+        activityType: 'DOCUMENT_UPLOADED',
         action: 'updated',
         description: 'Case documents uploaded for HK-2026-003',
         createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
@@ -332,7 +332,7 @@ async function main() {
       {
         userId: staff.id,
         caseId: case2.id,
-        type: 'MEETING_SCHEDULED',
+        activityType: 'MEETING_SCHEDULED',
         action: 'scheduled',
         description: 'Court hearing for Li Family Trust',
         createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000),
@@ -340,14 +340,14 @@ async function main() {
       {
         userId: lawyer2.id,
         caseId: case4.id,
-        type: 'CASE_CLOSED',
+        activityType: 'CASE_CLOSED',
         action: 'completed',
         description: 'Settlement reached in employment dispute',
         createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
       },
       {
         userId: admin.id,
-        type: 'CLIENT_ADDED',
+        activityType: 'CLIENT_ADDED',
         action: 'created',
         description: 'New client profile: ABC Limited',
         createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
@@ -629,7 +629,7 @@ async function main() {
         caseId: case1.id,
         uploadedById: lawyer1.id,
         name: 'property_survey_report.pdf',
-        type: 'application/pdf',
+        fileType: 'application/pdf',
         size: 2456789,
         url: '/uploads/documents/property_survey_report.pdf',
       },
@@ -637,7 +637,7 @@ async function main() {
         caseId: case1.id,
         uploadedById: lawyer1.id,
         name: 'boundary_agreement_draft.docx',
-        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        fileType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         size: 156234,
         url: '/uploads/documents/boundary_agreement_draft.docx',
       },
@@ -645,7 +645,7 @@ async function main() {
         caseId: case2.id,
         uploadedById: lawyer2.id,
         name: 'trust_deed.pdf',
-        type: 'application/pdf',
+        fileType: 'application/pdf',
         size: 3456789,
         url: '/uploads/documents/trust_deed.pdf',
       },

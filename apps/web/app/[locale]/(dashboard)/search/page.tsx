@@ -209,17 +209,17 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
           <StatCard
             title="Search Results"
             value={totalResults}
-            icon={SearchIcon}
+            icon={<SearchIcon className="h-4 w-4" />}
           />
           <StatCard
             title="Search Query"
             value={resolvedSearchParams.q || 'Filtered'}
-            icon={FileText}
+            icon={<FileText className="h-4 w-4" />}
           />
           <StatCard
             title="Filters Applied"
             value={(resolvedSearchParams.category ? 1 : 0) + (resolvedSearchParams.status ? 1 : 0)}
-            icon={AlertCircle}
+            icon={<AlertCircle className="h-4 w-4" />}
           />
         </div>
       )}

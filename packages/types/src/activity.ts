@@ -18,10 +18,10 @@ export interface Activity {
   id: string;
   userId: string;
   caseId: string | null;
-  type: ActivityType;
+  activityType: ActivityType; // Renamed from 'type' to avoid Python/SQLAlchemy conflict
   action: string;
   description: string | null;
-  metadata: any | null;
+  metaData: any | null; // Renamed from 'metadata' to avoid SQLAlchemy conflict
   createdAt: Date;
 }
 
@@ -41,8 +41,8 @@ export interface ActivityWithRelations extends Activity {
 export interface ActivityCreateInput {
   userId: string;
   caseId?: string;
-  type: ActivityType;
+  activityType: ActivityType; // Renamed from 'type'
   action: string;
   description?: string;
-  metadata?: any;
+  metaData?: any; // Renamed from 'metadata'
 }

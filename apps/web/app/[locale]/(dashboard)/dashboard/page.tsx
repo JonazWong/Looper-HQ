@@ -165,7 +165,7 @@ async function getRecentActivities() {
       action: activity.action,
       description: activity.description || `${activity.action} - ${activity.case ? (activity.case.title_zh || activity.case.title_en || 'Unknown Case') : 'System'}`,
       timestamp: activity.createdAt.toISOString(),
-      iconType: activity.type, // Send icon type instead of component
+      iconType: activity.activityType, // Send icon type instead of component
     }))
     
     return formattedActivities

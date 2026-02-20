@@ -83,10 +83,10 @@ export async function migrateCases(prisma: PrismaClient, logger: Logger) {
             data: {
               userId: caseData.clientId,
               caseId: createdCase.id,
-              type: 'CASE_CREATED',
+              activityType: 'CASE_CREATED',
               action: 'Data Migration',
               description: `Migrated case from legacy system`,
-              metadata: caseData.metadata
+              metaData: caseData.metadata
             }
           })
           

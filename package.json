@@ -42,6 +42,8 @@
     "crawler:health": "tsx scripts/crawlers/health-check.ts",
     "crawler:check": "tsx scripts/check-crawler-data.ts",
     "test:rss": "tsx scripts/test-rss-sources.ts",
+    "preview": "tsx scripts/preview-page.ts",
+    "snapshot": "tsx scripts/snapshot-page.ts",
     "do:check": "bash scripts/do-bootstrap.sh",
     "close-issues": "node scripts/close-automated-issues.js",
     "close-issues:bash": "./scripts/close-automated-issues.sh"
@@ -51,6 +53,8 @@
     "@types/node": "^20.10.6",
     "axios": "^1.13.4",
     "cheerio": "^1.0.0",
+    "flag": "^5.0.1",
+    "playwright": "^1.58.2",
     "rss-parser": "^3.13.0",
     "tsx": "^4.7.0",
     "turbo": "^1.11.2",

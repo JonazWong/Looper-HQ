@@ -164,7 +164,7 @@ export default function NewCasePage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/cases">
-          <PremierButton variant="ghost" icon={ArrowLeft} size="icon" />
+          <PremierButton variant="ghost" icon={<ArrowLeft className="h-4 w-4" />} size="icon" />
         </Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gradient-gold">
@@ -325,7 +325,7 @@ export default function NewCasePage() {
                 <PremierButton
                   type="button"
                   variant="primary"
-                  icon={searchingClients ? Loader2 : Search}
+                  icon={searchingClients ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                   onClick={searchClients}
                   disabled={searchingClients}
                 >
@@ -378,7 +378,7 @@ export default function NewCasePage() {
                 <PremierButton
                   type="button"
                   variant="primary"
-                  icon={searchingLawyers ? Loader2 : Search}
+                  icon={searchingLawyers ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                   onClick={searchLawyers}
                   disabled={searchingLawyers}
                 >
@@ -514,7 +514,7 @@ export default function NewCasePage() {
           <PremierButton 
             variant="primary" 
             type="submit" 
-            icon={loading ? Loader2 : Save}
+            icon={loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             disabled={loading}
           >
             {loading ? 'Creating...' : 'Create Case'}

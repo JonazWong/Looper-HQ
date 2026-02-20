@@ -188,7 +188,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
           </p>
         </div>
         <Link href="/billing/new">
-          <PremierButton variant="primary" icon={Plus}>
+          <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
             New Invoice
           </PremierButton>
         </Link>
@@ -199,25 +199,25 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
         <StatCard
           title="Total Revenue"
           value={`HKD ${stats.totalRevenue.toLocaleString()}`}
-          icon={DollarSign}
+          icon={<DollarSign className="h-4 w-4" />}
           variant="success"
         />
         <StatCard
           title="Pending Amount"
           value={`HKD ${stats.pendingRevenue.toLocaleString()}`}
-          icon={Clock}
+          icon={<Clock className="h-4 w-4" />}
           variant="warning"
         />
         <StatCard
           title="Paid Invoices"
           value={stats.paidInvoices}
-          icon={CheckCircle2}
+          icon={<CheckCircle2 className="h-4 w-4" />}
           variant="success"
         />
         <StatCard
           title="Overdue Invoices"
           value={stats.overdueInvoices}
-          icon={AlertCircle}
+          icon={<AlertCircle className="h-4 w-4" />}
           variant="danger"
         />
       </div>
@@ -278,7 +278,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
                   : 'Get started by creating your first invoice.'}
               </p>
               <Link href="/billing/new">
-                <PremierButton variant="primary" icon={Plus}>
+                <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
                   Create Invoice
                 </PremierButton>
               </Link>
@@ -349,13 +349,13 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
                                 <PremierButton 
                                   variant="ghost" 
                                   size="icon" 
-                                  icon={Eye}
+                                  icon={<Eye className="h-4 w-4" />}
                                 />
                               </Link>
                               <PremierButton 
                                 variant="ghost" 
                                 size="icon" 
-                                icon={Download}
+                                icon={<Download className="h-4 w-4" />}
                               />
                             </div>
                           </TableCell>

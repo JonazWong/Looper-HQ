@@ -164,7 +164,7 @@ export async function transformClient(legacyClient: unknown, sourceSystem: strin
       keycloakId: null,
     },
     client: {
-      type: clientType,
+      clientType: clientType,
       fullName,
       companyName,
       email: validated.email.toLowerCase().trim(),

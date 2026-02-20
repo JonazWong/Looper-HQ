@@ -214,7 +214,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
     action: activity.action,
     description: activity.description || activity.action,
     timestamp: activity.createdAt,
-    icon: activityIconMap[activity.type] || FileText,
+    icon: activityIconMap[activity.activityType] || FileText,
   }))
 
   return (
@@ -223,7 +223,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/cases">
-            <PremierButton variant="ghost" icon={ArrowLeft} size="icon" />
+            <PremierButton variant="ghost" icon={<ArrowLeft className="h-4 w-4" />} size="icon" />
           </Link>
           <div>
             <div className="flex items-center gap-3">
@@ -249,7 +249,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
           </div>
         </div>
         <Link href={`/cases/${case_.id}/edit`}>
-          <PremierButton variant="primary" icon={Edit}>
+          <PremierButton variant="primary" icon={<Edit className="h-4 w-4" />}>
             Edit Case
           </PremierButton>
         </Link>
@@ -365,7 +365,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 {case_.documents.length} document{case_.documents.length === 1 ? '' : 's'}
               </GlassCardDescription>
             </div>
-            <PremierButton variant="primary" icon={Upload} size="sm">
+            <PremierButton variant="primary" icon={<Upload className="h-4 w-4" />} size="sm">
               Upload Document
             </PremierButton>
           </div>
@@ -418,7 +418,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                       <PremierButton 
                         variant="ghost" 
                         size="icon" 
-                        icon={Download}
+                        icon={<Download className="h-4 w-4" />}
                       />
                     </TableCell>
                   </TableRow>
@@ -465,7 +465,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                   {totalBillableHours.toFixed(2)} billable hours • HKD {totalBillableAmount.toLocaleString()}
                 </GlassCardDescription>
               </div>
-              <PremierButton variant="primary" icon={Plus} size="sm">
+              <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />} size="sm">
                 Add Time
               </PremierButton>
             </div>
@@ -533,7 +533,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 {case_.notes.length} note{case_.notes.length === 1 ? '' : 's'}
               </GlassCardDescription>
             </div>
-            <PremierButton variant="primary" icon={Plus} size="sm">
+            <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />} size="sm">
               Add Note
             </PremierButton>
           </div>

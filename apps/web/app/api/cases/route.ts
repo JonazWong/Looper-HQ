@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: session.user.id,
         caseId: newCase.id,
-        type: 'CASE_CREATED',
+        activityType: 'CASE_CREATED',
         action: 'created',
         description: `Created case: ${newCase.title_zh} / ${newCase.title_en}`,
       },

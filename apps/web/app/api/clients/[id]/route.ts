@@ -78,7 +78,7 @@ export async function PATCH(
     await prisma.activity.create({
       data: {
         userId: session.user.id,
-        type: 'CLIENT_ADDED',
+        activityType: 'CLIENT_ADDED',
         action: 'updated',
         description: `Updated client: ${updatedClient.fullName}`,
       },

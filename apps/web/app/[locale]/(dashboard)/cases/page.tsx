@@ -228,7 +228,7 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
           </p>
         </div>
         <Link href="/cases/new">
-          <PremierButton variant="primary" icon={Plus}>
+          <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
             New Case
           </PremierButton>
         </Link>
@@ -239,22 +239,22 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
         <StatCard
           title="Total Cases"
           value={stats.totalCases}
-          icon={Briefcase}
+          icon={<Briefcase className="h-4 w-4" />}
         />
         <StatCard
           title="Active Cases"
           value={stats.activeCases}
-          icon={FolderOpen}
+          icon={<FolderOpen className="h-4 w-4" />}
         />
         <StatCard
           title="Pending Cases"
           value={stats.pendingCases}
-          icon={Clock}
+          icon={<Clock className="h-4 w-4" />}
         />
         <StatCard
           title="Completed Cases"
           value={stats.completedCases}
-          icon={CheckCircle2}
+          icon={<CheckCircle2 className="h-4 w-4" />}
         />
       </div>
 
@@ -294,7 +294,7 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
                   : 'Get started by creating your first case.'}
               </p>
               <Link href="/cases/new">
-                <PremierButton variant="primary" icon={Plus}>
+                <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
                   Create New Case
                 </PremierButton>
               </Link>
@@ -372,20 +372,20 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
                               <PremierButton 
                                 variant="ghost" 
                                 size="icon" 
-                                icon={Eye}
+                                icon={<Eye className="h-4 w-4" />}
                               />
                             </Link>
                             <Link href={`/cases/${case_.id}/edit`}>
                               <PremierButton 
                                 variant="ghost" 
                                 size="icon" 
-                                icon={Edit}
+                                icon={<Edit className="h-4 w-4" />}
                               />
                             </Link>
                             <PremierButton 
                               variant="ghost" 
                               size="icon" 
-                              icon={Archive}
+                              icon={<Archive className="h-4 w-4" />}
                             />
                           </div>
                         </TableCell>

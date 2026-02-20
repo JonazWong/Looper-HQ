@@ -17,7 +17,7 @@ export enum MembershipTierEnum {
 export interface Client {
   id: string;
   userId: string | null;
-  type: ClientType;
+  clientType: ClientType; // Renamed from 'type' to avoid Python conflict
   fullName: string;
   companyName: string | null;
   idNumber: string | null;
@@ -36,7 +36,7 @@ export interface Client {
 }
 
 export interface ClientCreateInput {
-  type: ClientType;
+  clientType: ClientType; // Renamed from 'type'
   fullName: string;
   companyName?: string;
   idNumber?: string;

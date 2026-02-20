@@ -173,7 +173,7 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
           </p>
         </div>
         <Link href="/clients/new">
-          <PremierButton variant="primary" icon={Plus}>
+          <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
             New Client
           </PremierButton>
         </Link>
@@ -184,22 +184,22 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
         <StatCard
           title="Total Clients"
           value={stats.totalClients}
-          icon={Users}
+          icon={<Users className="h-4 w-4" />}
         />
         <StatCard
           title="Basic Tier"
           value={stats.basicTier}
-          icon={User}
+          icon={<User className="h-4 w-4" />}
         />
         <StatCard
           title="Premium Tier"
           value={stats.premiumTier}
-          icon={Building2}
+          icon={<Building2 className="h-4 w-4" />}
         />
         <StatCard
           title="Premier Tier"
           value={stats.premierTier}
-          icon={Building2}
+          icon={<Building2 className="h-4 w-4" />}
         />
       </div>
 
@@ -272,9 +272,9 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
                           )}
                           <Badge 
                             variant="outline" 
-                            className={getTypeColor(client.type)}
+                            className={getTypeColor(client.clientType)}
                           >
-                            {client.type}
+                            {client.clientType}
                           </Badge>
                         </div>
                       </TableCell>
@@ -289,12 +289,12 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Link href={`/clients/${client.id}`}>
-                            <PremierButton variant="ghost" size="sm" icon={Eye}>
+                            <PremierButton variant="ghost" size="sm" icon={<Eye className="h-4 w-4" />}>
                               View
                             </PremierButton>
                           </Link>
                           <Link href={`/clients/${client.id}/edit`}>
-                            <PremierButton variant="secondary" size="sm" icon={Edit}>
+                            <PremierButton variant="secondary" size="sm" icon={<Edit className="h-4 w-4" />}>
                               Edit
                             </PremierButton>
                           </Link>

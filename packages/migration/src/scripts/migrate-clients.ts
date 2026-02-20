@@ -62,10 +62,10 @@ export async function migrateClients(prisma: PrismaClient, logger: Logger) {
       await prisma.activity.create({
         data: {
           userId: user.id,
-          type: 'CLIENT_ADDED',
+          activityType: 'CLIENT_ADDED',
           action: 'Data Migration',
           description: `Migrated client from ${sourceSystem}`,
-          metadata: transformed.metadata
+          metaData: transformed.metadata
         }
       })
       

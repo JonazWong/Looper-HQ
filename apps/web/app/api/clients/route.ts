@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     await prisma.activity.create({
       data: {
         userId: session.user.id,
-        type: 'CLIENT_ADDED',
+        activityType: 'CLIENT_ADDED',
         action: 'created',
         description: `Created client: ${client.fullName}`,
       },

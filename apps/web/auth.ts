@@ -189,10 +189,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         await prisma.activity.create({
           data: {
             userId: user.id,
-            type: "STATUS_CHANGED",
+            activityType: "STATUS_CHANGED",
             action: "USER_SIGNED_IN",
             description: `User signed in via ${account?.provider}`,
-            metadata: {
+            metaData: {
               provider: account?.provider,
               timestamp: new Date().toISOString(),
             },

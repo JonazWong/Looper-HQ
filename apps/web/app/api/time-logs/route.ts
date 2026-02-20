@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: session.user.id,
         caseId: data.caseId,
-        type: 'CASE_UPDATED',
+        activityType: 'CASE_UPDATED',
         action: 'created',
         description: `Logged ${data.hours} hours: ${data.description}`,
       },

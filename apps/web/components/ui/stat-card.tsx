@@ -7,7 +7,7 @@
 
 import * as React from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
-import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react'
+import { TrendingUp, TrendingDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { GlassCard } from './glass-card'
 
@@ -19,7 +19,7 @@ export interface StatCardProps {
     trend: 'up' | 'down'
     label?: string
   }
-  icon?: LucideIcon
+  icon?: React.ReactNode
   className?: string
   iconClassName?: string
   /**
@@ -41,7 +41,7 @@ export interface StatCardProps {
  *   title="Total Cases"
  *   value={42}
  *   change={{ value: 12, trend: 'up', label: 'from last month' }}
- *   icon={Briefcase}
+ *   icon={<Briefcase className="h-4 w-4 text-premier-gold" />}
  *   variant="success"
  * />
  * ```
@@ -50,7 +50,7 @@ export function StatCard({
   title,
   value,
   change,
-  icon: Icon,
+  icon,
   className,
   iconClassName,
   variant = 'default',
@@ -121,14 +121,14 @@ export function StatCard({
           <h3 className="text-sm font-medium text-premier-pearl-gray">
             {title}
           </h3>
-          {Icon && (
+          {icon && (
             <div className={cn(
               'rounded-lg p-2 bg-gradient-to-br',
               styles.glow,
               'transition-all duration-300',
               iconClassName
             )}>
-              <Icon className={cn('h-4 w-4', styles.icon)} />
+              {icon}
             </div>
           )}
         </div>

@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: session.user.id,
         caseId: data.caseId,
-        type: 'PAYMENT_RECEIVED',
+        activityType: 'PAYMENT_RECEIVED',
         action: 'created',
         description: `Created invoice: ${invoiceNumber}`,
       },
