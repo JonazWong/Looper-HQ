@@ -89,7 +89,7 @@ export async function POST(
       data: {
         userId: session.user.id,
         caseId: id,
-        type: 'NOTE_ADDED',
+        activityType: 'NOTE_ADDED',
         action: 'added',
         description: 'Added a note to the case',
       },
