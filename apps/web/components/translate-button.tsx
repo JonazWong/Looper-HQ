@@ -48,7 +48,7 @@ export function TranslateButton({ text, onTranslated, className }: TranslateButt
       <PremierButton
         variant="ghost"
         size="sm"
-        icon={loading ? Loader2 : Languages}
+        icon={loading ? <Loader2 className="h-4 w-4" /> : <Languages className="h-4 w-4" />}
         onClick={handleTranslate}
         disabled={loading}
         className={loading ? 'animate-pulse' : ''}

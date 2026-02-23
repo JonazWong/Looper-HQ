@@ -83,7 +83,7 @@ export function AdvancedSearchForm() {
             type="submit"
             variant="primary"
             size="sm"
-            icon={Search}
+            icon={<Search className="h-4 w-4" />}
             disabled={!query.trim()}
             className="absolute right-2 top-1/2 -translate-y-1/2"
           >

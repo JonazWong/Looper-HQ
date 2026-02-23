@@ -102,12 +102,12 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
   
   // Quick actions with locale-aware routes
   const quickActions = [
-    { label: 'New Case', icon: Plus, variant: 'primary' as const, href: `/${locale}/cases/new` },
-    { label: 'Add Client', icon: Users, variant: 'secondary' as const, href: `/${locale}/clients` },
-    { label: 'Search Cases', icon: Search, variant: 'secondary' as const, href: `/${locale}/search` },
-    { label: 'View Cases', icon: Briefcase, variant: 'secondary' as const, href: `/${locale}/cases` },
-    { label: 'View Clients', icon: Users, variant: 'secondary' as const, href: `/${locale}/clients` },
-    { label: 'Upload Documents', icon: Upload, variant: 'secondary' as const, href: `/${locale}/documents` },
+    { label: 'New Case', icon: <Plus className="h-4 w-4" />, variant: 'primary' as const, href: `/${locale}/cases/new` },
+    { label: 'Add Client', icon: <Users className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/clients` },
+    { label: 'Search Cases', icon: <Search className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/search` },
+    { label: 'View Cases', icon: <Briefcase className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/cases` },
+    { label: 'View Clients', icon: <Users className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/clients` },
+    { label: 'Upload Documents', icon: <Upload className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/documents` },
   ]
   
   // Convert serialized activities to Activity format with icons
@@ -147,7 +147,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
             title="Total Cases"
             value={stats.totalCases}
             change={{ value: 12, trend: 'up', label: 'from last month' }}
-            icon={Briefcase}
+            icon={<Briefcase className="h-4 w-4" />}
           />
         </motion.div>
         
@@ -156,7 +156,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
             title="Active Clients"
             value={stats.totalClients}
             change={{ value: 5, trend: 'up', label: 'from last month' }}
-            icon={Users}
+            icon={<Users className="h-4 w-4" />}
           />
         </motion.div>
         
@@ -165,7 +165,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
             title="Pending Reviews"
             value={stats.pendingCases}
             change={{ value: 3, trend: 'down', label: 'from yesterday' }}
-            icon={FileText}
+            icon={<FileText className="h-4 w-4" />}
           />
         </motion.div>
         
@@ -174,7 +174,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
             title="Success Rate"
             value={`${stats.successRate}%`}
             change={{ value: 8, trend: 'up', label: 'this quarter' }}
-            icon={TrendingUp}
+            icon={<TrendingUp className="h-4 w-4" />}
           />
         </motion.div>
       </motion.div>

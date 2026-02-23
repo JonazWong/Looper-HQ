@@ -35,7 +35,7 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <PremierButton variant="ghost" size="sm" icon={Globe}>
+        <PremierButton variant="ghost" size="sm" icon={<Globe className="h-4 w-4" />}>
           <span className="hidden sm:inline">{currentLanguage?.flag} {currentLanguage?.name}</span>
           <span className="sm:hidden">{currentLanguage?.flag}</span>
         </PremierButton>

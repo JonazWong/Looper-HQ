@@ -87,7 +87,7 @@ export function CasesFilters({
           {/* Status Filter */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <PremierButton variant="secondary" size="default" icon={Filter}>
+              <PremierButton variant="secondary" size="default" icon={<Filter className="h-4 w-4" />}>
                 Status
                 {initialStatus && (
                   <Badge className="ml-2 bg-premier-gold/20 text-premier-gold border-0">
@@ -120,7 +120,7 @@ export function CasesFilters({
           {/* Priority Filter */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <PremierButton variant="secondary" size="default" icon={Filter}>
+              <PremierButton variant="secondary" size="default" icon={<Filter className="h-4 w-4" />}>
                 Priority
                 {initialPriority && (
                   <Badge className="ml-2 bg-premier-gold/20 text-premier-gold border-0">
@@ -153,7 +153,7 @@ export function CasesFilters({
           {/* Category Filter */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <PremierButton variant="secondary" size="default" icon={Filter}>
+              <PremierButton variant="secondary" size="default" icon={<Filter className="h-4 w-4" />}>
                 Category
                 {initialCategory && (
                   <Badge className="ml-2 bg-premier-gold/20 text-premier-gold border-0">
@@ -200,7 +200,7 @@ export function CasesFilters({
             <PremierButton
               variant="ghost"
               size="default"
-              icon={X}
+              icon={<X className="h-4 w-4" />}
               onClick={clearFilters}
             >
               Clear

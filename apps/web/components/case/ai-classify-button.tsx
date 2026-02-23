@@ -67,7 +67,7 @@ export function AIClassifyButton({ caseId, title, content, onClassified }: Props
   return (
     <PremierButton
       variant="primary"
-      icon={loading ? Loader2 : Brain}
+      icon={loading ? <Loader2 className="h-4 w-4" /> : <Brain className="h-4 w-4" />}
       onClick={handleClassify}
       disabled={loading}
     >

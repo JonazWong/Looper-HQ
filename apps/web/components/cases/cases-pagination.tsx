@@ -49,7 +49,7 @@ export function CasesPagination({
         <PremierButton
           variant="secondary"
           size="sm"
-          icon={ChevronLeft}
+          icon={<ChevronLeft className="h-4 w-4" />}
           onClick={() => navigateToPage(currentPage - 1)}
           disabled={currentPage <= 1}
         >
@@ -89,7 +89,7 @@ export function CasesPagination({
         <PremierButton
           variant="secondary"
           size="sm"
-          icon={ChevronRight}
+          icon={<ChevronRight className="h-4 w-4" />}
           iconPosition="right"
           onClick={() => navigateToPage(currentPage + 1)}
           disabled={currentPage >= totalPages}

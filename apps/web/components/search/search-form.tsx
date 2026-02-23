@@ -77,7 +77,7 @@ export function SearchForm({
           type="submit" 
           variant="primary" 
           size="lg"
-          icon={Search}
+          icon={<Search className="h-4 w-4" />}
         >
           Search
         </PremierButton>
@@ -88,7 +88,7 @@ export function SearchForm({
         {/* Category Filter */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <PremierButton variant="secondary" size="default" icon={Filter}>
+            <PremierButton variant="secondary" size="default" icon={<Filter className="h-4 w-4" />}>
               Category
               {initialCategory && (
                 <Badge className="ml-2 bg-premier-gold/20 text-premier-gold border-0">
@@ -133,7 +133,7 @@ export function SearchForm({
         {/* Status Filter */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <PremierButton variant="secondary" size="default" icon={Filter}>
+            <PremierButton variant="secondary" size="default" icon={<Filter className="h-4 w-4" />}>
               Status
               {initialStatus && (
                 <Badge className="ml-2 bg-premier-gold/20 text-premier-gold border-0">
@@ -171,7 +171,7 @@ export function SearchForm({
           <PremierButton
             variant="ghost"
             size="default"
-            icon={X}
+            icon={<X className="h-4 w-4" />}
             onClick={clearFilters}
           >
             Clear

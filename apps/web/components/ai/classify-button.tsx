@@ -53,7 +53,7 @@ export function ClassifyButton({
     <PremierButton
       variant="primary"
       size="sm"
-      icon={loading ? Loader2 : Sparkles}
+      icon={loading ? <Loader2 className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
       onClick={handleClassify}
       disabled={loading}
     >

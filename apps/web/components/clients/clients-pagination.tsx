@@ -35,7 +35,7 @@ export function ClientsPagination({ currentPage, totalPages }: ClientsPagination
         <PremierButton
           variant="secondary"
           size="default"
-          icon={ChevronLeft}
+          icon={<ChevronLeft className="h-4 w-4" />}
           onClick={() => navigateToPage(currentPage - 1)}
           disabled={currentPage === 1}
         >
@@ -45,7 +45,7 @@ export function ClientsPagination({ currentPage, totalPages }: ClientsPagination
           variant="secondary"
           size="default"
           iconPosition="right"
-          icon={ChevronRight}
+          icon={<ChevronRight className="h-4 w-4" />}
           onClick={() => navigateToPage(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
