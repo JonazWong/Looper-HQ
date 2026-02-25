@@ -174,9 +174,6 @@ export default function MemberDashboardPage() {
             <h2 className="text-lg font-semibold text-premier-gold">
               {isEn ? 'Recent Searches' : '最近查閱記錄'}
             </h2>
-            <Link href="/search-history" className="text-xs text-premier-gold hover:underline flex items-center gap-1">
-              {isEn ? 'View All' : '查看全部'} <ExternalLink className="w-3 h-3" />
-            </Link>
           </div>
           {loading ? (
             <div className="space-y-3">
