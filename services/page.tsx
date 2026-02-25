@@ -140,13 +140,15 @@ export default function MemberDashboardPage() {
             onChange={e => setSearchQuery(e.target.value)}
             onKeyDown={e => {
               if (e.key === 'Enter' && searchQuery.trim()) {
-                window.location.href = `/case-search?q=${encodeURIComponent(searchQuery.trim())}`;
+                const link = (e.currentTarget.parentElement as HTMLElement | null)?.querySelector<HTMLAnchorElement>('[data-role="quick-search-link"]');
+                link?.click();
               }
             }}
           />
           <Link
             href={`/case-search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-premier-gold to-premier-gold-rose text-premier-black rounded-premier-md font-medium hover:shadow-premier-glow transition-all"
+            data-role="quick-search-link"
           >
             <Search className="w-4 h-4" />
             {isEn ? 'Search' : '搜尋'}
