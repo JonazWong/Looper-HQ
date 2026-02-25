@@ -10,7 +10,7 @@ interface RssSourceRow {
   source: string
   isActive: boolean
   status: string
-  lastFetchAt: Date | null
+  lastFetchAt: string | null
   lastError: string | null
 }
 
