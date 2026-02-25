@@ -246,7 +246,7 @@ export default function MemberDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             { icon: <Database className="w-5 h-5" />, label: isEn ? 'Case Database' : '瀏覽法案資料庫', href: '/case-search' },
-            { icon: <FileText className="w-5 h-5" />, label: isEn ? 'Forms Repository' : '司法表格庫', href: '/forms' },
+            { icon: <FileText className="w-5 h-5" />, label: isEn ? 'Forms Repository' : '司法表格庫', href: '/case-search?filter=forms' },
             { icon: <TrendingUp className="w-5 h-5" />, label: isEn ? 'AI Smart Search' : 'AI 智能搜尋', href: '/case-search?mode=ai' },
           ].map((link, i) => (
             <Link
