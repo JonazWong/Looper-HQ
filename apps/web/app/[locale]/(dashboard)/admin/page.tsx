@@ -25,7 +25,8 @@ async function getAdminData() {
     ])
 
     return { rssSources, totalPublicCases, todayPublicCases }
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch admin data:', error)
     return { rssSources: [], totalPublicCases: 0, todayPublicCases: 0 }
   }
 }
