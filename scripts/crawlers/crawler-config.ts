@@ -43,6 +43,10 @@ export const defaultCrawlerConfig: CrawlerConfig = {
     'Cloudflare',
     'Access denied',
     'Forbidden',
+    'Non-whitespace before first tag',
+    'Invalid XML',
+    'XML parsing error',
+    'Unexpected token',
   ],
   maxConsecutiveFailures: 5,
 };

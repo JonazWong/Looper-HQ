@@ -9,6 +9,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useLocale, useTranslations } from 'next-intl'
+import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import {
@@ -21,13 +22,19 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  Database,
+  ShieldCheck,
 } from "lucide-react"
 
 export function Sidebar() {
   const pathname = usePathname()
   const locale = useLocale()
   const t = useTranslations()
+  const { data: session } = useSession()
   const [isCollapsed, setIsCollapsed] = useState(false)
+
+  // Check if user is admin
+  const isAdmin = session?.user?.role === 'ADMIN'
 
   const sidebarItems = [
     {
@@ -51,6 +58,17 @@ export function Sidebar() {
       href: `/${locale}/search`,
       icon: Search,
     },
+    {
+      labelKey: "services" as const,
+      href: `/${locale}/services`,
+      icon: Database,
+    },
+    // === ADMIN ONLY (conditionally rendered) ===
+    ...(isAdmin ? [{
+      labelKey: "admin" as const,
+      href: `/${locale}/admin`,
+      icon: ShieldCheck,
+    }] : []),
     // === SUPPORTING FEATURES ===
     {
       labelKey: "documents" as const,

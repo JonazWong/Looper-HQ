@@ -15,6 +15,7 @@ import axios, { AxiosInstance } from 'axios';
 import * as cheerio from 'cheerio';
 import crypto from 'crypto';
 import { classifyCase } from '../../apps/web/lib/services/ai-classifier';
+import { defaultCrawlerConfig, getRandomUserAgent, isKnownError } from './crawler-config';
 
 const prisma = new PrismaClient();
 
@@ -35,7 +36,6 @@ interface JudgmentData {
 class HKJudiciaryCrawler {
   private client: AxiosInstance;
   private readonly baseUrl = 'https://legalref.judiciary.hk';
-  private readonly delayMs = 2000; // Respect robots.txt - 2 second delay
   private stats = {
     fetched: 0,
     created: 0,
@@ -47,9 +47,9 @@ class HKJudiciaryCrawler {
   constructor() {
     this.client = axios.create({
       baseURL: this.baseUrl,
-      timeout: 15000,
+      timeout: defaultCrawlerConfig.timeoutMs,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; Looper-HQ-Legal-Crawler/1.0; +https://looper-hq.com)',
+        'User-Agent': getRandomUserAgent(),
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'zh-TW,zh;q=0.9,en;q=0.8',
       }
@@ -59,7 +59,7 @@ class HKJudiciaryCrawler {
   /**
    * Delay between requests to respect server load
    */
-  private async delay(ms: number = this.delayMs): Promise<void> {
+  private async delay(ms: number = defaultCrawlerConfig.rateLimitDelayMs): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
@@ -172,7 +172,9 @@ class HKJudiciaryCrawler {
 
       console.log(`    ✓ 獲取 ${judgments.length} 個上訴法庭案件`);
     } catch (error: any) {
-      console.error(`    ✗ 抓取上訴法庭失敗: ${error.message}`);
+      const isKnown = isKnownError(error.message);
+      const logLevel = isKnown ? '⚠️' : '❌';
+      console.error(`    ${logLevel} 抓取上訴法庭失敗: ${error.message}`);
       this.stats.errors++;
     }
 
@@ -228,7 +230,9 @@ class HKJudiciaryCrawler {
 
       console.log(`    ✓ 獲取 ${judgments.length} 個高等法院案件`);
     } catch (error: any) {
-      console.error(`    ✗ 抓取高等法院失敗: ${error.message}`);
+      const isKnown = isKnownError(error.message);
+      const logLevel = isKnown ? '⚠️' : '❌';
+      console.error(`    ${logLevel} 抓取高等法院失敗: ${error.message}`);
       this.stats.errors++;
     }
 
@@ -315,7 +319,9 @@ class HKJudiciaryCrawler {
         return 'created';
       }
     } catch (error: any) {
-      console.error(`    ✗ 保存案件失敗 (${judgment.caseNumber}): ${error.message}`);
+      const isKnown = isKnownError(error.message);
+      const logLevel = isKnown ? '⚠️' : '❌';
+      console.error(`    ${logLevel} 保存案件失敗 (${judgment.caseNumber}): ${error.message}`);
       this.stats.errors++;
       return 'skipped';
     }

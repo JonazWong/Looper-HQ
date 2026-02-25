@@ -1,22 +1,10 @@
-/**
- * DEPRECATED - This file has been moved
- * 
- * The Member Portal/Services page is now located at:
- * apps/web/app/[locale]/(dashboard)/services/page.tsx
- * 
- * This file should be deleted. It's kept temporarily to avoid breaking
- * references during migration.
- * 
- * Access via:
- * - /zh/services (Chinese)
- * - /en/services (English)
- */
+'use client';
 
-// This file can be safely deleted
-export default function DeprecatedServicesPage() {
-  return null;
-}
-
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { Search, Database, FileText, Download, Clock, Activity, TrendingUp, ExternalLink } from 'lucide-react';
 
 interface DatabaseStats {
   totalCases: number;
@@ -93,7 +81,7 @@ export default function MemberDashboardPage() {
   const hotTags = isEn ? HOT_TAGS_EN : HOT_TAGS_ZH;
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-premier-gold">
           {isEn ? 'Member Dashboard' : '會員資料庫'}

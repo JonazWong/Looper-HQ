@@ -84,6 +84,7 @@ async function getDashboardStats() {
     // Transform cases to ensure client name is never null and serialize Decimal fields
     const formattedRecentCases = recentCases.map(case_ => ({
       ...case_,
+      budget: case_.budget ? Number(case_.budget) : null,
       estimatedValue: case_.estimatedValue ? Number(case_.estimatedValue) : null,
       client: {
         id: case_.client.id,

@@ -1,5 +1,7 @@
 import { PrismaClient, CaseSource } from '../../packages/database';
 import { RssNewsAdapter } from '../../apps/web/lib/services/data-sources/rss-news-adapter';
+import { defaultCrawlerConfig, getRandomUserAgent, isKnownError } from './crawler-config';
+import { isBlacklisted } from './source-blacklist';
 
 const prisma = new PrismaClient();
 
@@ -74,27 +76,43 @@ export async function trackRssNews(): Promise<number> {
 
     for (let i = 0; i < sources.length; i++) {
       const source = sources[i];
+      
+      // Check blacklist before processing
+      const blacklistEntry = isBlacklisted(source.url);
+      if (blacklistEntry) {
+        console.log(`🚫 [${i + 1}/${sources.length}] ${source.name}: Skipped (blacklisted)`);
+        console.log(`   Reason: ${blacklistEntry.reason}`);
+        continue;
+      }
+
       let retryCount = 0;
       let lastError: string | null = null;
       let sourceSuccess = false;
 
-      // Add 2-second delay between sources to avoid server pressure
+      // Add configured delay between sources to avoid server pressure
       if (i > 0) {
-        console.log('  ⏳ Waiting 2s before next source...');
-        await sleep(2000);
+        const delayMs = defaultCrawlerConfig.rateLimitDelayMs;
+        console.log(`  ⏳ Waiting ${delayMs / 1000}s before next source...`);
+        await sleep(delayMs);
       }
 
       console.log(`\nProcessing [${i + 1}/${sources.length}]: ${source.name}...`);
 
-      // Retry loop
-      while (retryCount <= source.maxRetries && !sourceSuccess) {
+      // Retry loop - use configured maxRetries
+      const maxRetries = defaultCrawlerConfig.maxRetries;
+      while (retryCount <= maxRetries && !sourceSuccess) {
         try {
           if (retryCount > 0) {
-            console.log(`  Retry ${retryCount}/${source.maxRetries} after ${source.retryDelay}s delay...`);
-            await sleep(source.retryDelay * 1000);
+            const retryDelayMs = defaultCrawlerConfig.retryDelayMs;
+            console.log(`  Retry ${retryCount}/${maxRetries} after ${retryDelayMs / 1000}s delay...`);
+            await sleep(retryDelayMs);
           }
 
-          // Create adapter for this source
+          // Create adapter for this source with random User-Agent rotation
+          const headers = defaultCrawlerConfig.userAgentRotation
+            ? { 'User-Agent': getRandomUserAgent() }
+            : undefined;
+
           const adapter = new RssNewsAdapter(
             source.source as CaseSource,
             source.url,
@@ -198,8 +216,16 @@ export async function trackRssNews(): Promise<number> {
           lastError = error.message;
           retryCount++;
 
-          if (retryCount > source.maxRetries) {
-            console.error(`  ❌ ${source.name} failed after ${source.maxRetries} retries: ${error.message}`);
+          // Use isKnownError to determine log level
+          const isKnown = isKnownError(error.message);
+          const logLevel = isKnown ? '⚠️ ' : '❌';
+
+          if (retryCount > maxRetries) {
+            if (isKnown) {
+              console.warn(`${logLevel} ${source.name} failed (known error): ${error.message}`);
+            } else {
+              console.error(`${logLevel} ${source.name} failed after ${maxRetries} retries: ${error.message}`);
+            }
 
             // Update error status
             await prisma.rssSource.update({
@@ -211,6 +237,13 @@ export async function trackRssNews(): Promise<number> {
             });
 
             sourceResults.push({ name: source.name, success: false });
+          } else {
+            // Log retry attempt differently based on error type
+            if (isKnown) {
+              console.warn(`  ${logLevel} Known error (attempt ${retryCount}/${maxRetries}): ${error.message}`);
+            } else {
+              console.error(`  ${logLevel} Error (attempt ${retryCount}/${maxRetries}): ${error.message}`);
+            }
           }
         }
       }
@@ -220,15 +253,17 @@ export async function trackRssNews(): Promise<number> {
     if (sourceResults.length > 0) {
       const successCount = sourceResults.filter(r => r.success).length;
       const successRate = (successCount / sourceResults.length) * 100;
+      const threshold = defaultCrawlerConfig.successRateThreshold * 100;
 
       console.log(`\n📊 Success Rate Summary:`);
       console.log(`  Total sources: ${sourceResults.length}`);
       console.log(`  Successful: ${successCount}`);
       console.log(`  Failed: ${sourceResults.length - successCount}`);
       console.log(`  Success rate: ${successRate.toFixed(1)}%`);
+      console.log(`  Threshold: ${threshold.toFixed(0)}%`);
 
-      if (successRate < 50) {
-        console.warn(`\n⚠️  WARNING: Success rate (${successRate.toFixed(1)}%) is below 50%`);
+      if (successRate < threshold) {
+        console.warn(`\n⚠️  WARNING: Success rate (${successRate.toFixed(1)}%) is below configured threshold (${threshold}%)`);
       }
     }
 

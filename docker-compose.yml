@@ -124,7 +124,7 @@ services:
       # Application Settings
       NODE_ENV: ${NODE_ENV:-production}
       TZ: Asia/Hong_Kong
-      PORT: 3000
+      PORT: 3002
       HOSTNAME: "0.0.0.0"
       
       # Crawler Settings
@@ -138,7 +138,7 @@ services:
       RATE_LIMIT_REQUESTS: ${RATE_LIMIT_REQUESTS:-100}
       RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
     ports:
-      - "${WEB_APP_PORT:-3005}:3000"
+      - "${WEB_APP_PORT:-3005}:3002"
     networks:
       - looper-network
     depends_on:
@@ -147,7 +147,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3002/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -179,7 +179,7 @@ services:
       
       # NextAuth
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      NEXTAUTH_URL: ${LEGAL_CASE_NEXTAUTH_URL:-http://localhost:3001}
+      NEXTAUTH_URL: ${LEGAL_CASE_NEXTAUTH_URL:-http://localhost:3002}
       
       # Keycloak
       KEYCLOAK_CLIENT_ID: ${LEGAL_CASE_SEARCH_CLIENT_ID:-legal-case-search}
@@ -189,10 +189,10 @@ services:
       # Application Settings
       NODE_ENV: ${NODE_ENV:-production}
       TZ: Asia/Hong_Kong
-      PORT: 3000
+      PORT: 3002
       HOSTNAME: "0.0.0.0"
     ports:
-      - "${LEGAL_CASE_SEARCH_PORT:-3001}:3000"
+      - "${LEGAL_CASE_SEARCH_PORT:-3002}:3002"
     networks:
       - looper-network
     depends_on:
@@ -201,7 +201,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3002/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3

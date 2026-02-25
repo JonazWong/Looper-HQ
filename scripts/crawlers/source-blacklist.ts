@@ -27,6 +27,12 @@ export const SOURCE_BLACKLIST: BlacklistedSource[] = [
     addedAt: '2025-01-01',
   },
   {
+    pattern: 'news.mingpao.com/rss/ins',
+    reason: 'Returns invalid XML — RSS feed format changed or broken',
+    permanent: false,
+    addedAt: '2026-02-25',
+  },
+  {
     pattern: 'rthk.hk',
     reason: 'Anti-crawler measures — robots.txt disallows automated access',
     permanent: false,
