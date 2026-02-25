@@ -554,6 +554,7 @@ enum CaseSource {
   MINGPAO_PNS_RSS
   MINGPAO_INS_RSS
   HKLII
+  HKGOVNEWS_RSS
 }
 
 // RSS Source configuration

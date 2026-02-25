@@ -715,6 +715,23 @@ async function main() {
         ],
         excludeKeywords: ['sports', 'entertainment', 'food', 'travel', '體育', '娛樂', '美食', '旅遊'],
       },
+      {
+        name: 'Hong Kong Government News - General',
+        source: 'HKGOVNEWS_RSS',
+        url: 'https://www.info.gov.hk/gia/rss/general.xml',
+        isActive: false, // INACTIVE pending testing
+        status: 'INACTIVE',
+        fetchInterval: 3600, // 1 hour
+        maxRetries: 3,
+        retryDelay: 300,
+        keywords: [
+          'court', 'law', 'legal', 'judge', 'judiciary',
+          'prosecution', 'trial', 'verdict', 'legislation',
+          '法庭', '法院', '法律', '法官', '司法機構',
+          '律師', '檢控', '判決', '裁決', '立法',
+        ],
+        excludeKeywords: ['sports', 'entertainment', 'food', 'travel', '體育', '娛樂', '美食', '旅遊'],
+      },
     ],
   });
 
