@@ -36,9 +36,53 @@ export const SOURCE_BLACKLIST: BlacklistedSource[] = [
 
 /**
  * Check whether a URL matches any entry in the blacklist.
+ * Matching is done in a URL-aware, case-insensitive way to avoid
+ * false positives from simple substring checks.
+ *
+ * - Patterns without "/" are treated as domain patterns, e.g. "rthk.hk"
+ *   matches "rthk.hk" and any of its subdomains.
+ * - Patterns with "/" are treated as "host + path" patterns, e.g.
+ *   "news.mingpao.com/rss/pns" requires:
+ *     hostname === "news.mingpao.com" (or its subdomains) AND
+ *     pathname contains "/rss/pns".
+ *
  * @param url The URL to test
  * @returns The matching BlacklistedSource entry, or null if not blacklisted
  */
 export function isBlacklisted(url: string): BlacklistedSource | null {
-  return SOURCE_BLACKLIST.find(entry => url.includes(entry.pattern)) ?? null;
+  let parsed: URL;
+
+  try {
+    parsed = new URL(url);
+  } catch {
+    // If the URL is invalid, we conservatively treat it as not blacklisted.
+    return null;
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  const pathname = parsed.pathname.toLowerCase();
+
+  return (
+    SOURCE_BLACKLIST.find(entry => {
+      const pattern = entry.pattern.toLowerCase();
+
+      // If the pattern includes a "/", treat it as "host + path"
+      const slashIndex = pattern.indexOf('/');
+      if (slashIndex !== -1) {
+        const hostPattern = pattern.slice(0, slashIndex);
+        const pathPattern = pattern.slice(slashIndex); // includes leading "/"
+
+        const hostMatches =
+          hostname === hostPattern ||
+          hostname.endsWith(`.${hostPattern}`);
+
+        const pathMatches = pathname.includes(pathPattern);
+
+        return hostMatches && pathMatches;
+      }
+
+      // Otherwise, treat the pattern as a pure domain pattern.
+      return hostname === pattern || hostname.endsWith(`.${pattern}`);
+    }) ?? null
+  );
 }
