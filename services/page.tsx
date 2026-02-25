@@ -3,214 +3,261 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardContent, Badge } from '@/components/ui';
 import Link from 'next/link';
+import { Search, Database, FileText, Download, Clock, Activity, TrendingUp, ExternalLink } from 'lucide-react';
 
-interface DashboardStats {
+interface DatabaseStats {
   totalCases: number;
-  activeCases: number;
-  totalClients: number;
-  pendingInvoices: number;
+  todayNew: number;
+  courtsCovered: number;
+  formsCount: number;
+  crawlerLastRun: string | null;
+  systemStatus: 'healthy' | 'warning' | 'error';
 }
 
-export default function DashboardPage() {
+interface SearchRecord {
+  id: string;
+  keyword: string;
+  resultCount: number;
+  searchedAt: string;
+}
+
+const HOT_TAGS_ZH = ['商業訴訟', '刑事案件', '家庭法', '物業糾紛', '勞工法', '公司法'];
+const HOT_TAGS_EN = ['Commercial Litigation', 'Criminal', 'Family Law', 'Property', 'Employment', 'Corporate'];
+
+export default function MemberDashboardPage() {
   const { data: session } = useSession();
   const pathname = usePathname() || '/';
   const isEn = pathname.startsWith('/en');
-  const [stats, setStats] = useState<DashboardStats>({
+  const [stats, setStats] = useState<DatabaseStats>({
     totalCases: 0,
-    activeCases: 0,
-    totalClients: 0,
-    pendingInvoices: 0,
+    todayNew: 0,
+    courtsCovered: 8,
+    formsCount: 0,
+    crawlerLastRun: null,
+    systemStatus: 'healthy',
   });
+  const [recentSearches, setRecentSearches] = useState<SearchRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    async function fetchStats() {
+    async function fetchData() {
       try {
-        const response = await fetch('/api/dashboard/stats');
-        if (response.ok) {
-          const data = await response.json();
-          setStats(data);
+        const res = await fetch('/api/stats/database');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) setStats(data.data);
         }
-      } catch (error) {
-        console.error('Failed to fetch stats:', error);
-      } finally {
-        setLoading(false);
+      } catch {
+        // fallback: keep defaults
       }
+      try {
+        const res = await fetch('/api/search-history?limit=5');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) setRecentSearches(data.data);
+        }
+      } catch {
+        // fallback: keep defaults
+      }
+      setLoading(false);
     }
-    fetchStats();
+    fetchData();
   }, []);
 
+  const statusColor = {
+    healthy: 'text-green-400',
+    warning: 'text-yellow-400',
+    error: 'text-red-400',
+  }[stats.systemStatus];
+
+  const statusLabel = {
+    healthy: isEn ? 'Healthy' : '正常',
+    warning: isEn ? 'Warning' : '警告',
+    error: isEn ? 'Error' : '錯誤',
+  }[stats.systemStatus];
+
+  const hotTags = isEn ? HOT_TAGS_EN : HOT_TAGS_ZH;
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-teal-dark">
-            {isEn ? 'Dashboard' : '儀表板'}
-          </h1>
-          <p className="text-cool-gray mt-1">
-            {isEn ? 'Welcome back, ' : '歡迎回來，'}
-            {session?.user?.name || 'User'}
-          </p>
+    <div className="space-y-6 p-6">
+      <div>
+        <h1 className="text-2xl font-bold text-premier-gold">
+          {isEn ? 'Member Dashboard' : '會員資料庫'}
+        </h1>
+        <p className="text-premier-pearl-gray mt-1 text-sm">
+          {isEn ? 'Welcome back, ' : '歡迎回來，'}
+          {session?.user?.name || 'User'}
+        </p>
+      </div>
+
+      {/* Personal Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          {
+            icon: <Search className="w-5 h-5" />,
+            label: isEn ? "Today's Searches" : '今日搜尋次數',
+            value: loading ? '-' : recentSearches.length,
+          },
+          {
+            icon: <FileText className="w-5 h-5" />,
+            label: isEn ? 'Saved Documents' : '已儲存文件數',
+            value: '0',
+          },
+          {
+            icon: <Download className="w-5 h-5" />,
+            label: isEn ? 'Downloaded PDFs' : '已下載 PDF 數',
+            value: '0',
+          },
+          {
+            icon: <Activity className="w-5 h-5" />,
+            label: isEn ? 'Membership Tier' : '會員等級',
+            value: isEn ? 'Public' : '公眾版',
+          },
+        ].map((card, i) => (
+          <div key={i} className="glass-card rounded-premier-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-premier-pearl-gray text-xs">{card.label}</span>
+              <span className="text-premier-gold">{card.icon}</span>
+            </div>
+            <div className="text-2xl font-bold text-premier-pearl">{card.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Quick Search */}
+      <div className="glass-card rounded-premier-lg p-6">
+        <h2 className="text-lg font-semibold text-premier-gold mb-4">
+          {isEn ? 'Search Database' : '搜尋資料庫'}
+        </h2>
+        <div className="flex gap-3">
+          <input
+            type="text"
+            className="flex-1 bg-premier-black-light border border-premier-gold/20 rounded-premier-md px-4 py-3 text-premier-pearl placeholder-premier-pearl-gray focus:outline-none focus:border-premier-gold transition-colors"
+            placeholder={isEn ? 'Enter keywords, case number, court...' : '輸入關鍵字、案件編號、法院...'}
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && searchQuery.trim()) {
+                const link = (e.currentTarget.parentElement as HTMLElement | null)?.querySelector<HTMLAnchorElement>('[data-role="quick-search-link"]');
+                link?.click();
+              }
+            }}
+          />
+          <Link
+            href={`/case-search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-premier-gold to-premier-gold-rose text-premier-black rounded-premier-md font-medium hover:shadow-premier-glow transition-all"
+            data-role="quick-search-link"
+          >
+            <Search className="w-4 h-4" />
+            {isEn ? 'Search' : '搜尋'}
+          </Link>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-4">
+          {hotTags.map(tag => (
+            <Link
+              key={tag}
+              href={`/case-search?q=${encodeURIComponent(tag)}`}
+              className="px-3 py-1 text-xs rounded-full border border-premier-gold/20 text-premier-pearl-gray hover:border-premier-gold hover:text-premier-gold transition-colors"
+            >
+              {tag}
+            </Link>
+          ))}
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-cool-gray">
-                  {isEn ? 'Total Cases' : '案件總數'}
-                </p>
-                <p className="text-3xl font-bold text-charcoal mt-2">
-                  {loading ? '-' : stats.totalCases}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-mint-green bg-opacity-10 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-mint-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Recent Activity */}
+        <div className="glass-card rounded-premier-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-premier-gold">
+              {isEn ? 'Recent Searches' : '最近查閱記錄'}
+            </h2>
+          </div>
+          {loading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-12 bg-premier-black-light rounded-premier-md animate-pulse" />
+              ))}
             </div>
-          </CardContent>
-        </Card>
+          ) : recentSearches.length === 0 ? (
+            <p className="text-premier-pearl-gray text-sm">
+              {isEn ? 'No recent searches.' : '尚無搜尋記錄。'}
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {recentSearches.map(record => (
+                <div key={record.id} className="flex items-center justify-between py-2 border-b border-premier-gold/10 last:border-0">
+                  <div>
+                    <p className="text-premier-pearl text-sm font-medium">{record.keyword}</p>
+                    <p className="text-premier-pearl-gray text-xs mt-0.5">
+                      {record.resultCount} {isEn ? 'results' : '項結果'} · {new Date(record.searchedAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <Link href={`/case-search?q=${encodeURIComponent(record.keyword)}`} className="text-premier-gold hover:text-premier-gold-champagne">
+                    <Search className="w-4 h-4" />
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-cool-gray">
-                  {isEn ? 'Active Cases' : '進行中案件'}
-                </p>
-                <p className="text-3xl font-bold text-charcoal mt-2">
-                  {loading ? '-' : stats.activeCases}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-success-green bg-opacity-10 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-success-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
+        {/* Database Latest Updates */}
+        <div className="glass-card rounded-premier-lg p-6">
+          <h2 className="text-lg font-semibold text-premier-gold mb-4">
+            {isEn ? 'Database Updates' : '資料庫最新更新'}
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between py-2 border-b border-premier-gold/10">
+              <span className="text-premier-pearl-gray text-sm">{isEn ? "Today's New Cases" : '今日新增案件數'}</span>
+              <span className="text-premier-gold font-bold">{loading ? '-' : stats.todayNew}</span>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-cool-gray">
-                  {isEn ? 'Total Clients' : '客戶總數'}
-                </p>
-                <p className="text-3xl font-bold text-charcoal mt-2">
-                  {loading ? '-' : stats.totalClients}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-info-blue bg-opacity-10 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-info-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
+            <div className="flex items-center justify-between py-2 border-b border-premier-gold/10">
+              <span className="text-premier-pearl-gray text-sm">{isEn ? 'Total Cases' : '總法案數量'}</span>
+              <span className="text-premier-gold font-bold">{loading ? '-' : stats.totalCases.toLocaleString()}</span>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-cool-gray">
-                  {isEn ? 'Pending Invoices' : '待處理發票'}
-                </p>
-                <p className="text-3xl font-bold text-charcoal mt-2">
-                  {loading ? '-' : stats.pendingInvoices}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-subtle-gold bg-opacity-10 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-subtle-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-              </div>
+            <div className="flex items-center justify-between py-2 border-b border-premier-gold/10">
+              <span className="text-premier-pearl-gray text-sm">{isEn ? 'Last Crawl' : '爬蟲最後運行'}</span>
+              <span className="text-premier-pearl-gray text-sm">
+                {stats.crawlerLastRun ? new Date(stats.crawlerLastRun).toLocaleString() : (isEn ? 'N/A' : '未知')}
+              </span>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex items-center justify-between py-2">
+              <span className="text-premier-pearl-gray text-sm">{isEn ? 'System Status' : '系統健康狀態'}</span>
+              <span className={`text-sm font-semibold flex items-center gap-1 ${statusColor}`}>
+                <span className="w-2 h-2 rounded-full bg-current inline-block" />
+                {statusLabel}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{isEn ? 'Quick Actions' : '快速操作'}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link 
-              href="/cases/new"
-              className="p-4 border-2 border-light-gray rounded-lg hover:border-mint-green transition-colors cursor-pointer"
+      {/* Quick Links */}
+      <div className="glass-card rounded-premier-lg p-6">
+        <h2 className="text-lg font-semibold text-premier-gold mb-4">
+          {isEn ? 'Quick Links' : '快速連結'}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { icon: <Database className="w-5 h-5" />, label: isEn ? 'Case Database' : '瀏覽法案資料庫', href: '/case-search' },
+            { icon: <FileText className="w-5 h-5" />, label: isEn ? 'Forms Repository' : '司法表格庫', href: '/case-search?filter=forms' },
+            { icon: <TrendingUp className="w-5 h-5" />, label: isEn ? 'AI Smart Search' : 'AI 智能搜尋', href: '/case-search?mode=ai' },
+          ].map((link, i) => (
+            <Link
+              key={i}
+              href={link.href}
+              className="flex items-center gap-3 p-4 border border-premier-gold/20 rounded-premier-md hover:border-premier-gold hover:bg-premier-gold/5 transition-all group"
             >
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-mint-green rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-semibold text-charcoal">
-                    {isEn ? 'New Case' : '新增案件'}
-                  </p>
-                  <p className="text-sm text-cool-gray">
-                    {isEn ? 'Create a new case' : '建立一宗新的案件'}
-                  </p>
-                </div>
-              </div>
+              <span className="text-premier-gold">{link.icon}</span>
+              <span className="text-premier-pearl group-hover:text-premier-gold transition-colors text-sm font-medium">{link.label}</span>
+              <ExternalLink className="w-3 h-3 text-premier-pearl-gray ml-auto" />
             </Link>
-
-            <Link 
-              href="/clients/new"
-              className="p-4 border-2 border-light-gray rounded-lg hover:border-mint-green transition-colors cursor-pointer"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-info-blue rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-semibold text-charcoal">
-                    {isEn ? 'New Client' : '新增客戶'}
-                  </p>
-                  <p className="text-sm text-cool-gray">
-                    {isEn ? 'Add a new client' : '新增一位客戶'}
-                  </p>
-                </div>
-              </div>
-            </Link>
-
-            <Link 
-              href="/time/new"
-              className="p-4 border-2 border-light-gray rounded-lg hover:border-mint-green transition-colors cursor-pointer"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-success-green rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-semibold text-charcoal">
-                    {isEn ? 'Log Time' : '登記工時'}
-                  </p>
-                  <p className="text-sm text-cool-gray">
-                    {isEn ? 'Track billable hours' : '記錄可收費的工作時數'}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
