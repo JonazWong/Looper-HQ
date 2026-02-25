@@ -52,14 +52,14 @@ export const mockPrismaClient = {
   $connect: vi.fn(),
   $queryRaw: vi.fn(),
   $executeRaw: vi.fn(),
-} as unknown as PrismaClient
+} as any as PrismaClient
 
 export const resetMockPrisma = () => {
   Object.values(mockPrismaClient).forEach((model) => {
     if (typeof model === 'object') {
       Object.values(model).forEach((method) => {
         if (typeof method === 'function' && 'mockReset' in method) {
-          method.mockReset()
+          (method as { mockReset: () => void }).mockReset()
         }
       })
     }
