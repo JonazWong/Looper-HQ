@@ -20,7 +20,7 @@ services:
     container_name: looper-hq-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Ken202318}
       POSTGRES_DB: ${POSTGRES_DB:-looper_hq}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
       TZ: Asia/Hong_Kong
@@ -98,7 +98,7 @@ services:
     container_name: looper-hq-web
     environment:
       # Database
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-looper_hq}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-Ken202318}@postgres:5432/${POSTGRES_DB:-looper_hq}
       
       # Redis
       REDIS_URL: redis://${REDIS_PASSWORD:+:${REDIS_PASSWORD}@}redis:6379
