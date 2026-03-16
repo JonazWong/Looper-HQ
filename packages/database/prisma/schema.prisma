@@ -594,3 +594,49 @@ enum RssSourceStatus {
   ERROR
   DEPRECATED
 }
+
+// Crawler Job Run - tracks each execution of the crawler for observability
+model CrawlerJobRun {
+  id            String            @id @default(cuid())
+  
+  // Trigger info
+  triggeredBy   String            @default("scheduler") // "scheduler" | "manual" | "github_actions"
+  
+  // Status
+  status        CrawlerRunStatus  @default(RUNNING)
+  
+  // Results
+  totalAdded    Int               @default(0)
+  totalSkipped  Int               @default(0)
+  totalErrors   Int               @default(0)
+  
+  // Per-source breakdown (JSON: { sourceName: { added, skipped, errors } })
+  sourceStats   Json?
+  
+  // AI Analysis
+  aiAnalysisRan    Boolean        @default(false)
+  aiAnalysisCount  Int            @default(0)
+  
+  // Error info
+  errorMessage  String?           @db.Text
+  
+  // Timing
+  startedAt     DateTime          @default(now())
+  completedAt   DateTime?
+  
+  // Duration in seconds (computed on completion)
+  durationSeconds Int?
+  
+  createdAt     DateTime          @default(now())
+  
+  @@index([status, startedAt])
+  @@index([startedAt])
+  @@map("crawler_job_runs")
+}
+
+enum CrawlerRunStatus {
+  RUNNING
+  SUCCESS
+  PARTIAL_SUCCESS
+  FAILED
+}

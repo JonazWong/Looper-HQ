@@ -3,6 +3,7 @@ import { ArrowRight, Scale, Brain, Search, Globe, Database, Newspaper, Bot, File
 import { PremierButton } from "@/components/ui/premier-button"
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
 import { ParticleBackground } from "@/components/effects/particle-background"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 export default async function HomePage({
   params
@@ -24,6 +25,7 @@ export default async function HomePage({
             <span className="text-xl font-serif font-bold text-gradient-gold">Looper HQ</span>
           </div>
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             <Link href={`/${locale}/login`}>
               <PremierButton variant="ghost">{isEn ? 'Login' : '會員登入'}</PremierButton>
             </Link>

@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { CheckCircle2, XCircle, AlertTriangle, Clock, Database, RefreshCw, Settings, Rss } from 'lucide-react'
+import { CheckCircle2, XCircle, AlertTriangle, Clock, Database, RefreshCw, Settings, Rss, Activity, Calendar } from 'lucide-react'
 
 interface RssSourceRow {
   id: string
@@ -14,24 +14,51 @@ interface RssSourceRow {
   lastError: string | null
 }
 
+interface JobRunRow {
+  id: string
+  status: string
+  totalAdded: number
+  totalErrors: number
+  durationSeconds: number | null
+  startedAt: string
+  completedAt: string | null
+  triggeredBy: string
+}
+
 interface AdminDashboardClientProps {
   rssSources: RssSourceRow[]
   totalPublicCases: number
   todayPublicCases: number
+  latestJobRun: JobRunRow | null
+  recentJobRuns: JobRunRow[]
 }
 
 function StatusBadge({ status }: { status: string }) {
-  if (status === 'ACTIVE') {
+  if (status === 'ACTIVE' || status === 'SUCCESS') {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-900/40 text-green-400 border border-green-800">
-        <CheckCircle2 className="w-3 h-3" /> Active
+        <CheckCircle2 className="w-3 h-3" /> {status === 'SUCCESS' ? 'Success' : 'Active'}
       </span>
     )
   }
-  if (status === 'ERROR') {
+  if (status === 'ERROR' || status === 'FAILED') {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-900/40 text-red-400 border border-red-800">
-        <XCircle className="w-3 h-3" /> Error
+        <XCircle className="w-3 h-3" /> {status === 'FAILED' ? 'Failed' : 'Error'}
+      </span>
+    )
+  }
+  if (status === 'PARTIAL_SUCCESS') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-900/40 text-yellow-400 border border-yellow-800">
+        <AlertTriangle className="w-3 h-3" /> Partial
+      </span>
+    )
+  }
+  if (status === 'RUNNING') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-900/40 text-blue-400 border border-blue-800">
+        <RefreshCw className="w-3 h-3 animate-spin" /> Running
       </span>
     )
   }
@@ -42,7 +69,7 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
-export function AdminDashboardClient({ rssSources, totalPublicCases, todayPublicCases }: AdminDashboardClientProps) {
+export function AdminDashboardClient({ rssSources, totalPublicCases, todayPublicCases, latestJobRun, recentJobRuns }: AdminDashboardClientProps) {
   const pathname = usePathname() || '/'
   const isEn = pathname.startsWith('/en')
 
@@ -51,6 +78,12 @@ export function AdminDashboardClient({ rssSources, totalPublicCases, todayPublic
   const successRate = rssSources.length > 0
     ? Math.round((activeSources / rssSources.length) * 100)
     : 0
+
+  const lastCrawlTime = latestJobRun?.completedAt
+    ? new Date(latestJobRun.completedAt).toLocaleString()
+    : latestJobRun?.startedAt
+    ? new Date(latestJobRun.startedAt).toLocaleString()
+    : (isEn ? 'Never' : '從未')
 
   return (
     <div className="space-y-8 p-6">
@@ -79,6 +112,88 @@ export function AdminDashboardClient({ rssSources, totalPublicCases, todayPublic
             <div className="text-2xl font-bold text-premier-pearl">{card.value}</div>
           </div>
         ))}
+      </div>
+
+      {/* Crawler Job Run History */}
+      <div className="glass-card rounded-premier-lg p-6">
+        <h2 className="text-lg font-semibold text-premier-gold flex items-center gap-2 mb-4">
+          <Activity className="w-5 h-5" />
+          {isEn ? 'Crawler Job History' : '爬蟲任務記錄'}
+        </h2>
+
+        {/* Latest Run Summary */}
+        {latestJobRun ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-premier-black-light rounded-premier-md">
+            <div>
+              <p className="text-premier-pearl-gray text-xs mb-1">{isEn ? 'Last Run Status' : '最近執行狀態'}</p>
+              <StatusBadge status={latestJobRun.status} />
+            </div>
+            <div>
+              <p className="text-premier-pearl-gray text-xs mb-1">{isEn ? 'Last Run Time' : '最近執行時間'}</p>
+              <p className="text-premier-pearl text-sm flex items-center gap-1">
+                <Calendar className="w-3 h-3 text-premier-gold" />
+                {lastCrawlTime}
+              </p>
+            </div>
+            <div>
+              <p className="text-premier-pearl-gray text-xs mb-1">{isEn ? 'Items Added' : '新增筆數'}</p>
+              <p className="text-premier-pearl text-sm font-semibold">{latestJobRun.totalAdded}</p>
+            </div>
+            <div>
+              <p className="text-premier-pearl-gray text-xs mb-1">{isEn ? 'Duration' : '執行時長'}</p>
+              <p className="text-premier-pearl text-sm">
+                {latestJobRun.durationSeconds != null ? `${latestJobRun.durationSeconds}s` : (isEn ? 'N/A' : '未知')}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <p className="text-premier-pearl-gray text-sm mb-4">
+            {isEn ? 'No crawler runs recorded yet.' : '暫無爬蟲執行記錄。'}
+          </p>
+        )}
+
+        {/* Recent Runs Table */}
+        {recentJobRuns.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-premier-gold/20">
+                  <th className="text-left py-3 pr-4 text-premier-pearl-gray font-medium">{isEn ? 'Status' : '狀態'}</th>
+                  <th className="text-left py-3 pr-4 text-premier-pearl-gray font-medium">{isEn ? 'Started At' : '開始時間'}</th>
+                  <th className="text-left py-3 pr-4 text-premier-pearl-gray font-medium">{isEn ? 'Added' : '新增'}</th>
+                  <th className="text-left py-3 pr-4 text-premier-pearl-gray font-medium">{isEn ? 'Errors' : '錯誤'}</th>
+                  <th className="text-left py-3 text-premier-pearl-gray font-medium">{isEn ? 'Triggered By' : '觸發方式'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentJobRuns.map(run => (
+                  <tr key={run.id} className="border-b border-premier-gold/10 hover:bg-premier-gold/5 transition-colors">
+                    <td className="py-3 pr-4">
+                      <StatusBadge status={run.status} />
+                    </td>
+                    <td className="py-3 pr-4">
+                      <span className="text-premier-pearl-gray flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {new Date(run.startedAt).toLocaleString()}
+                      </span>
+                    </td>
+                    <td className="py-3 pr-4">
+                      <span className="text-premier-pearl font-medium">{run.totalAdded}</span>
+                    </td>
+                    <td className="py-3 pr-4">
+                      <span className={run.totalErrors > 0 ? 'text-red-400' : 'text-premier-pearl-gray'}>
+                        {run.totalErrors}
+                      </span>
+                    </td>
+                    <td className="py-3">
+                      <span className="text-premier-pearl-gray text-xs">{run.triggeredBy}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* RSS Source Management */}
@@ -199,3 +314,4 @@ export function AdminDashboardClient({ rssSources, totalPublicCases, todayPublic
     </div>
   )
 }
+
