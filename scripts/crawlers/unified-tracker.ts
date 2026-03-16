@@ -3,6 +3,7 @@ import { trackJudiciaryCases } from './hk-judiciary-crawler';
 import { trackRssNews } from './rss-news-crawler';
 
 const prisma = new PrismaClient();
+let currentJobRunId: string | number | null = null;
 
 async function main() {
   console.log('🚀 Starting daily case tracking...\n');
@@ -17,6 +18,7 @@ async function main() {
       status: 'RUNNING',
     },
   });
+  currentJobRunId = jobRun.id;
 
   console.log(`📝 Created job run record: ${jobRun.id}`);
 
@@ -110,21 +112,19 @@ async function main() {
 // Handle uncaught errors
 process.on('unhandledRejection', async (error: any) => {
   console.error('\n💥 Unhandled error:', error);
-  // Try to mark the most recent RUNNING job as FAILED
+  // Try to mark the current job run as FAILED
   try {
-    const runningJob = await prisma.crawlerJobRun.findFirst({
-      where: { status: 'RUNNING' },
-      orderBy: { startedAt: 'desc' },
-    });
-    if (runningJob) {
+    if (currentJobRunId != null) {
       await prisma.crawlerJobRun.update({
-        where: { id: runningJob.id },
+        where: { id: currentJobRunId },
         data: {
           status: 'FAILED',
           errorMessage: error?.message ?? String(error),
           completedAt: new Date(),
         },
       });
+    } else {
+      console.error('No crawler job run ID available to update on crash.');
     }
   } catch (dbErr) {
     console.error('Failed to update job run status on crash:', dbErr);
