@@ -1,0 +1,116 @@
+# syntax=docker/dockerfile:1
+
+# Looper HQ - Optimized Multi-stage Dockerfile for Production
+# Supports: @looper-hq/web (port 3000)
+
+# =============================================================================
+# Stage 1: Base - Shared dependencies for all stages
+# =============================================================================
+FROM node:20-alpine AS base
+
+# Install system dependencies once
+RUN apk add --no-cache libc6-compat openssl
+
+# Enable corepack and prepare pnpm globally
+RUN corepack enable && corepack prepare pnpm@9.15.2 --activate
+
+WORKDIR /app
+
+# =============================================================================
+# Stage 2: Dependencies - Install all dependencies
+# =============================================================================
+FROM base AS dependencies
+
+# Copy only dependency files to leverage Docker build cache
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+
+# Copy package.json files from all workspaces
+COPY packages/*/package.json ./packages/*/
+COPY apps/*/package.json ./apps/*/
+
+# Install dependencies with frozen lockfile (fail if lock is outdated)
+RUN pnpm install --frozen-lockfile --production=false
+
+# =============================================================================
+# Stage 3: Builder - Build application
+# =============================================================================
+FROM dependencies AS builder
+
+# Copy all source code
+COPY . .
+
+# Set environment variables for build
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
+
+# Build using Turborepo with cache mounts for faster rebuilds
+RUN --mount=type=cache,target=/app/.turbo \
+    pnpm turbo build --filter=@looper-hq/web
+
+# Regenerate Prisma Client with production binary targets
+RUN pnpm --filter=@looper-hq/database exec prisma generate
+
+# =============================================================================
+# Stage 4: Production dependencies - Minimal runtime dependencies only
+# =============================================================================
+FROM base AS prod-dependencies
+
+# Copy only dependency files
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY packages/*/package.json ./packages/*/
+COPY apps/*/package.json ./apps/*/
+
+# Install ONLY production dependencies (no devDependencies)
+RUN pnpm install --frozen-lockfile --production=true
+
+# =============================================================================
+# Stage 5: Web App Runner - Lean production image
+# =============================================================================
+FROM node:20-alpine AS runner-web
+
+# Install minimal runtime dependencies only
+RUN apk add --no-cache curl dumb-init
+
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Set production environment
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Copy production dependencies from prod-dependencies stage
+COPY --from=prod-dependencies /app/node_modules ./node_modules
+
+# Copy pre-built Next.js standalone output (includes minimal runtime deps)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+
+# Copy Prisma runtime files (schema only needed for migrations)
+COPY --from=builder --chown=nextjs:nodejs /app/packages/database/prisma ./prisma
+
+# Copy startup script
+COPY --chown=nextjs:nodejs scripts/startup.sh ./scripts/startup.sh
+RUN chmod +x ./scripts/startup.sh
+
+# Switch to non-root user BEFORE exposing ports
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Health check with configurable parameters
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Use dumb-init to handle signals properly (prevents zombie processes)
+ENTRYPOINT ["/usr/sbin/dumb-init", "--"]
+
+# Start application
+CMD ["sh", "./scripts/startup.sh"]
