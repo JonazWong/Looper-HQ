@@ -13,7 +13,6 @@ interface SearchResult {
   crawledAt: string
 }
 
-const WEB_APP_URL = process.env.NEXT_PUBLIC_WEB_APP_URL || 'http://localhost:3005'
 
 export default function HomePage() {
   const [query, setQuery] = useState('')
@@ -28,7 +27,7 @@ export default function HomePage() {
     setError(null)
     try {
       const res = await fetch(
-        `${WEB_APP_URL}/api/public-cases?query=${encodeURIComponent(query)}&limit=20`
+        `/api/search?query=${encodeURIComponent(query)}&limit=20`
       )
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
