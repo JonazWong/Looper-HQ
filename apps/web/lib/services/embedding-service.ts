@@ -2,6 +2,10 @@ import { generateEmbedding } from '@looper-hq/utils'
 import { prisma } from '@/lib/db'
 import { NotFoundError } from '@/lib/api/errors'
 
+// Upper bound on how many embeddings we load and score per query to avoid
+// unbounded O(N·D) work as the embeddings table grows.
+const MAX_EMBEDDING_CANDIDATES = 2000
+
 export interface SearchResult {
   publicCaseId: string
   similarity: number
@@ -93,9 +97,10 @@ export async function semanticSearch(
     process.env.EMBEDDING_MODEL || 'text-embedding-3-large',
   )
 
-  // Fetch all stored embeddings (MVP: in-memory cosine similarity)
+  // Fetch a bounded set of stored embeddings (MVP: in-memory cosine similarity)
   const embeddings = await prisma.embedding.findMany({
     where: { sourceField: 'content' },
+    take: MAX_EMBEDDING_CANDIDATES,
     include: {
       publicCase: {
         select: {
