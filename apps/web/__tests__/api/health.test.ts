@@ -218,17 +218,19 @@ describe('GET /api/health', () => {
         arrayBuffers: 0,
       })
 
-      // Act
-      const response = await GET(createMockRequest('http://localhost:3000/api/health?detailed=true'))
-      const data = await response.json()
+      try {
+        // Act
+        const response = await GET(createMockRequest('http://localhost:3000/api/health?detailed=true'))
+        const data = await response.json()
 
-      // Assert
-      expect(data.status).toBe('healthy')
-      expect(data.checks.memory.status).toBe('warning')
-      expect(data.checks.memory.percentage).toBeGreaterThan(90)
-
-      // Restore
-      memoryUsageSpy.mockRestore()
+        // Assert
+        expect(data.status).toBe('healthy')
+        expect(data.checks.memory.status).toBe('warning')
+        expect(data.checks.memory.percentage).toBeGreaterThan(90)
+      } finally {
+        // Restore
+        memoryUsageSpy.mockRestore()
+      }
     })
   })
 
