@@ -1,0 +1,73 @@
+openapi: 3.0.0
+info:
+  title: 香港法案智能處理系統 API
+  version: 1.0.0
+
+paths:
+  /embedding/search:
+    post:
+      summary: 語義檢索
+      description: 使用 text-embedding-3-large 建立向量索引並檢索相關文本
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  example: "司法覆核程序"
+      responses:
+        '200':
+          description: 成功回傳檢索結果
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchResult'
+
+  /nlp/classify:
+    post:
+      summary: 法律文本分類
+      description: 使用 Legal-BERT / LexNLP 對文本進行分類與標註
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  example: "本案涉及合約糾紛..."
+      responses:
+        '200':
+          description: 成功回傳分類結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Classification'
+
+  /language/translate:
+    post:
+      summary: 中英文翻譯
+      description: 使用 GPT-4 Turbo 對法律文本進行專業翻譯
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  example: "司法覆核申請被駁回"
+                target_lang:
+                  type: string
+                  enum: [en, zh]
+      responses:
+        '200':
+          description: 成功回傳翻譯結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Translation'
