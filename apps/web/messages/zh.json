@@ -190,5 +190,54 @@
   "footer": {
     "copyright": "© 2026 Looper HQ. 版權所有。",
     "premierEdition": "尊爵版"
+  },
+  "landing": {
+    "header": {
+      "login": "登入",
+      "getStarted": "立即開始"
+    },
+    "hero": {
+      "title": "香港法律案件統一管理平台",
+      "subtitle": "以 Looper HQ 簡化您的法律業務——在同一個強大平台上管理案件、客戶門戶及公開案件搜尋。",
+      "cta": "立即開始",
+      "searchCases": "搜尋案件"
+    },
+    "features": {
+      "sectionTitle": "一站式管理您的法律業務",
+      "caseManagement": {
+        "title": "案件管理",
+        "description": "在一個地方以強大工具整理和追蹤所有案件"
+      },
+      "clientPortal": {
+        "title": "客戶門戶",
+        "description": "為客戶提供安全存取其案件資料的渠道"
+      },
+      "publicSearch": {
+        "title": "公開案件搜尋",
+        "description": "啟用案件記錄的公開搜尋功能，配合私隱保護控制"
+      },
+      "secure": {
+        "title": "安全合規",
+        "description": "按香港法律要求及資料保護規定而設計（資訊展示）"
+      },
+      "timeTracking": {
+        "title": "時間追蹤",
+        "description": "追蹤計費時數並自動生成發票"
+      },
+      "documents": {
+        "title": "文件管理",
+        "description": "安全地儲存和整理所有與案件相關的文件"
+      }
+    },
+    "cta": {
+      "title": "準備好開始了嗎？",
+      "subtitle": "加入香港各大律師事務所，使用 Looper HQ 管理業務",
+      "button": "開始免費試用"
+    },
+    "footer": {
+      "rights": "版權所有。",
+      "terms": "服務條款",
+      "privacy": "私隱政策"
+    }
   }
 }

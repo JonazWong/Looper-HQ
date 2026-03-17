@@ -188,5 +188,54 @@
   "footer": {
     "copyright": "© 2026 Looper HQ. All rights reserved.",
     "premierEdition": "Premier Edition"
+  },
+  "landing": {
+    "header": {
+      "login": "Login",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "title": "Unified Legal Case Management for Hong Kong",
+      "subtitle": "Streamline your legal practice with Looper HQ - comprehensive case management, client portals, and public case search in one powerful platform.",
+      "cta": "Get Started",
+      "searchCases": "Search Cases"
+    },
+    "features": {
+      "sectionTitle": "Everything you need to manage your legal practice",
+      "caseManagement": {
+        "title": "Case Management",
+        "description": "Organize and track all your cases in one place with powerful tools"
+      },
+      "clientPortal": {
+        "title": "Client Portal",
+        "description": "Provide clients with secure access to their case information"
+      },
+      "publicSearch": {
+        "title": "Public Case Search",
+        "description": "Enable public search of case records with privacy controls"
+      },
+      "secure": {
+        "title": "Secure & Compliant",
+        "description": "Built with Hong Kong legal requirements and data protection in mind (information display only)"
+      },
+      "timeTracking": {
+        "title": "Time Tracking",
+        "description": "Track billable hours and generate invoices automatically"
+      },
+      "documents": {
+        "title": "Document Management",
+        "description": "Store and organize all case-related documents securely"
+      }
+    },
+    "cta": {
+      "title": "Ready to get started?",
+      "subtitle": "Join law firms across Hong Kong using Looper HQ to manage their practice",
+      "button": "Start Your Free Trial"
+    },
+    "footer": {
+      "rights": "All rights reserved.",
+      "terms": "Terms",
+      "privacy": "Privacy"
+    }
   }
 }

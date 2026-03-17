@@ -20,9 +20,20 @@ type SerializedRssSource = {
   lastError: string | null
 }
 
+type SerializedJobRun = {
+  id: string
+  status: string
+  totalAdded: number
+  totalErrors: number
+  durationSeconds: number | null
+  startedAt: string
+  completedAt: string | null
+  triggeredBy: string
+}
+
 async function getAdminData() {
   try {
-    const [rssSources, totalPublicCases, todayPublicCases] = await Promise.all([
+    const [rssSources, totalPublicCases, todayPublicCases, latestJobRun, recentJobRuns] = await Promise.all([
       prisma.rssSource.findMany({
         orderBy: { name: 'asc' },
       }),
@@ -32,6 +43,23 @@ async function getAdminData() {
           crawledAt: {
             gte: new Date(new Date().setHours(0, 0, 0, 0)),
           },
+        },
+      }),
+      prisma.crawlerJobRun.findFirst({
+        orderBy: { startedAt: 'desc' },
+      }),
+      prisma.crawlerJobRun.findMany({
+        take: 5,
+        orderBy: { startedAt: 'desc' },
+        select: {
+          id: true,
+          status: true,
+          totalAdded: true,
+          totalErrors: true,
+          durationSeconds: true,
+          startedAt: true,
+          completedAt: true,
+          triggeredBy: true,
         },
       }),
     ])
@@ -48,14 +76,40 @@ async function getAdminData() {
       lastError: source.lastError ?? null,
     }))
 
+    const serializedLatestJobRun: SerializedJobRun | null = latestJobRun
+      ? {
+          id: latestJobRun.id,
+          status: latestJobRun.status as string,
+          totalAdded: latestJobRun.totalAdded,
+          totalErrors: latestJobRun.totalErrors,
+          durationSeconds: latestJobRun.durationSeconds,
+          startedAt: latestJobRun.startedAt.toISOString(),
+          completedAt: latestJobRun.completedAt?.toISOString() ?? null,
+          triggeredBy: latestJobRun.triggeredBy,
+        }
+      : null
+
+    const serializedRecentJobRuns: SerializedJobRun[] = recentJobRuns.map(r => ({
+      id: r.id,
+      status: r.status as string,
+      totalAdded: r.totalAdded,
+      totalErrors: r.totalErrors,
+      durationSeconds: r.durationSeconds,
+      startedAt: r.startedAt.toISOString(),
+      completedAt: r.completedAt?.toISOString() ?? null,
+      triggeredBy: r.triggeredBy,
+    }))
+
     return { 
       rssSources: serializedRssSources, 
       totalPublicCases, 
-      todayPublicCases 
+      todayPublicCases,
+      latestJobRun: serializedLatestJobRun,
+      recentJobRuns: serializedRecentJobRuns,
     }
   } catch (error) {
     console.error('Failed to fetch admin data:', error)
-    return { rssSources: [], totalPublicCases: 0, todayPublicCases: 0 }
+    return { rssSources: [], totalPublicCases: 0, todayPublicCases: 0, latestJobRun: null, recentJobRuns: [] }
   }
 }
 
