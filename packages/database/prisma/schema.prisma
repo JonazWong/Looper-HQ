@@ -542,9 +542,9 @@ model PublicCase {
   
   // AI Pipeline relations
   embeddings      Embedding[]
-  classifications Classification[]
+  classifications Classification?
   translations    Translation[]
-  summaries       Summary[]
+  summaries       Summary?
   
   @@unique([source, externalId])
   @@index([source, crawledAt])
