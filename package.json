@@ -65,6 +65,7 @@
   ...
   "private": true,
   "workspaces": [
+    "services/*",
     "packages/*",
     "apps/*"
   ],
