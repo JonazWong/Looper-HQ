@@ -120,20 +120,29 @@ const styles = {
 
 function LoadingSpinner() {
   return (
-    <div style={{ textAlign: 'center', padding: '3rem 0' }}>
-      <div
-        style={{
-          display: 'inline-block',
-          width: '48px',
-          height: '48px',
-          border: '3px solid rgba(212, 175, 55, 0.2)',
-          borderTopColor: '#D4AF37',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-        }}
-      />
-      <p style={{ marginTop: '1rem', color: '#C0C0C0' }}>載入中...</p>
-    </div>
+    <>
+      <style jsx global>{`
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
+      <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+        <div
+          style={{
+            display: 'inline-block',
+            width: '48px',
+            height: '48px',
+            border: '3px solid rgba(212, 175, 55, 0.2)',
+            borderTopColor: '#D4AF37',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+          }}
+        />
+        <p style={{ marginTop: '1rem', color: '#C0C0C0' }}>載入中...</p>
+      </div>
+    </>
   )
 }
 
