@@ -59,9 +59,8 @@ export async function embedPublicCase(publicCaseId: string): Promise<void> {
     .join(' ')
 
   const model = process.env.EMBEDDING_MODEL || 'text-embedding-3-large'
-  const dimensions = Number(process.env.EMBEDDING_DIMENSIONS || 3072)
-
   const vector = await generateEmbedding(sourceText, model)
+  const dimensions = vector.length
 
   await prisma.embedding.upsert({
     where: { publicCaseId_sourceField: { publicCaseId, sourceField: 'content' } },
