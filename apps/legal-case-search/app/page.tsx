@@ -261,6 +261,7 @@ export default function LegalCaseSearchPage() {
             type="search"
             name="q"
             placeholder="輸入案件名稱、關鍵字或當事人姓名..."
+            aria-label="搜尋案件、關鍵字或當事人姓名"
             style={styles.searchInput}
           />
           <button type="submit" style={styles.searchButton}>
