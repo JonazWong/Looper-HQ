@@ -670,6 +670,7 @@ model Embedding {
   updatedAt     DateTime @updatedAt
   
   @@unique([publicCaseId, sourceField])
+  @@index([sourceField])
   @@index([publicCaseId])
   @@map("embeddings")
 }
