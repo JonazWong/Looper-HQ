@@ -13,6 +13,8 @@ const nextConfig = {
 
   // Workspace root configuration
   outputFileTracingRoot: require('path').join(__dirname, '../../'),
+  transpilePackages: ['@looper-hq/database'],
+  serverExternalPackages: ['@prisma/client', 'prisma'],
 }
 
 module.exports = nextConfig

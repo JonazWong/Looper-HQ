@@ -8,6 +8,7 @@
     "start": "next start -p 3001",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
+    "lint": "next lint"
   },
   "dependencies": {
     "@looper-hq/database": "workspace:*",

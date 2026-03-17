@@ -1,7 +1,9 @@
 import Link from "next/link"
-import { ArrowRight, Scale, Shield, Search, Users } from "lucide-react"
+import { ArrowRight, Scale, Shield, Search, Users, Clock, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { getTranslations } from "next-intl/server"
 
 export default async function LandingPage({
   params
@@ -9,7 +11,48 @@ export default async function LandingPage({
   params: Promise<{ locale: string }>
 }) {
   const { locale } = await params;
-  
+  const t = await getTranslations({ locale, namespace: 'landing' });
+
+  // Feature cards: which ones link to real pages vs. info-only
+  const featureCards = [
+    {
+      icon: <Scale className="h-10 w-10 text-primary mb-2" />,
+      title: t('features.caseManagement.title'),
+      description: t('features.caseManagement.description'),
+      href: `/${locale}/cases`,   // real page exists
+    },
+    {
+      icon: <Users className="h-10 w-10 text-primary mb-2" />,
+      title: t('features.clientPortal.title'),
+      description: t('features.clientPortal.description'),
+      href: `/${locale}/clients`, // real page exists
+    },
+    {
+      icon: <Search className="h-10 w-10 text-primary mb-2" />,
+      title: t('features.publicSearch.title'),
+      description: t('features.publicSearch.description'),
+      href: `/${locale}/case-search`, // real page exists
+    },
+    {
+      icon: <Shield className="h-10 w-10 text-primary mb-2" />,
+      title: t('features.secure.title'),
+      description: t('features.secure.description'),
+      href: null, // info-only, no dedicated page
+    },
+    {
+      icon: <Clock className="h-10 w-10 text-primary mb-2" />,
+      title: t('features.timeTracking.title'),
+      description: t('features.timeTracking.description'),
+      href: `/${locale}/time-tracking`, // real page exists
+    },
+    {
+      icon: <FileText className="h-10 w-10 text-primary mb-2" />,
+      title: t('features.documents.title'),
+      description: t('features.documents.description'),
+      href: `/${locale}/documents`, // real page exists
+    },
+  ]
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -20,11 +63,12 @@ export default async function LandingPage({
             <span className="text-xl font-bold">Looper HQ</span>
           </div>
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             <Link href={`/${locale}/login`}>
-              <Button variant="ghost">Login</Button>
+              <Button variant="ghost">{t('header.login')}</Button>
             </Link>
             <Link href={`/${locale}/register`}>
-              <Button>Get Started</Button>
+              <Button>{t('header.getStarted')}</Button>
             </Link>
           </div>
         </div>
@@ -34,21 +78,20 @@ export default async function LandingPage({
       <section className="container px-4 py-24 md:py-32">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-6">
-            Unified Legal Case Management for Hong Kong
+            {t('hero.title')}
           </h1>
           <p className="text-lg text-muted-foreground mb-8">
-            Streamline your legal practice with Looper HQ - comprehensive case management, 
-            client portals, and public case search in one powerful platform.
+            {t('hero.subtitle')}
           </p>
           <div className="flex gap-4 justify-center">
             <Link href={`/${locale}/register`}>
               <Button size="lg">
-                Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                {t('hero.cta')} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
             <Link href={`/${locale}/case-search`}>
               <Button size="lg" variant="outline">
-                Search Cases
+                {t('hero.searchCases')}
               </Button>
             </Link>
           </div>
@@ -59,61 +102,30 @@ export default async function LandingPage({
       <section className="container px-4 py-16 bg-muted/50">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-3xl font-bold text-center mb-12">
-            Everything you need to manage your legal practice
+            {t('features.sectionTitle')}
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <Scale className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Case Management</CardTitle>
-                <CardDescription>
-                  Organize and track all your cases in one place with powerful tools
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader>
-                <Users className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Client Portal</CardTitle>
-                <CardDescription>
-                  Provide clients with secure access to their case information
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader>
-                <Search className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Public Case Search</CardTitle>
-                <CardDescription>
-                  Enable public search of case records with privacy controls
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader>
-                <Shield className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Secure & Compliant</CardTitle>
-                <CardDescription>
-                  Built with Hong Kong legal requirements and data protection in mind
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Time Tracking</CardTitle>
-                <CardDescription>
-                  Track billable hours and generate invoices automatically
-                </CardDescription>
-              </CardHeader>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Document Management</CardTitle>
-                <CardDescription>
-                  Store and organize all case-related documents securely
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            {featureCards.map((card) =>
+              card.href ? (
+                <Link key={card.title} href={card.href} className="group">
+                  <Card className="h-full transition-shadow hover:shadow-md cursor-pointer">
+                    <CardHeader>
+                      {card.icon}
+                      <CardTitle className="group-hover:text-primary transition-colors">{card.title}</CardTitle>
+                      <CardDescription>{card.description}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </Link>
+              ) : (
+                <Card key={card.title} className="h-full opacity-90 cursor-default">
+                  <CardHeader>
+                    {card.icon}
+                    <CardTitle>{card.title}</CardTitle>
+                    <CardDescription>{card.description}</CardDescription>
+                  </CardHeader>
+                </Card>
+              )
+            )}
           </div>
         </div>
       </section>
@@ -121,13 +133,13 @@ export default async function LandingPage({
       {/* CTA Section */}
       <section className="container px-4 py-16">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to get started?</h2>
+          <h2 className="text-3xl font-bold mb-4">{t('cta.title')}</h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Join law firms across Hong Kong using Looper HQ to manage their practice
+            {t('cta.subtitle')}
           </p>
           <Link href={`/${locale}/register`}>
             <Button size="lg">
-              Start Your Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+              {t('cta.button')} <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
         </div>
@@ -137,18 +149,11 @@ export default async function LandingPage({
       <footer className="border-t bg-background mt-auto">
         <div className="container flex flex-col gap-4 py-8 px-4 md:flex-row md:items-center md:justify-between">
           <div className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Looper HQ. All rights reserved.
+            © {new Date().getFullYear()} Looper HQ. {t('footer.rights')}
           </div>
           <div className="flex gap-4">
-            <Link href="/terms" className="text-sm text-muted-foreground hover:text-foreground">
-              Terms
-            </Link>
-            <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground">
-              Privacy
-            </Link>
-            <Link href="/contact" className="text-sm text-muted-foreground hover:text-foreground">
-              Contact
-            </Link>
+            <span className="text-sm text-muted-foreground">{t('footer.terms')}</span>
+            <span className="text-sm text-muted-foreground">{t('footer.privacy')}</span>
           </div>
         </div>
       </footer>
