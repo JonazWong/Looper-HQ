@@ -219,3 +219,36 @@ export const caseFilterSchema = z.object({
 })
 
 export type CaseFilterInput = z.infer<typeof caseFilterSchema>
+
+// AI Pipeline validation schemas
+
+export const embeddingSearchSchema = z.object({
+  query: z
+    .string()
+    .trim()
+    .min(1, 'Query cannot be empty')
+    .max(2000, 'Query cannot exceed 2000 characters'),
+  limit: z.number().int().positive().max(100).optional().default(10),
+  threshold: z.number().min(0).max(1).optional().default(0.5),
+})
+
+export type EmbeddingSearchInput = z.infer<typeof embeddingSearchSchema>
+
+export const summarizeSchema = z.object({
+  publicCaseId: z.string().optional(),
+  text: z.string().min(1).optional(),
+}).refine((data) => data.publicCaseId || data.text, {
+  message: 'Either publicCaseId or text must be provided',
+})
+
+export type SummarizeInput = z.infer<typeof summarizeSchema>
+
+export const pipelineSchema = z.object({
+  publicCaseId: z.string().min(1, 'publicCaseId is required'),
+  steps: z
+    .array(z.enum(['embed', 'classify', 'translate', 'summarize']))
+    .optional()
+    .default(['embed', 'classify', 'translate', 'summarize']),
+})
+
+export type PipelineInput = z.infer<typeof pipelineSchema>

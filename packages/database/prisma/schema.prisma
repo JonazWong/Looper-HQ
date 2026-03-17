@@ -540,6 +540,12 @@ model PublicCase {
   crawledAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   
+  // AI Pipeline relations
+  embeddings      Embedding[]
+  classifications Classification?
+  translations    Translation[]
+  summaries       Summary?
+  
   @@unique([source, externalId])
   @@index([source, crawledAt])
   @@index([caseNumber])
@@ -639,4 +645,105 @@ enum CrawlerRunStatus {
   SUCCESS
   PARTIAL_SUCCESS
   FAILED
+}
+
+// ============================================
+// AI Pipeline Models (香港法案智能處理系統)
+// ============================================
+
+// Embedding 向量索引
+model Embedding {
+  id            String   @id @default(cuid())
+  publicCaseId  String
+  publicCase    PublicCase @relation(fields: [publicCaseId], references: [id], onDelete: Cascade)
+  
+  // Embedding 資訊
+  model         String   @default("text-embedding-3-large")
+  dimensions    Int      @default(3072)
+  embeddingVector Float[]
+  
+  // Source text info
+  sourceField   String   @default("content")
+  tokenCount    Int?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([publicCaseId, sourceField])
+  @@index([sourceField])
+  @@index([publicCaseId])
+  @@map("embeddings")
+}
+
+// NLP 分類結果
+model Classification {
+  id            String   @id @default(cuid())
+  publicCaseId  String
+  publicCase    PublicCase @relation(fields: [publicCaseId], references: [id], onDelete: Cascade)
+  
+  // Classification results
+  category      CaseCategory
+  subCategory   String?
+  confidence    Float
+  keywords      String[]
+  entities      Json?
+  
+  // Model info
+  model         String   @default("gpt-4o-mini")
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([publicCaseId])
+  @@index([publicCaseId])
+  @@index([category])
+  @@map("classifications")
+}
+
+// 翻譯結果
+model Translation {
+  id            String   @id @default(cuid())
+  publicCaseId  String
+  publicCase    PublicCase @relation(fields: [publicCaseId], references: [id], onDelete: Cascade)
+  
+  // Translation content
+  sourceField   String
+  sourceLang    String
+  targetLang    String
+  sourceText    String   @db.Text
+  translatedText String  @db.Text
+  
+  // Quality
+  model         String   @default("gpt-4o-mini")
+  isReviewed    Boolean  @default(false)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([publicCaseId, sourceField, targetLang])
+  @@index([publicCaseId])
+  @@map("translations")
+}
+
+// 摘要
+model Summary {
+  id            String   @id @default(cuid())
+  publicCaseId  String
+  publicCase    PublicCase @relation(fields: [publicCaseId], references: [id], onDelete: Cascade)
+  
+  // Summary content (bilingual)
+  summary_zh    String   @db.Text
+  summary_en    String   @db.Text
+  
+  // Metadata
+  sourceLength  Int
+  summaryLength Int
+  model         String   @default("gpt-4o-mini")
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([publicCaseId])
+  @@index([publicCaseId])
+  @@map("summaries")
 }
