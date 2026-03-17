@@ -681,7 +681,7 @@ model Classification {
   publicCase    PublicCase @relation(fields: [publicCaseId], references: [id], onDelete: Cascade)
   
   // Classification results
-  category      String
+  category      CaseCategory
   subCategory   String?
   confidence    Float
   keywords      String[]
