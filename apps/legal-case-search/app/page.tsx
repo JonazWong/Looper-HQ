@@ -191,7 +191,15 @@ function PlaceholderCases() {
 }
 
 export default function LegalCaseSearchPage() {
-  const webAppUrl = process.env.NEXT_PUBLIC_WEB_APP_URL || DEFAULT_WEB_APP_URL
+  const resolvedWebAppUrl =
+    process.env.NEXT_PUBLIC_WEB_APP_URL ??
+    (process.env.NODE_ENV === 'development' ? DEFAULT_WEB_APP_URL : undefined)
+
+  if (!resolvedWebAppUrl) {
+    throw new Error(
+      'NEXT_PUBLIC_WEB_APP_URL must be set in production for the Legal Case Search app.'
+    )
+  }
 
   return (
     <div>
@@ -201,13 +209,13 @@ export default function LegalCaseSearchPage() {
           <span style={styles.logo}>⚖️ Looper HQ - 法律案件搜尋</span>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <a
-              href={`${webAppUrl}/zh/login`}
+              href={`${resolvedWebAppUrl}/zh/login`}
               style={{ color: '#C0C0C0', textDecoration: 'none', padding: '0.5rem 1rem' }}
             >
               登入
             </a>
             <a
-              href={`${webAppUrl}/zh/register`}
+              href={`${resolvedWebAppUrl}/zh/register`}
               style={{
                 background: 'linear-gradient(to right, #D4AF37, #B8860B)',
                 color: '#0a0a0a',
