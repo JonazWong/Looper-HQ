@@ -115,13 +115,20 @@ export async function runPipeline(
 
       for (const { field, text, direction } of fieldsToTranslate) {
         const translated = await translateText(text, direction)
+        const [sourceLang, targetLang] = direction === 'zh-to-en' ? ['zh', 'en'] : ['en', 'zh']
         await prisma.translation.upsert({
-          where: { publicCaseId_sourceField_targetLang: { publicCaseId, sourceField: field, targetLang: 'en' } },
+          where: {
+            publicCaseId_sourceField_targetLang: {
+              publicCaseId,
+              sourceField: field,
+              targetLang,
+            },
+          },
           create: {
             publicCaseId,
             sourceField: field,
-            sourceLang: 'zh',
-            targetLang: 'en',
+            sourceLang,
+            targetLang,
             sourceText: text,
             translatedText: translated.translatedText,
           },
