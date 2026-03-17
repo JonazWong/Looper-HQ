@@ -1,5 +1,6 @@
 import { generateEmbedding } from '@looper-hq/utils'
 import { prisma } from '@/lib/db'
+import { NotFoundError } from '@/lib/api/errors'
 
 export interface SearchResult {
   publicCaseId: string
@@ -44,7 +45,7 @@ export async function embedPublicCase(publicCaseId: string): Promise<void> {
   })
 
   if (!publicCase) {
-    throw new Error(`PublicCase not found: ${publicCaseId}`)
+    throw new NotFoundError('PublicCase')
   }
 
   // Compose source text from bilingual title + description
