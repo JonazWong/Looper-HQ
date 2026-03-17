@@ -1,5 +1,6 @@
 import { generateCompletion } from '@looper-hq/utils'
 import { prisma } from '@/lib/db'
+import { NotFoundError } from '@/lib/api/errors'
 
 export interface SummaryResult {
   publicCaseId: string
@@ -19,7 +20,7 @@ export async function summarizePublicCase(publicCaseId: string): Promise<Summary
   })
 
   if (!publicCase) {
-    throw new Error(`PublicCase not found: ${publicCaseId}`)
+    throw new NotFoundError('PublicCase')
   }
 
   const sourceText = [
