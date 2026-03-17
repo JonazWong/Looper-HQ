@@ -223,7 +223,11 @@ export type CaseFilterInput = z.infer<typeof caseFilterSchema>
 // AI Pipeline validation schemas
 
 export const embeddingSearchSchema = z.object({
-  query: z.string().min(1, 'Query cannot be empty'),
+  query: z
+    .string()
+    .trim()
+    .min(1, 'Query cannot be empty')
+    .max(2000, 'Query cannot exceed 2000 characters'),
   limit: z.number().int().positive().max(100).optional().default(10),
   threshold: z.number().min(0).max(1).optional().default(0.5),
 })
