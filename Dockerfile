@@ -14,7 +14,7 @@ RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 # Install pnpm globally using corepack
-RUN corepack enable && corepack prepare pnpm@9.15.2 --activate
+RUN corepack enable && corepack prepare pnpm@8.15.0 --activate
 
 # Copy ALL source files
 COPY . .
@@ -48,7 +48,7 @@ RUN apk add --no-cache curl openssl
 WORKDIR /app
 
 # Install pnpm for Prisma CLI installation
-RUN corepack enable && corepack prepare pnpm@9.15.2 --activate
+RUN corepack enable && corepack prepare pnpm@8.15.0 --activate
 
 # Set production environment
 ENV NODE_ENV=production
