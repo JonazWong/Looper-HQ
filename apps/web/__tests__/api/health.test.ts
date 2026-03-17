@@ -112,24 +112,30 @@ describe('GET /api/health', () => {
     })
 
     it('should return detailed metrics with internal header', async () => {
-      // Arrange
-      Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true, configurable: true }) // Simulate production
-      mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
+      const originalNodeEnv = process.env.NODE_ENV
+      try {
+        // Arrange
+        Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true, configurable: true }) // Simulate production
+        mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
 
-      // Act - with internal header
-      const response = await GET(createMockRequest(
-        'http://localhost:3000/api/health?detailed=true',
-        { 'X-Internal-Health-Check': 'test-secret-key' }
-      ))
-      const data = await response.json()
+        // Act - with internal header
+        const response = await GET(createMockRequest(
+          'http://localhost:3000/api/health?detailed=true',
+          { 'X-Internal-Health-Check': 'test-secret-key' }
+        ))
+        const data = await response.json()
 
-      // Assert
-      expect(response.status).toBe(200)
-      expect(data).toHaveProperty('checks')
-      expect(data.checks.database).toHaveProperty('responseTime')
-      
-      // Restore
-      Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true, configurable: true })
+        // Assert
+        expect(response.status).toBe(200)
+        expect(data).toHaveProperty('checks')
+        expect(data.checks.database).toHaveProperty('responseTime')
+      } finally {
+        Object.defineProperty(process.env, 'NODE_ENV', {
+          value: originalNodeEnv ?? 'development',
+          writable: true,
+          configurable: true,
+        })
+      }
     })
 
     it('should include database response time in detailed mode', async () => {
