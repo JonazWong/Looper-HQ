@@ -20,8 +20,7 @@ import { GET } from '@/app/api/health/route'
 afterAll(() => {
   if (originalNodeEnv === undefined) {
     // Restore to unset state if it was originally undefined
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-    delete process.env.NODE_ENV
+    Object.defineProperty(process.env, 'NODE_ENV', { value: undefined, writable: true, configurable: true })
   } else {
     Object.defineProperty(process.env, 'NODE_ENV', {
       value: originalNodeEnv,
@@ -254,8 +253,7 @@ describe('GET /api/health', () => {
 
       // Restore to the previous value within this test
       if (previousNodeEnv === undefined) {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-        delete process.env.NODE_ENV
+        Object.defineProperty(process.env, 'NODE_ENV', { value: undefined, writable: true, configurable: true })
       } else {
         Object.defineProperty(process.env, 'NODE_ENV', {
           value: previousNodeEnv,

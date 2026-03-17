@@ -32,12 +32,10 @@ export function createMockRequest(
     requestInit.body = JSON.stringify(body)
   }
 
-  // Remove null/undefined signal to avoid NextRequest errors
-  if ((requestInit as any).signal == null) {
-    delete (requestInit as any).signal
-  }
-
-  return new NextRequest(urlObj.toString(), requestInit)
+  return new NextRequest(urlObj.toString(), {
+    ...requestInit,
+    signal: requestInit.signal ?? undefined,
+  })
 }
 
 /**

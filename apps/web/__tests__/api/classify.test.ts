@@ -24,8 +24,7 @@ describe('POST /api/classify', () => {
   it('should require authentication', async () => {
     // Arrange
     mockRequireAuth.mockRejectedValue(new Error('Unauthorized'))
-    const request = createMockRequest({
-      method: 'POST',
+    const request = createMockRequest('POST', 'http://localhost:3000/api/classify', {
       body: { title: 'Test', content: 'Test content' },
     })
 
@@ -36,8 +35,7 @@ describe('POST /api/classify', () => {
   it('should return 400 if title is missing', async () => {
     // Arrange
     mockRequireAuth.mockResolvedValue(mockSession)
-    const request = createMockRequest({
-      method: 'POST',
+    const request = createMockRequest('POST', 'http://localhost:3000/api/classify', {
       body: { content: 'Test content' },
     })
 
@@ -53,8 +51,7 @@ describe('POST /api/classify', () => {
   it('should return 400 if content is missing', async () => {
     // Arrange
     mockRequireAuth.mockResolvedValue(mockSession)
-    const request = createMockRequest({
-      method: 'POST',
+    const request = createMockRequest('POST', 'http://localhost:3000/api/classify', {
       body: { title: 'Test Case' },
     })
 
@@ -82,8 +79,7 @@ describe('POST /api/classify', () => {
     }
     mockClassifyCase.mockResolvedValue(mockResult)
 
-    const request = createMockRequest({
-      method: 'POST',
+    const request = createMockRequest('POST', 'http://localhost:3000/api/classify', {
       body: {
         title: '民事訴訟案例',
         content: '這是關於合同糾紛的案例內容...',
@@ -110,8 +106,7 @@ describe('POST /api/classify', () => {
     mockRequireAuth.mockResolvedValue(mockSession)
     mockClassifyCase.mockRejectedValue(new Error('OpenAI API error'))
 
-    const request = createMockRequest({
-      method: 'POST',
+    const request = createMockRequest('POST', 'http://localhost:3000/api/classify', {
       body: {
         title: 'Test Case',
         content: 'Test content',
@@ -131,8 +126,7 @@ describe('POST /api/classify', () => {
   it('should handle empty string title as missing', async () => {
     // Arrange
     mockRequireAuth.mockResolvedValue(mockSession)
-    const request = createMockRequest({
-      method: 'POST',
+    const request = createMockRequest('POST', 'http://localhost:3000/api/classify', {
       body: { title: '', content: 'Test content' },
     })
 
@@ -148,8 +142,7 @@ describe('POST /api/classify', () => {
   it('should handle empty string content as missing', async () => {
     // Arrange
     mockRequireAuth.mockResolvedValue(mockSession)
-    const request = createMockRequest({
-      method: 'POST',
+    const request = createMockRequest('POST', 'http://localhost:3000/api/classify', {
       body: { title: 'Test Case', content: '' },
     })
 
