@@ -11,67 +11,39 @@ import { Suspense } from 'react'
 const DEFAULT_WEB_APP_URL = 'http://localhost:3005'
 
 const styles = {
-  header: {
-    position: 'sticky' as const,
-    top: 0,
-    zIndex: 40,
-    width: '100%',
-    borderBottom: '1px solid rgba(212, 175, 55, 0.1)',
-    backdropFilter: 'blur(12px)',
-    backgroundColor: 'rgba(10, 10, 10, 0.8)',
-    padding: '0 1rem',
-  },
-  headerInner: {
-    maxWidth: '1280px',
-    margin: '0 auto',
-    display: 'flex',
-    height: '64px',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  logo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    textDecoration: 'none',
-    color: '#D4AF37',
-    fontWeight: 'bold',
-    fontSize: '1.25rem',
-  },
-  container: {
-    maxWidth: '1024px',
-    margin: '0 auto',
-    padding: '3rem 1rem',
-  },
-  title: {
-    textAlign: 'center' as const,
-    marginBottom: '3rem',
-  },
-  searchForm: {
-    display: 'flex',
-    gap: '0.75rem',
-    marginBottom: '2rem',
-  },
-  searchInput: {
-    flex: 1,
-    padding: '0.75rem 1rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    border: '1px solid rgba(212, 175, 55, 0.3)',
-    borderRadius: '8px',
-    color: '#F5F5F5',
-    fontSize: '1rem',
-    outline: 'none',
-  },
-  searchButton: {
-    padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, #D4AF37, #B8860B)',
-    border: 'none',
-    borderRadius: '8px',
-    color: '#0a0a0a',
-    fontWeight: '600',
-    cursor: 'pointer',
-    fontSize: '1rem',
-  },
+  // Sticky, blurred header bar using Premier Design System colors
+  header:
+    'sticky top-0 z-40 w-full border-b border-premier-gold/10 ' +
+    'backdrop-blur-md bg-premier-black/80 px-4',
+  // Inner header layout container
+  headerInner:
+    'max-w-4xl mx-auto flex h-16 items-center justify-between ' +
+    'md:max-w-5xl lg:max-w-6xl',
+  // Brand/logo area
+  logo:
+    'flex items-center gap-2 no-underline text-premier-gold ' +
+    'font-bold text-xl',
+  // Main page container
+  container:
+    'max-w-4xl mx-auto py-12 px-4',
+  // Title section
+  title:
+    'text-center mb-12',
+  // Search form layout
+  searchForm:
+    'flex flex-col gap-3 mb-8 sm:flex-row',
+  // Search input styling
+  searchInput:
+    'flex-1 px-4 py-3 bg-white/5 border border-premier-gold/30 ' +
+    'rounded-premier-sm text-premier-pearl text-base outline-none ' +
+    'focus:ring-2 focus:ring-premier-gold/60 focus:border-premier-gold',
+  // Search button styling
+  searchButton:
+    'inline-flex items-center justify-center px-6 py-3 rounded-premier-sm ' +
+    'bg-gradient-to-r from-premier-gold to-premier-gold-rose ' +
+    'text-premier-black text-base font-semibold cursor-pointer ' +
+    'shadow-premier-xs hover:shadow-premier-glow-lg transition-shadow',
+}
   caseCard: {
     padding: '1.5rem',
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
