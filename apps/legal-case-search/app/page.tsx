@@ -2,7 +2,14 @@
 
 import { useState } from 'react'
 
-const WEB_APP_URL = process.env.NEXT_PUBLIC_WEB_APP_URL || 'http://localhost:3005'
+const envWebAppUrl = process.env.NEXT_PUBLIC_WEB_APP_URL
+
+if (!envWebAppUrl && process.env.NODE_ENV !== 'development') {
+  throw new Error('NEXT_PUBLIC_WEB_APP_URL must be defined in non-development environments')
+}
+
+const WEB_APP_URL =
+  envWebAppUrl || (process.env.NODE_ENV === 'development' ? 'http://localhost:3005' : undefined)
 
 interface SearchResult {
   id: string
