@@ -7,43 +7,65 @@
  */
 
 import { Suspense } from 'react'
+import type { CSSProperties } from 'react'
 
 const DEFAULT_WEB_APP_URL = 'http://localhost:3005'
 
-const styles = {
-  // Sticky, blurred header bar using Premier Design System colors
-  header:
-    'sticky top-0 z-40 w-full border-b border-premier-gold/10 ' +
-    'backdrop-blur-md bg-premier-black/80 px-4',
-  // Inner header layout container
-  headerInner:
-    'max-w-4xl mx-auto flex h-16 items-center justify-between ' +
-    'md:max-w-5xl lg:max-w-6xl',
-  // Brand/logo area
-  logo:
-    'flex items-center gap-2 no-underline text-premier-gold ' +
-    'font-bold text-xl',
-  // Main page container
-  container:
-    'max-w-4xl mx-auto py-12 px-4',
-  // Title section
-  title:
-    'text-center mb-12',
-  // Search form layout
-  searchForm:
-    'flex flex-col gap-3 mb-8 sm:flex-row',
-  // Search input styling
-  searchInput:
-    'flex-1 px-4 py-3 bg-white/5 border border-premier-gold/30 ' +
-    'rounded-premier-sm text-premier-pearl text-base outline-none ' +
-    'focus:ring-2 focus:ring-premier-gold/60 focus:border-premier-gold',
-  // Search button styling
-  searchButton:
-    'inline-flex items-center justify-center px-6 py-3 rounded-premier-sm ' +
-    'bg-gradient-to-r from-premier-gold to-premier-gold-rose ' +
-    'text-premier-black text-base font-semibold cursor-pointer ' +
-    'shadow-premier-xs hover:shadow-premier-glow-lg transition-shadow',
-}
+const styles: Record<string, CSSProperties> = {
+  header: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 40,
+    width: '100%',
+    borderBottom: '1px solid rgba(212, 175, 55, 0.1)',
+    backdropFilter: 'blur(12px)',
+    backgroundColor: 'rgba(10, 10, 10, 0.8)',
+    padding: '0 1rem',
+  },
+  headerInner: {
+    maxWidth: '1280px',
+    margin: '0 auto',
+    display: 'flex',
+    height: '64px',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  container: {
+    maxWidth: '1024px',
+    margin: '0 auto',
+    padding: '3rem 1rem',
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: '3rem',
+  },
+  searchForm: {
+    display: 'flex',
+    gap: '0.75rem',
+    marginBottom: '2rem',
+    flexWrap: 'wrap',
+  },
+  searchInput: {
+    flex: 1,
+    minWidth: '200px',
+    padding: '0.75rem 1rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    border: '1px solid rgba(212, 175, 55, 0.3)',
+    borderRadius: '8px',
+    color: '#F5F5F5',
+    fontSize: '1rem',
+    outline: 'none',
+  },
+  searchButton: {
+    padding: '0.75rem 1.5rem',
+    background: 'linear-gradient(to right, #D4AF37, #B8860B)',
+    border: 'none',
+    borderRadius: '8px',
+    color: '#0a0a0a',
+    fontWeight: '600',
+    cursor: 'pointer',
+    fontSize: '1rem',
+  },
   caseCard: {
     padding: '1.5rem',
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -55,13 +77,11 @@ const styles = {
     color: '#D4AF37',
     fontSize: '1.125rem',
     fontWeight: '600',
-    marginBottom: '0.5rem',
     margin: '0 0 0.5rem 0',
   },
   caseMeta: {
     color: '#C0C0C0',
     fontSize: '0.875rem',
-    marginBottom: '0.75rem',
     margin: '0 0 0.75rem 0',
   },
   caseDescription: {
@@ -74,7 +94,7 @@ const styles = {
     marginTop: '3rem',
     paddingTop: '2rem',
     borderTop: '1px solid rgba(212, 175, 55, 0.1)',
-    textAlign: 'center' as const,
+    textAlign: 'center',
     color: '#C0C0C0',
     fontSize: '0.875rem',
   },
@@ -92,29 +112,9 @@ const styles = {
 
 function LoadingSpinner() {
   return (
-    <>
-      <style jsx global>{`
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
-      <div style={{ textAlign: 'center', padding: '3rem 0' }}>
-        <div
-          style={{
-            display: 'inline-block',
-            width: '48px',
-            height: '48px',
-            border: '3px solid rgba(212, 175, 55, 0.2)',
-            borderTopColor: '#D4AF37',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-          }}
-        />
-        <p style={{ marginTop: '1rem', color: '#C0C0C0' }}>載入中...</p>
-      </div>
-    </>
+    <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+      <p style={{ color: '#C0C0C0' }}>載入中...</p>
+    </div>
   )
 }
 
@@ -127,6 +127,7 @@ function PlaceholderCases() {
       source: 'HK Judiciary',
       date: '2024-01-15',
       description_zh: '本案涉及香港刑事法律相關事宜。如需查閱完整案件資料，請登入 Looper HQ 系統。',
+      description_en: 'This case involves Hong Kong criminal law matters. Please log in to Looper HQ to view full case details.',
     },
     {
       id: 2,
@@ -135,6 +136,7 @@ function PlaceholderCases() {
       source: 'HK Judiciary',
       date: '2024-01-10',
       description_zh: '本案為家事法庭案件。如需查閱完整案件資料，請登入 Looper HQ 系統。',
+      description_en: 'This is a Family Court matter. Please log in to Looper HQ to view full case details.',
     },
     {
       id: 3,
@@ -143,6 +145,7 @@ function PlaceholderCases() {
       source: 'RTHK',
       date: '2024-01-08',
       description_zh: '香港法律改革委員會發布最新報告，涵蓋多項法律修訂建議。',
+      description_en: 'The Law Reform Commission of Hong Kong has released its latest report covering various legislative amendment proposals.',
     },
   ]
 
@@ -163,31 +166,25 @@ function PlaceholderCases() {
 }
 
 export default function LegalCaseSearchPage() {
-  const resolvedWebAppUrl =
-    process.env.NEXT_PUBLIC_WEB_APP_URL ??
-    (process.env.NODE_ENV === 'development' ? DEFAULT_WEB_APP_URL : undefined)
-
-  if (!resolvedWebAppUrl) {
-    throw new Error(
-      'NEXT_PUBLIC_WEB_APP_URL must be set in production for the Legal Case Search app.'
-    )
-  }
+  const webAppUrl = process.env.NEXT_PUBLIC_WEB_APP_URL || DEFAULT_WEB_APP_URL
 
   return (
     <div>
       {/* Header */}
       <header style={styles.header}>
         <div style={styles.headerInner}>
-          <span style={styles.logo}>⚖️ Looper HQ - 法律案件搜尋</span>
+          <span style={{ color: '#D4AF37', fontWeight: 'bold', fontSize: '1.25rem' }}>
+            ⚖️ Looper HQ - 法律案件搜尋
+          </span>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <a
-              href={`${resolvedWebAppUrl}/zh/login`}
+              href={`${webAppUrl}/zh/login`}
               style={{ color: '#C0C0C0', textDecoration: 'none', padding: '0.5rem 1rem' }}
             >
               登入
             </a>
             <a
-              href={`${resolvedWebAppUrl}/zh/register`}
+              href={`${webAppUrl}/zh/register`}
               style={{
                 background: 'linear-gradient(to right, #D4AF37, #B8860B)',
                 color: '#0a0a0a',
