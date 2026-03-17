@@ -160,6 +160,26 @@ export async function* generateStreamingCompletion(params: CompletionParams): As
 }
 
 /**
+ * Generate embedding vector for given text
+ */
+export async function generateEmbedding(
+  text: string,
+  model?: string,
+): Promise<number[]> {
+  const embeddingModel = model || process.env.EMBEDDING_MODEL || 'text-embedding-3-large'
+  try {
+    const response = await getClient().embeddings.create({
+      model: embeddingModel,
+      input: text,
+    })
+    return response.data[0].embedding
+  } catch (error) {
+    console.error('[AI Client] Embedding failed:', error)
+    throw new Error(`AI embedding failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
+/**
  * Get current AI provider info
  */
 export function getProviderInfo() {

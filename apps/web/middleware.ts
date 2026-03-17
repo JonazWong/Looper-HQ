@@ -50,7 +50,8 @@ export default auth((req) => {
     const isAuthApi = pathname.startsWith('/api/auth');
     const isPublicApi = pathname === '/api/health' || 
                         pathname === '/api/public-cases' ||
-                        pathname === '/api/translate';
+                        pathname === '/api/translate' ||
+                        pathname === '/api/embedding/search';
     
     if (!isAuthApi && !isPublicApi && !isLoggedIn) {
       return NextResponse.json(
