@@ -1,7 +1,8 @@
 import { vi } from 'vitest'
-import type { PrismaClient } from '@looper-hq/database'
 
-// Mock Prisma Client
+// Mock Prisma Client - typed without PrismaClient cast so that Vitest mock methods
+// (e.g. mockResolvedValue, mockRejectedValue, mockResolvedValueOnce) are accessible
+// directly on each mocked function without TypeScript errors.
 export const mockPrismaClient = {
   case: {
     findMany: vi.fn(),
@@ -52,7 +53,7 @@ export const mockPrismaClient = {
   $connect: vi.fn(),
   $queryRaw: vi.fn(),
   $executeRaw: vi.fn(),
-} as any as PrismaClient
+}
 
 export const resetMockPrisma = () => {
   Object.values(mockPrismaClient).forEach((model) => {

@@ -10,7 +10,7 @@ vi.mock('@/lib/db', () => ({
 process.env.OPENAI_API_KEY = 'test-api-key'
 process.env.OPENAI_BASE_URL = 'https://test.openrouter.ai/api/v1'
 process.env.npm_package_version = '2.0.0'
-process.env.NODE_ENV = 'development' // Allow detailed checks in tests
+Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true, configurable: true }) // Allow detailed checks in tests
 process.env.HEALTH_CHECK_SECRET = 'test-secret-key'
 
 // Import route AFTER mocking
@@ -98,7 +98,7 @@ describe('GET /api/health', () => {
 
     it('should return detailed metrics with internal header', async () => {
       // Arrange
-      process.env.NODE_ENV = 'production' // Simulate production
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true, configurable: true }) // Simulate production
       mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
 
       // Act - with internal header
@@ -114,7 +114,7 @@ describe('GET /api/health', () => {
       expect(data.checks.database).toHaveProperty('responseTime')
       
       // Restore
-      process.env.NODE_ENV = 'development'
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true, configurable: true })
     })
 
     it('should include database response time in detailed mode', async () => {
@@ -189,8 +189,7 @@ describe('GET /api/health', () => {
       mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
       
       // Mock high memory usage
-      const originalMemoryUsage = process.memoryUsage
-      process.memoryUsage = vi.fn().mockReturnValue({
+      const memoryUsageSpy = vi.spyOn(process, 'memoryUsage').mockReturnValue({
         heapUsed: 950 * 1024 * 1024, // 950 MB
         heapTotal: 1000 * 1024 * 1024, // 1000 MB (95% usage)
         external: 0,
@@ -208,14 +207,14 @@ describe('GET /api/health', () => {
       expect(data.checks.memory.percentage).toBeGreaterThan(90)
 
       // Restore
-      process.memoryUsage = originalMemoryUsage
+      memoryUsageSpy.mockRestore()
     })
   })
 
   describe('Security', () => {
     it('should not expose detailed metrics without proper authentication in production', async () => {
       // Arrange
-      process.env.NODE_ENV = 'production'
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true, configurable: true })
       mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
 
       // Act - detailed=true but no internal header in production
@@ -230,7 +229,7 @@ describe('GET /api/health', () => {
       expect(data).not.toHaveProperty('version')
 
       // Restore
-      process.env.NODE_ENV = 'development'
+      Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true, configurable: true })
     })
   })
 })
