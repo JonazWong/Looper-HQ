@@ -167,12 +167,37 @@ export async function generateEmbedding(
   model?: string,
 ): Promise<number[]> {
   const embeddingModel = model || process.env.EMBEDDING_MODEL || 'text-embedding-3-large'
+
+  // Optional dimension hint from environment; used both for request and validation.
+  const envDimensions = process.env.EMBEDDING_DIMENSIONS
+  const parsedDimensions = envDimensions ? Number(envDimensions) : undefined
+  const dimensions =
+    parsedDimensions && Number.isFinite(parsedDimensions) && parsedDimensions > 0
+      ? Math.floor(parsedDimensions)
+      : undefined
+
   try {
     const response = await getClient().embeddings.create({
       model: embeddingModel,
       input: text,
+      // Only pass dimensions when we have a valid positive integer and the SDK supports it.
+      ...(dimensions ? { dimensions } : {}),
     })
-    return response.data[0].embedding
+
+    const embedding = response.data?.[0]?.embedding
+
+    if (!embedding || !Array.isArray(embedding)) {
+      console.error('[AI Client] Embedding response missing or invalid:', response)
+      throw new Error('AI embedding failed: invalid embedding response')
+    }
+
+    if (dimensions && embedding.length !== dimensions) {
+      console.warn(
+        `[AI Client] Embedding dimension mismatch: expected ${dimensions}, got ${embedding.length}`,
+      )
+    }
+
+    return embedding
   } catch (error) {
     console.error('[AI Client] Embedding failed:', error)
     throw new Error(`AI embedding failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
