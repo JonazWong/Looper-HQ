@@ -3,6 +3,7 @@ import { classifyCase } from './ai-classifier'
 import { translateText } from './translator'
 import { summarizePublicCase } from './summarizer'
 import { prisma } from '@/lib/db'
+import { NotFoundError } from '@/lib/api/errors'
 
 export type PipelineStep = 'embed' | 'classify' | 'translate' | 'summarize'
 
@@ -40,7 +41,7 @@ export async function runPipeline(
   })
 
   if (!publicCase) {
-    throw new Error(`PublicCase not found: ${publicCaseId}`)
+    throw new NotFoundError('PublicCase')
   }
 
   // Step 1: Embed
