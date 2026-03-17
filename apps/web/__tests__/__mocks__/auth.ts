@@ -32,10 +32,10 @@ export const mockClientSession: Session = {
 }
 
 // Mock auth function
-export const mockAuth = vi.fn<[], Promise<Session | null>>(() => Promise.resolve(mockSession))
+export const mockAuth = vi.fn<() => Promise<Session | null>>(() => Promise.resolve(mockSession))
 
 // Mock requireAuth function
-export const mockRequireAuth = vi.fn<[], Promise<Session | null>>(() => Promise.resolve(mockSession))
+export const mockRequireAuth = vi.fn<() => Promise<Session | null>>(() => Promise.resolve(mockSession))
 
 // Helper to set mock session
 export const setMockSession = (session: Session | null) => {

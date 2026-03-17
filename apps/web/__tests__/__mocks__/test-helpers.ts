@@ -33,8 +33,8 @@ export function createMockRequest(
   }
 
   // Remove null/undefined signal to avoid NextRequest errors
-  if ((requestInit as any).signal == null) {
-    delete (requestInit as any).signal
+  if (requestInit.signal == null) {
+    delete requestInit.signal
   }
 
   return new NextRequest(urlObj.toString(), requestInit)
