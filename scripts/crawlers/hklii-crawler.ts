@@ -522,9 +522,9 @@ class HkliiCrawler {
           allJudgments.push(...judgments);
 
           // Stop early if the page returned fewer than 10 results — it is likely the
-        // last page.  Note: a real last page may genuinely contain <10 judgments,
-        // so this is a best-effort heuristic to avoid unnecessary empty requests.
-        if (judgments.length < 10) break;
+          // last page.  Note: a real last page may genuinely contain <10 judgments,
+          // so this is a best-effort heuristic to avoid unnecessary empty requests.
+          if (judgments.length < 10) break;
         }
 
         // Rate limiting between courts
