@@ -9,6 +9,12 @@ features:
 ingress:
   rules:
   - component:
+      name: legal-case-search
+    preserve_path_prefix: false
+    match:
+      path:
+        prefix: /legal-search
+  - component:
       name: looper-hq
     match:
       authority:
@@ -82,4 +88,24 @@ services:
   instance_count: 2
   instance_size_slug: apps-s-1vcpu-1gb
   name: looper-hq
+  source_dir: /
+- dockerfile_path: /Dockerfile.legal-case-search
+  envs:
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+  - key: TZ
+    scope: RUN_AND_BUILD_TIME
+    value: Asia/Hong_Kong
+  - key: DATABASE_URL
+    scope: RUN_AND_BUILD_TIME
+    value: ${db-postgresql-sgp1-75753.DATABASE_URL}
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: JonazWong/Looper-HQ
+  http_port: 3001
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-512mb
+  name: legal-case-search
   source_dir: /
