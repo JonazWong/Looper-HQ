@@ -545,6 +545,14 @@ class HkliiCrawler {
         const judgment = allJudgments[i];
         console.log(`  [${i + 1}/${allJudgments.length}] ${judgment.neutralCitation || judgment.title_en.substring(0, 60)}`);
 
+        // Enrich judgment with full text and citations from its detail page
+        try {
+          await this.scrapeJudgmentDetail(judgment);
+        } catch (error: any) {
+          console.warn(`    ⚠️ 無法抓取詳細內容: ${error?.message ?? error}`);
+          this.stats.errors++;
+        }
+
         const result = await this.saveJudgment(judgment);
 
         if (result === 'created') {
