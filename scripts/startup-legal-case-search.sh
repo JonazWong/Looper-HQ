@@ -14,18 +14,19 @@ fi
 
 echo "✅ DATABASE_URL is configured"
 
-# Sync database schema (using db push since project doesn't use migrations)
+# Sync database schema (using non-destructive db push since project doesn't use migrations)
 echo "📊 Syncing database schema..."
 if [ -d "/app/prisma" ]; then
   cd /app
-  
-  # Use pnpm dlx to execute prisma without installation (force-reset for clean state)
-  pnpm dlx prisma@5.17.0 db push --force-reset --skip-generate --schema=./prisma/schema.prisma 2>&1 || {
+
+  # Use pnpm dlx to execute prisma without installation
+  # NOTE: Do NOT use --force-reset here; it drops all data and is unsafe for production.
+  pnpm dlx prisma@5.17.0 db push --skip-generate --schema=./prisma/schema.prisma 2>&1 || {
     EXITCODE=$?
     echo "⚠️  Schema sync failed with exit code $EXITCODE"
     echo "   Continuing startup anyway - check DATABASE_URL and network connectivity"
   }
-  
+
   echo "✅ Database schema sync completed"
 else
   echo "⚠️  Prisma directory not found, skipping schema sync"
