@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { search } from '@/lib/services/search-engine';
-import { CaseSource } from '@looper-hq/database';
+import { CaseSource, CourtLevel } from '@looper-hq/database';
 import { z } from 'zod';
 
 // Force dynamic rendering (handles query parameters)
@@ -12,6 +12,7 @@ const searchSchema = z.object({
   source: z.nativeEnum(CaseSource).optional(),
   category: z.string().optional(),
   court: z.string().optional(),
+  courtLevel: z.nativeEnum(CourtLevel).optional(),
   dateFrom: z.string().datetime().optional(),
   dateTo: z.string().datetime().optional(),
   page: z.coerce.number().min(1).default(1),
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const params = searchSchema.parse(Object.fromEntries(searchParams));
 
-    const { query, source, category, court, dateFrom, dateTo, page, limit, mode } = params;
+    const { query, source, category, court, courtLevel, dateFrom, dateTo, page, limit, mode } = params;
 
     // If no query, use simple Prisma query for better performance
     if (!query) {
@@ -34,6 +35,7 @@ export async function GET(request: NextRequest) {
       if (source) where.source = source;
       if (category) where.category = { contains: category, mode: 'insensitive' };
       if (court) where.court = { contains: court, mode: 'insensitive' };
+      if (courtLevel) where.courtLevel = courtLevel;
       if (dateFrom || dateTo) {
         where.crawledAt = {};
         if (dateFrom) where.crawledAt.gte = new Date(dateFrom);
@@ -71,6 +73,7 @@ export async function GET(request: NextRequest) {
       source,
       category,
       court,
+      courtLevel,
       dateFrom: dateFrom ? new Date(dateFrom) : undefined,
       dateTo: dateTo ? new Date(dateTo) : undefined,
       page,

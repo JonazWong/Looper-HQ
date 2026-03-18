@@ -12,11 +12,15 @@ const CATEGORY_NAMES: Record<CaseCategory, string> = {
   CIVIL: '民事',
   CRIMINAL: '刑事',
   CRIMINAL_APPEAL: '刑事上訴',
+  CONSTITUTIONAL: '憲制及行政法',
   CORPORATE: '公司',
   FAMILY: '家事',
   PROPERTY: '物業',
   EMPLOYMENT: '勞工',
   INTELLECTUAL_PROPERTY: '知識產權',
+  IMMIGRATION: '移民',
+  PERSONAL_INJURY: '人身傷亡',
+  PROBATE: '遺產承辦',
   OTHER: '其他',
 };
 

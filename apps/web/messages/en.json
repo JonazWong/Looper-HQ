@@ -53,6 +53,7 @@
       "source": "Source",
       "category": "Category",
       "court": "Court",
+      "courtLevel": "Court Level",
       "dateRange": "Date Range"
     }
   },
@@ -75,13 +76,30 @@
     "categories": {
       "CIVIL": "Civil",
       "CRIMINAL": "Criminal",
+      "CRIMINAL_APPEAL": "Criminal Appeal",
+      "CONSTITUTIONAL": "Constitutional & Administrative",
       "CORPORATE": "Corporate",
       "FAMILY": "Family",
       "PROPERTY": "Property",
       "EMPLOYMENT": "Employment",
       "INTELLECTUAL_PROPERTY": "Intellectual Property",
       "IMMIGRATION": "Immigration",
+      "PERSONAL_INJURY": "Personal Injury",
+      "PROBATE": "Probate & Estates",
       "OTHER": "Other"
+    },
+    "courtLevels": {
+      "COURT_OF_FINAL_APPEAL": "Court of Final Appeal",
+      "COURT_OF_APPEAL": "Court of Appeal",
+      "COURT_OF_FIRST_INSTANCE": "Court of First Instance",
+      "DISTRICT_COURT": "District Court",
+      "FAMILY_COURT": "Family Court",
+      "MAGISTRATES_COURT": "Magistrates' Court",
+      "LABOUR_TRIBUNAL": "Labour Tribunal",
+      "LANDS_TRIBUNAL": "Lands Tribunal",
+      "COMPETITION_TRIBUNAL": "Competition Tribunal",
+      "SMALL_CLAIMS_TRIBUNAL": "Small Claims Tribunal",
+      "OTHER": "Other Court / Tribunal"
     },
     "statuses": {
       "ACTIVE": "Active",

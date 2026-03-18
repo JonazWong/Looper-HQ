@@ -5,13 +5,14 @@
  */
 
 import { prisma } from '@/lib/db';
-import { CaseSource, CaseCategory } from '@looper-hq/database';
+import { CaseSource, CourtLevel } from '@looper-hq/database';
 
 export interface SearchOptions {
   query: string;
   source?: string;
   category?: string;
   court?: string;
+  courtLevel?: CourtLevel;
   dateFrom?: Date;
   dateTo?: Date;
   page?: number;
@@ -32,7 +33,7 @@ export interface SearchResult {
  */
 export async function fulltextSearch(options: SearchOptions): Promise<SearchResult> {
   const startTime = Date.now();
-  const { query, source, category, court, dateFrom, dateTo, page = 1, limit = 20 } = options;
+  const { query, source, category, court, courtLevel, dateFrom, dateTo, page = 1, limit = 20 } = options;
   const skip = (page - 1) * limit;
   
   // Build WHERE conditions for filters
@@ -55,6 +56,12 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
   if (court) {
     filterConditions.push(`court ILIKE $${paramIndex}`);
     filterParams.push(`%${court}%`);
+    paramIndex++;
+  }
+  
+  if (courtLevel) {
+    filterConditions.push(`"courtLevel" = $${paramIndex}`);
+    filterParams.push(courtLevel);
     paramIndex++;
   }
   
@@ -122,7 +129,7 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
  */
 export async function semanticSearch(options: SearchOptions): Promise<SearchResult> {
   const startTime = Date.now();
-  const { query, source, category, court, dateFrom, dateTo, page = 1, limit = 20 } = options;
+  const { query, source, category, court, courtLevel, dateFrom, dateTo, page = 1, limit = 20 } = options;
   const skip = (page - 1) * limit;
   
   // Extract keywords from query
@@ -143,6 +150,10 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
   
   if (court) {
     where.court = { contains: court, mode: 'insensitive' };
+  }
+  
+  if (courtLevel) {
+    where.courtLevel = courtLevel;
   }
   
   if (dateFrom || dateTo) {

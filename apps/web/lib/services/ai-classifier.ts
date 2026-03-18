@@ -23,7 +23,7 @@ export async function classifyCase(
 
 請以 JSON 格式回覆：
 {
-  "category": "CIVIL|CRIMINAL|PROPERTY|EMPLOYMENT|FAMILY|CORPORATE",
+  "category": "CIVIL|CRIMINAL|CRIMINAL_APPEAL|CONSTITUTIONAL|CORPORATE|FAMILY|PROPERTY|EMPLOYMENT|INTELLECTUAL_PROPERTY|IMMIGRATION|PERSONAL_INJURY|PROBATE|OTHER",
   "court": "法院名稱",
   "judge": "法官姓名",
   "parties": ["當事人1", "當事人2"],
@@ -31,7 +31,22 @@ export async function classifyCase(
   "summary": "50字摘要",
   "confidence": 0.95,
   "keywords": ["關鍵詞1", "關鍵詞2"]
-}`;
+}
+
+類別說明：
+- CIVIL: 民事案件
+- CRIMINAL: 刑事案件
+- CRIMINAL_APPEAL: 刑事上訴案件
+- CONSTITUTIONAL: 憲制及行政法（包括司法複核）
+- CORPORATE: 公司法及商業案件
+- FAMILY: 家事法（離婚、撫養等）
+- PROPERTY: 土地及物業案件
+- EMPLOYMENT: 勞工及僱傭案件
+- INTELLECTUAL_PROPERTY: 知識產權案件
+- IMMIGRATION: 移民及居留權案件
+- PERSONAL_INJURY: 人身傷亡索償案件
+- PROBATE: 遺產承辦及遺囑案件
+- OTHER: 其他類別`;
 
   const responseContent = await generateCompletion({
     systemPrompt: '你是專業的香港法律案例分析助手。',

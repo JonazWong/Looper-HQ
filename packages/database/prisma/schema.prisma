@@ -129,11 +129,29 @@ enum CaseCategory {
   CIVIL
   CRIMINAL
   CRIMINAL_APPEAL
+  CONSTITUTIONAL
   CORPORATE
   FAMILY
   PROPERTY
   EMPLOYMENT
   INTELLECTUAL_PROPERTY
+  IMMIGRATION
+  PERSONAL_INJURY
+  PROBATE
+  OTHER
+}
+
+enum CourtLevel {
+  COURT_OF_FINAL_APPEAL
+  COURT_OF_APPEAL
+  COURT_OF_FIRST_INSTANCE
+  DISTRICT_COURT
+  FAMILY_COURT
+  MAGISTRATES_COURT
+  LABOUR_TRIBUNAL
+  LANDS_TRIBUNAL
+  COMPETITION_TRIBUNAL
+  SMALL_CLAIMS_TRIBUNAL
   OTHER
 }
 
@@ -515,6 +533,7 @@ model PublicCase {
   
   category    CaseCategory? // Case category (enum)
   court       String?       // Court name
+  courtLevel  CourtLevel?   // Court hierarchy level
   
   // Parties
   parties     Json?      // { plaintiff: [], defendant: [] }
@@ -551,6 +570,7 @@ model PublicCase {
   @@index([caseNumber])
   @@index([keywords])
   @@index([publishedAt])
+  @@index([courtLevel])
   @@index([searchVector], type: Gin)
   @@map("public_cases")
 }

@@ -55,6 +55,7 @@
       "source": "來源",
       "category": "類別",
       "court": "法院",
+      "courtLevel": "法院級別",
       "dateRange": "日期範圍"
     }
   },
@@ -77,13 +78,30 @@
     "categories": {
       "CIVIL": "民事",
       "CRIMINAL": "刑事",
+      "CRIMINAL_APPEAL": "刑事上訴",
+      "CONSTITUTIONAL": "憲制及行政法",
       "CORPORATE": "公司",
       "FAMILY": "家事",
       "PROPERTY": "物業",
       "EMPLOYMENT": "勞工",
       "INTELLECTUAL_PROPERTY": "知識產權",
       "IMMIGRATION": "移民",
+      "PERSONAL_INJURY": "人身傷亡",
+      "PROBATE": "遺產承辦",
       "OTHER": "其他"
+    },
+    "courtLevels": {
+      "COURT_OF_FINAL_APPEAL": "終審法院",
+      "COURT_OF_APPEAL": "上訴法庭",
+      "COURT_OF_FIRST_INSTANCE": "原訟法庭",
+      "DISTRICT_COURT": "區域法院",
+      "FAMILY_COURT": "家事法庭",
+      "MAGISTRATES_COURT": "裁判法院",
+      "LABOUR_TRIBUNAL": "勞資審裁處",
+      "LANDS_TRIBUNAL": "土地審裁處",
+      "COMPETITION_TRIBUNAL": "競爭事務審裁處",
+      "SMALL_CLAIMS_TRIBUNAL": "小額錢債審裁處",
+      "OTHER": "其他法院／審裁處"
     },
     "statuses": {
       "ACTIVE": "進行中",

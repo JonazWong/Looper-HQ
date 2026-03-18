@@ -174,6 +174,12 @@ export function CasesFilters({
               <DropdownMenuItem onClick={() => updateFilters('category', 'CRIMINAL')}>
                 Criminal
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => updateFilters('category', 'CRIMINAL_APPEAL')}>
+                Criminal Appeal
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => updateFilters('category', 'CONSTITUTIONAL')}>
+                Constitutional &amp; Administrative
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => updateFilters('category', 'CORPORATE')}>
                 Corporate
               </DropdownMenuItem>
@@ -188,6 +194,15 @@ export function CasesFilters({
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => updateFilters('category', 'INTELLECTUAL_PROPERTY')}>
                 Intellectual Property
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => updateFilters('category', 'IMMIGRATION')}>
+                Immigration
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => updateFilters('category', 'PERSONAL_INJURY')}>
+                Personal Injury
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => updateFilters('category', 'PROBATE')}>
+                Probate &amp; Estates
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => updateFilters('category', 'OTHER')}>
                 Other
