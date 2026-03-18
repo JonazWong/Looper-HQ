@@ -1,0 +1,96 @@
+# syntax=docker/dockerfile:1
+
+# Looper HQ - Multi-stage Dockerfile for Production
+# Supports: @looper-hq/legal-case-search (port 3001)
+
+# =============================================================================
+# Stage 1: Builder - Install dependencies and build
+# =============================================================================
+FROM node:20-alpine AS builder
+
+# Install system dependencies
+RUN apk add --no-cache libc6-compat openssl
+
+WORKDIR /app
+
+# Install pnpm globally using corepack
+RUN corepack enable && corepack prepare pnpm@8.15.0 --activate
+
+# Copy ALL source files
+COPY . .
+
+# Set DATABASE_URL for Prisma generation
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
+
+# Install dependencies (including devDependencies needed for build)
+# postinstall hook will generate Prisma Client
+RUN pnpm install --frozen-lockfile
+
+# Set production environment for build
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build workspace packages and apps using Turborepo
+# Turborepo handles dependency graph and parallel builds automatically
+RUN pnpm turbo build --filter=@looper-hq/legal-case-search
+
+# Re-generate Prisma Client with correct binary targets for production (pinned Prisma 5)
+RUN pnpm --filter=@looper-hq/database exec prisma generate
+
+# =============================================================================
+# Stage 2: Legal Case Search Runner - Production runtime (port 3001)
+# =============================================================================
+FROM node:20-alpine AS runner
+
+# Install minimal runtime dependencies
+RUN apk add --no-cache curl openssl
+
+WORKDIR /app
+
+# Install pnpm for Prisma CLI installation
+RUN corepack enable && corepack prepare pnpm@8.15.0 --activate
+
+# Set production environment
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3001
+ENV HOSTNAME="0.0.0.0"
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy Next.js standalone output (includes all runtime dependencies)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/legal-case-search/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/legal-case-search/.next/static ./apps/legal-case-search/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/legal-case-search/public ./apps/legal-case-search/public
+
+# Copy pre-generated Prisma Client from builder (avoids memory-intensive regeneration)
+COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
+
+# Create symlink for @prisma/client so tsx can find it
+RUN mkdir -p node_modules/@prisma && \
+    ln -sf /app/node_modules/.pnpm/@prisma+client@5.17.0_prisma@5.17.0/node_modules/@prisma/client node_modules/@prisma/client
+
+# Copy Prisma schema for startup scripts
+COPY --from=builder /app/packages/database/prisma ./prisma
+
+# Copy startup script from build context
+COPY scripts/startup-legal-case-search.sh ./scripts/startup-legal-case-search.sh
+RUN chmod +x ./scripts/startup-legal-case-search.sh
+
+# Change ownership after all files are copied
+RUN chown -R nextjs:nodejs /app
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:3001/api/health || exit 1
+
+# Start the application with migration support
+CMD ["sh", "./scripts/startup-legal-case-search.sh"]
