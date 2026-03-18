@@ -69,6 +69,8 @@ jobs:
       
       - name: Build application
         run: pnpm build
+        env:
+          NEXT_PUBLIC_WEB_APP_URL: https://example.invalid
       
       - name: Check build output
         run: |

@@ -1,15 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-const envWebAppUrl = process.env.NEXT_PUBLIC_WEB_APP_URL
-
-if (!envWebAppUrl && process.env.NODE_ENV !== 'development') {
-  throw new Error('NEXT_PUBLIC_WEB_APP_URL must be defined in non-development environments')
-}
-
-const WEB_APP_URL =
-  envWebAppUrl || (process.env.NODE_ENV === 'development' ? 'http://localhost:3005' : undefined)
+const WEB_APP_URL = process.env.NEXT_PUBLIC_WEB_APP_URL ||
+  (process.env.NODE_ENV === 'development' ? 'http://localhost:3005' : null)
 
 interface SearchResult {
   id: string
@@ -28,6 +22,18 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'development' && !WEB_APP_URL) {
+      // Warn in non-development environments when the dashboard URL is missing
+      // so that configuration issues don't go unnoticed.
+      console.error(
+        'Configuration warning: NEXT_PUBLIC_WEB_APP_URL is not set in a non-development environment. ' +
+        'The dashboard link will be omitted. Update your environment to include NEXT_PUBLIC_WEB_APP_URL ' +
+        'or update the documentation to reflect that it is optional.'
+      )
+    }
+  }, [])
 
   const search = async () => {
     if (!query.trim()) return
@@ -158,11 +164,13 @@ export default function HomePage() {
       {/* Footer */}
       <footer style={{ marginTop: '3rem', textAlign: 'center', color: '#C0C0C0', fontSize: '0.8rem' }}>
         <p>Looper HQ Legal Case Search Portal — Port 3001</p>
-        <p>
-          <a href={`${WEB_APP_URL}/zh/dashboard`} style={{ color: '#D4AF37' }}>
-            前往完整管理系統 →
-          </a>
-        </p>
+        {WEB_APP_URL && (
+          <p>
+            <a href={`${WEB_APP_URL}/zh/dashboard`} style={{ color: '#D4AF37' }}>
+              前往完整管理系統 →
+            </a>
+          </p>
+        )}
       </footer>
     </main>
   )
