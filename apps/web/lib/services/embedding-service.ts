@@ -1,9 +1,10 @@
-import { generateEmbedding } from '@looper-hq/utils'
+import { generateEmbedding } from '@/lib/utils/embeddings'
 import { prisma } from '@/lib/db'
 import { NotFoundError } from '@/lib/api/errors'
 
 // Upper bound on how many embeddings we load and score per query to avoid
 // unbounded O(N·D) work as the embeddings table grows.
+// This path is only used as a fallback when pgvector is unavailable.
 const MAX_EMBEDDING_CANDIDATES = 2000
 
 export interface SearchResult {
@@ -66,6 +67,9 @@ export async function embedPublicCase(publicCaseId: string): Promise<void> {
   const vector = await generateEmbedding(sourceText, model)
   const dimensions = vector.length
 
+  // Format vector as PostgreSQL literal for pgvector: '[x1,x2,...,xN]'
+  const vectorLiteral = `[${vector.join(',')}]`
+
   await prisma.embedding.upsert({
     where: { publicCaseId_sourceField: { publicCaseId, sourceField: 'content' } },
     create: {
@@ -81,6 +85,20 @@ export async function embedPublicCase(publicCaseId: string): Promise<void> {
       embeddingVector: vector,
     },
   })
+
+  // Also write to the pgvector column via raw SQL so the HNSW index is kept up-to-date.
+  // This is a best-effort operation; failures here do not affect the Float[] fallback path.
+  try {
+    await prisma.$executeRawUnsafe(
+      `UPDATE "embeddings"
+       SET "embedding_vector_v" = $1::vector
+       WHERE "publicCaseId" = $2 AND "sourceField" = 'content'`,
+      vectorLiteral,
+      publicCaseId,
+    )
+  } catch {
+    // pgvector extension may not be installed in all environments; silently skip.
+  }
 }
 
 /**

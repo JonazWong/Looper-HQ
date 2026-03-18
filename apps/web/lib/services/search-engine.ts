@@ -5,7 +5,8 @@
  */
 
 import { prisma } from '@/lib/db';
-import { CaseSource, CaseCategory } from '@looper-hq/database';
+import { generateEmbedding } from '@/lib/utils/embeddings';
+import { CaseSource } from '@looper-hq/database';
 
 export interface SearchOptions {
   query: string;
@@ -24,6 +25,26 @@ export interface SearchResult {
   total: number;
   took: number; // Search time in milliseconds
   suggestions?: string[];
+}
+
+/** Shape of a row returned by the pgvector semantic query. */
+interface SemanticCaseRow {
+  id: string;
+  source: string;
+  externalId: string;
+  sourceUrl: string | null;
+  caseNumber: string | null;
+  title: string;
+  description: string | null;
+  category: string | null;
+  court: string | null;
+  judge: string | null;
+  judgmentDate: Date | null;
+  keywords: string[];
+  tags: string[];
+  crawledAt: Date;
+  /** Cosine similarity in [0, 1]; higher = more similar. */
+  similarity: number;
 }
 
 /**
@@ -117,41 +138,140 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
 }
 
 /**
- * Semantic search using keyword matching
- * TODO: Implement vector search with pgvector extension for true semantic search
+ * Semantic search using pgvector cosine similarity.
+ *
+ * Strategy:
+ *  1. Generate an embedding for the user query (text-embedding-3-large, dim=3072).
+ *  2. Ask PostgreSQL to rank stored embeddings by cosine distance using the <=> operator
+ *     and the HNSW index created by add_pgvector_search.sql.
+ *  3. Return each case with a `similarity` field (0–1, higher is better) so callers
+ *     can surface relevance to users.
+ *
+ * Fallback:
+ *  If pgvector is unavailable (extension not installed, column NULL, or query error),
+ *  the function falls back to keyword matching so the API never returns a hard error.
  */
 export async function semanticSearch(options: SearchOptions): Promise<SearchResult> {
   const startTime = Date.now();
   const { query, source, category, court, dateFrom, dateTo, page = 1, limit = 20 } = options;
   const skip = (page - 1) * limit;
-  
-  // Extract keywords from query
+
+  // ── pgvector path ────────────────────────────────────────────────────────────
+  try {
+    // 1. Embed the query
+    const queryVector = await generateEmbedding(
+      query,
+      process.env.EMBEDDING_MODEL || 'text-embedding-3-large',
+    );
+    const vectorLiteral = `[${queryVector.join(',')}]`;
+
+    // 2. Build optional filter clauses
+    const filterConditions: string[] = [`e."sourceField" = 'content'`, `e."embedding_vector_v" IS NOT NULL`];
+    const filterParams: any[] = [vectorLiteral];
+    let paramIndex = 2;
+
+    if (source) {
+      filterConditions.push(`pc.source = $${paramIndex}`);
+      filterParams.push(source);
+      paramIndex++;
+    }
+
+    if (category) {
+      filterConditions.push(`pc.category::text ILIKE $${paramIndex}`);
+      filterParams.push(`%${category}%`);
+      paramIndex++;
+    }
+
+    if (court) {
+      filterConditions.push(`pc.court ILIKE $${paramIndex}`);
+      filterParams.push(`%${court}%`);
+      paramIndex++;
+    }
+
+    if (dateFrom) {
+      filterConditions.push(`pc."crawledAt" >= $${paramIndex}`);
+      filterParams.push(dateFrom.toISOString());
+      paramIndex++;
+    }
+
+    if (dateTo) {
+      filterConditions.push(`pc."crawledAt" <= $${paramIndex}`);
+      filterParams.push(dateTo.toISOString());
+      paramIndex++;
+    }
+
+    const whereClause = filterConditions.length > 0
+      ? `WHERE ${filterConditions.join(' AND ')}`
+      : '';
+
+    // 3. cosine similarity = 1 − cosine distance; filter out very low scores (< 0.3)
+    const similarityThreshold = 0.3;
+
+    const cases = await prisma.$queryRawUnsafe<SemanticCaseRow[]>(
+      `
+      SELECT
+        pc.id, pc.source, pc."externalId", pc."sourceUrl", pc."caseNumber",
+        pc.title, pc.description, pc.category, pc.court, pc.judge,
+        pc."judgmentDate", pc.keywords, pc.tags, pc."crawledAt",
+        (1 - (e."embedding_vector_v" <=> $1::vector))::float AS similarity
+      FROM "embeddings" e
+      JOIN "public_cases" pc ON pc.id = e."publicCaseId"
+      ${whereClause}
+        AND (1 - (e."embedding_vector_v" <=> $1::vector)) >= ${similarityThreshold}
+      ORDER BY e."embedding_vector_v" <=> $1::vector
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+      `,
+      ...filterParams,
+      limit,
+      skip,
+    );
+
+    // 4. Count (no-limit version)
+    const countResult = await prisma.$queryRawUnsafe<[{ count: bigint }]>(
+      `
+      SELECT COUNT(*) AS count
+      FROM "embeddings" e
+      JOIN "public_cases" pc ON pc.id = e."publicCaseId"
+      ${whereClause}
+        AND (1 - (e."embedding_vector_v" <=> $1::vector)) >= ${similarityThreshold}
+      `,
+      ...filterParams,
+    );
+
+    const took = Date.now() - startTime;
+    return {
+      cases,
+      total: Number(countResult[0].count),
+      took,
+    };
+  } catch {
+    // ── keyword-matching fallback ────────────────────────────────────────────
+    // pgvector may not be installed, or no embeddings exist yet.
+  }
+
+  // Fallback: keyword matching (original implementation)
   const keywords = query.toLowerCase().split(/\s+/).filter(k => k.length > 1);
-  
-  // Build WHERE clause
+
   const where: any = {};
-  
-  // Validate source against enum
+
   if (source && Object.values(CaseSource).includes(source as CaseSource)) {
     where.source = source as CaseSource;
   }
-  
-  // Use ILIKE for category (not strict enum matching)
+
   if (category) {
     where.category = { contains: category, mode: 'insensitive' };
   }
-  
+
   if (court) {
     where.court = { contains: court, mode: 'insensitive' };
   }
-  
+
   if (dateFrom || dateTo) {
     where.crawledAt = {};
     if (dateFrom) where.crawledAt.gte = dateFrom;
     if (dateTo) where.crawledAt.lte = dateTo;
   }
-  
-  // Add keyword matching
+
   if (keywords.length > 0) {
     where.OR = keywords.flatMap(keyword => [
       { title: { contains: keyword, mode: 'insensitive' } },
@@ -159,7 +279,7 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
       { keywords: { has: keyword } },
     ]);
   }
-  
+
   const [cases, total] = await Promise.all([
     prisma.publicCase.findMany({
       where,
@@ -169,50 +289,87 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
     }),
     prisma.publicCase.count({ where }),
   ]);
-  
+
   const took = Date.now() - startTime;
-  
-  return {
-    cases,
-    total,
-    took,
-  };
+  return { cases, total, took };
 }
 
 /**
- * Hybrid search combining full-text and semantic search
- * Merges results from both approaches and removes duplicates
+ * Hybrid search combining full-text and semantic (vector) search.
+ *
+ * Scoring rationale:
+ *  - FTS rank (from ts_rank) reflects term-frequency relevance in indexed fields.
+ *    We normalise it to [0, 1] by dividing by the maximum rank in the result set.
+ *  - Vector similarity (cosine) is already in [0, 1] — 1 means identical vectors.
+ *  - Weighted blend:  score = FTS_WEIGHT × normalisedFtsRank + VEC_WEIGHT × similarity
+ *    Default weights: FTS 60 %, Vector 40 %.  FTS is weighted higher because:
+ *      (a) it captures exact legal terminology reliably, and
+ *      (b) many cases may not have embeddings yet (the vector score defaults to 0).
+ *  - Results are sorted descending by combined score, then deduped by case ID.
  */
+const FTS_WEIGHT = 0.6;
+const VEC_WEIGHT = 0.4;
+
 export async function hybridSearch(options: SearchOptions): Promise<SearchResult> {
   const startTime = Date.now();
   const { page = 1, limit = 20 } = options;
-  
-  // Calculate split for parallel searches
-  const fulltextLimit = Math.ceil(limit * 0.6);
-  const semanticLimit = Math.ceil(limit * 0.4);
-  
-  // Execute both searches in parallel
+
+  // Fetch a wider candidate set from each sub-search so the weighted merge can
+  // produce a full page of results even after deduplication.
+  const candidateLimit = limit * 3;
+
+  // Run FTS and vector searches in parallel
   const [fulltextResults, semanticResults] = await Promise.all([
-    fulltextSearch({ ...options, page, limit: fulltextLimit }),
-    semanticSearch({ ...options, page, limit: semanticLimit }),
+    fulltextSearch({ ...options, page: 1, limit: candidateLimit }),
+    semanticSearch({ ...options, page: 1, limit: candidateLimit }),
   ]);
-  
-  // Merge results and deduplicate by ID
-  const seenIds = new Set<string>();
-  const mergedCases = [];
-  
-  for (const case_ of [...fulltextResults.cases, ...semanticResults.cases]) {
-    if (!seenIds.has(case_.id)) {
-      seenIds.add(case_.id);
-      mergedCases.push(case_);
+
+  // ── Normalise FTS ranks ──────────────────────────────────────────────────────
+  // ts_rank is already a float but has no fixed upper bound.  Divide by the
+  // maximum observed rank so FTS scores land in [0, 1].
+  const maxFtsRank = fulltextResults.cases.reduce(
+    (max: number, c: any) => Math.max(max, Number(c.rank ?? 0)),
+    0,
+  );
+
+  // Build a map of id → combined score for deduplication + ranking
+  const scoreMap = new Map<string, { case_: any; score: number }>();
+
+  for (const c of fulltextResults.cases) {
+    const normRank = maxFtsRank > 0 ? Number(c.rank ?? 0) / maxFtsRank : 0;
+    const score = FTS_WEIGHT * normRank;
+    scoreMap.set(c.id, { case_: { ...c, _hybridScore: score }, score });
+  }
+
+  for (const c of semanticResults.cases) {
+    const vecSim = Number(c.similarity ?? 0);
+    const existing = scoreMap.get(c.id);
+    if (existing) {
+      // Case found in both: add weighted vector contribution
+      const newScore = existing.score + VEC_WEIGHT * vecSim;
+      scoreMap.set(c.id, {
+        case_: { ...existing.case_, similarity: vecSim, _hybridScore: newScore },
+        score: newScore,
+      });
+    } else {
+      const score = VEC_WEIGHT * vecSim;
+      scoreMap.set(c.id, { case_: { ...c, _hybridScore: score }, score });
     }
   }
-  
+
+  // Sort by combined score descending, then paginate
+  const sorted = [...scoreMap.values()]
+    .sort((a, b) => b.score - a.score)
+    .map(v => v.case_);
+
+  const skip = (page - 1) * limit;
+  const pageCases = sorted.slice(skip, skip + limit);
+
   const took = Date.now() - startTime;
-  
-  // For hybrid, use fulltext total as primary (more accurate)
+
+  // Use FTS total as the primary estimate (more accurate for pagination display)
   return {
-    cases: mergedCases.slice(0, limit),
+    cases: pageCases,
     total: fulltextResults.total,
     took,
   };

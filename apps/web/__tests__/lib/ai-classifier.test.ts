@@ -2,16 +2,20 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { classifyCase, ClassificationResult } from '@/lib/services/ai-classifier'
 import { CaseCategory } from '@looper-hq/database'
 
-// Mock OpenAI
+// Mock OpenAI — use a regular function (not an arrow function) so that vitest can
+// call it as a constructor (`new OpenAI(...)`).  Arrow functions throw
+// "is not a constructor" when invoked with `new`.
 const mockCreate = vi.fn()
 vi.mock('openai', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    chat: {
-      completions: {
-        create: mockCreate,
+  default: vi.fn().mockImplementation(function () {
+    return {
+      chat: {
+        completions: {
+          create: mockCreate,
+        },
       },
-    },
-  })),
+    }
+  }),
 }))
 
 describe('AI Classifier Service', () => {
