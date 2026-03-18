@@ -22,6 +22,11 @@ import { defaultCrawlerConfig, getRandomUserAgent, isKnownError } from './crawle
 
 const prisma = new PrismaClient();
 
+// Truncation limits
+const MAX_FULLTEXT_LENGTH = 50000;  // max chars stored in PublicCase.fullText
+const MAX_JUDGE_NAME_LENGTH = 200;  // max chars for judge field
+const MAX_AI_CONTEXT_LENGTH = 500;  // chars of fullText fed to AI classifier
+
 // Court configuration: maps HKLII URL code → CourtLevel enum + display name
 interface CourtConfig {
   code: string;         // URL path segment on hklii.hk
@@ -251,8 +256,10 @@ class HkliiCrawler {
 
       const $ = cheerio.load(response.data);
 
-      // HKLII judgment list: rows contain case title and date
-      // Typical selectors (adapt if HTML structure changes):
+      // HKLII judgment list selectors (multiple fallbacks for different page layouts):
+      //   table.table tbody tr  — table-based listing (most court pages)
+      //   .case-list .case-item — card/div-based listing (some newer pages)
+      //   ul.cases li           — list-based layout (older / mobile pages)
       $('table.table tbody tr, .case-list .case-item, ul.cases li').each((_, element) => {
         const $el = $(element);
 
@@ -314,7 +321,7 @@ class HkliiCrawler {
       // Extract full text
       const fullText = $('.judgment-body, #judgment-content, .content-body, article').text().trim();
       if (fullText) {
-        judgment.fullText = fullText.substring(0, 50000); // cap at 50k chars
+        judgment.fullText = fullText.substring(0, MAX_FULLTEXT_LENGTH);
         // Re-extract neutral citation from full page content
         if (!judgment.neutralCitation) {
           judgment.neutralCitation = this.extractNeutralCitation(fullText);
@@ -326,7 +333,7 @@ class HkliiCrawler {
       // Extract judge name
       const judgeText = $('.judge, .judge-name, .coram').text().trim();
       if (judgeText && !judgment.judge) {
-        judgment.judge = judgeText.substring(0, 200);
+        judgment.judge = judgeText.substring(0, MAX_JUDGE_NAME_LENGTH);
       }
 
       // Extract judgment date from detail page
@@ -378,7 +385,7 @@ class HkliiCrawler {
           console.log(`    🤖 AI 分類: ${judgment.title_zh.substring(0, 50)}...`);
           aiClassification = await classifyCase(
             judgment.title_zh,
-            judgment.description_zh + (judgment.fullText ? '\n' + judgment.fullText.substring(0, 500) : '')
+            judgment.description_zh + (judgment.fullText ? '\n' + judgment.fullText.substring(0, MAX_AI_CONTEXT_LENGTH) : '')
           );
         } catch {
           console.warn(`    ⚠️  AI 分類失敗，使用預設值`);
@@ -516,7 +523,10 @@ class HkliiCrawler {
           const judgments = await this.scrapeCourtListPage(court, page);
           allJudgments.push(...judgments);
 
-          if (judgments.length < 10) break; // Likely last page
+          // Stop early if the page returned fewer than 10 results — it is likely the
+        // last page.  Note: a real last page may genuinely contain <10 judgments,
+        // so this is a best-effort heuristic to avoid unnecessary empty requests.
+        if (judgments.length < 10) break;
         }
 
         // Rate limiting between courts
