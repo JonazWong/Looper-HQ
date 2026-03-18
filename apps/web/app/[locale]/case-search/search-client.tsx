@@ -77,6 +77,7 @@ export function CaseSearchClient() {
     source: searchParams.get('source') || '',
     category: searchParams.get('category') || '',
     court: searchParams.get('court') || '',
+    courtLevel: searchParams.get('courtLevel') || '',
   });
 
   const handleSearch = useCallback(async (page = 1) => {
@@ -88,6 +89,7 @@ export function CaseSearchClient() {
         ...(filters.source && { source: filters.source }),
         ...(filters.category && { category: filters.category }),
         ...(filters.court && { court: filters.court }),
+        ...(filters.courtLevel && { courtLevel: filters.courtLevel }),
         page: page.toString(),
         limit: '20',
       });
@@ -174,7 +176,7 @@ export function CaseSearchClient() {
             </div>
 
             {/* Advanced Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="text-sm text-premier-pearl-gray mb-2 block">資料來源</label>
                 <select
@@ -186,7 +188,7 @@ export function CaseSearchClient() {
                   <option value="HK_JUDICIARY">香港司法機構</option>
                   <option value="SCMP_RSS">南華早報</option>
                   <option value="RTHK_RSS">香港電台</option>
-                  <option value="HKLII">香港法律資訊中心</option>
+                  <option value="HKLII">香港法律資訊研究中心</option>
                 </select>
               </div>
 
@@ -210,6 +212,27 @@ export function CaseSearchClient() {
                   onChange={(e) => handleFilterChange('court', e.target.value)}
                   className="bg-premier-black/40 border-premier-gold/20 text-premier-pearl"
                 />
+              </div>
+
+              <div>
+                <label className="text-sm text-premier-pearl-gray mb-2 block">法院層級</label>
+                <select
+                  value={filters.courtLevel}
+                  onChange={(e) => handleFilterChange('courtLevel', e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg bg-premier-black/40 border border-premier-gold/20 text-premier-pearl focus:border-premier-gold focus:outline-none"
+                >
+                  <option value="">所有層級</option>
+                  <option value="CFA">終審法院 (CFA)</option>
+                  <option value="CA">上訴法庭 (CA)</option>
+                  <option value="CFI">原訟法庭 (CFI)</option>
+                  <option value="DC">區域法院 (DC)</option>
+                  <option value="FC">家事法庭 (FC)</option>
+                  <option value="MC">裁判法院 (MC)</option>
+                  <option value="LT">土地審裁處 (LT)</option>
+                  <option value="LABOUR">勞資審裁處</option>
+                  <option value="SAR">小額錢債審裁處</option>
+                  <option value="COMPETITION">競爭事務審裁處</option>
+                </select>
               </div>
             </div>
           </form>

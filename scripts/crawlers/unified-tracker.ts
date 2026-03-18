@@ -1,6 +1,7 @@
 import { PrismaClient } from '../../packages/database';
 import { trackJudiciaryCases } from './hk-judiciary-crawler';
 import { trackRssNews } from './rss-news-crawler';
+import { trackHkliiCases } from './hklii-crawler';
 
 const prisma = new PrismaClient();
 let currentJobRunId: string | number | null = null;
@@ -25,6 +26,7 @@ async function main() {
   const stats = {
     judiciary: 0,
     rss: 0,
+    hklii: 0,
     errors: [] as string[],
   };
 
@@ -58,9 +60,22 @@ async function main() {
     rssError = error.message;
   }
 
+  // 3. Track HKLII Cases
+  let hkliiError: string | null = null;
+  try {
+    console.log('\n⚖️  Tracking HKLII cases...');
+    console.log('-'.repeat(60));
+    stats.hklii = await trackHkliiCases();
+    console.log(`\n✅ HKLII: ${stats.hklii} cases processed`);
+  } catch (error: any) {
+    console.error('\n❌ HKLII tracking failed:', error.message);
+    stats.errors.push(`HKLII: ${error.message}`);
+    hkliiError = error.message;
+  }
+
   const completedAt = new Date();
   const durationSeconds = Math.round((completedAt.getTime() - startedAt.getTime()) / 1000);
-  const totalAdded = stats.judiciary + stats.rss;
+  const totalAdded = stats.judiciary + stats.rss + stats.hklii;
   const hasErrors = stats.errors.length > 0;
 
   // Determine final status
@@ -78,6 +93,7 @@ async function main() {
       sourceStats: {
         judiciary: { added: stats.judiciary, errors: 0 },
         rss: { added: stats.rss, errors: rssError ? 1 : 0 },
+        hklii: { added: stats.hklii, errors: hkliiError ? 1 : 0 },
       },
       errorMessage: stats.errors.length > 0 ? stats.errors.join('; ') : null,
       completedAt,
@@ -91,6 +107,7 @@ async function main() {
   console.log('='.repeat(60));
   console.log(`   HK Judiciary: ${stats.judiciary} cases`);
   console.log(`   RSS News:     ${stats.rss} articles`);
+  console.log(`   HKLII:        ${stats.hklii} cases`);
   console.log(`   Total:        ${totalAdded} items`);
   console.log(`   Duration:     ${durationSeconds}s`);
   console.log(`   Status:       ${finalStatus}`);
@@ -100,7 +117,7 @@ async function main() {
     console.log(`\n⚠️  Errors occurred (${stats.errors.length}):`);
     stats.errors.forEach((err) => console.log(`   - ${err}`));
     console.log('\n⚠️  Daily tracking completed with errors (non-fatal)');
-    // Don't fail if only RSS sources have issues - they retry automatically
+    // Don't fail if only RSS/HKLII sources have issues - they retry automatically
     // process.exit(1); // Disabled - allow partial success
   }
 

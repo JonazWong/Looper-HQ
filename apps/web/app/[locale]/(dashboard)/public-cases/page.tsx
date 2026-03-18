@@ -68,6 +68,7 @@ export default function PublicCasesPage() {
     source: searchParams.get('source') || '',
     category: searchParams.get('category') || '',
     court: searchParams.get('court') || '',
+    courtLevel: searchParams.get('courtLevel') || '',
   });
 
   const handleSearch = async (page = 1) => {
@@ -79,6 +80,7 @@ export default function PublicCasesPage() {
         ...(filters.source && { source: filters.source }),
         ...(filters.category && { category: filters.category }),
         ...(filters.court && { court: filters.court }),
+        ...(filters.courtLevel && { courtLevel: filters.courtLevel }),
         page: page.toString(),
         limit: '20'
       });
@@ -102,7 +104,7 @@ export default function PublicCasesPage() {
   };
 
   const clearFilters = () => {
-    setFilters({ query: '', source: '', category: '', court: '' });
+    setFilters({ query: '', source: '', category: '', court: '', courtLevel: '' });
   };
 
   const getSourceBadgeColor = (source: string): string => {
@@ -121,7 +123,7 @@ export default function PublicCasesPage() {
       'SCMP_RSS': '南華早報',
       'RTHK_RSS': '香港電台',
       'APPLE_DAILY_RSS': '蘋果日報 (已停刊)',
-      'HKLII': 'HKLII'
+      'HKLII': '香港法律資訊研究中心'
     };
     return names[source] || source;
   };
@@ -177,7 +179,7 @@ export default function PublicCasesPage() {
             </div>
 
             {/* Filter Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               <select
                 value={filters.source}
                 onChange={(e) => handleFilterChange('source', e.target.value)}
@@ -187,7 +189,7 @@ export default function PublicCasesPage() {
                 <option value="HK_JUDICIARY">香港司法機構</option>
                 <option value="SCMP_RSS">南華早報</option>
                 <option value="RTHK_RSS">香港電台</option>
-                <option value="HKLII">HKLII</option>
+                <option value="HKLII">香港法律資訊研究中心</option>
               </select>
 
               <Input
@@ -205,10 +207,28 @@ export default function PublicCasesPage() {
                 onChange={(e) => handleFilterChange('court', e.target.value)}
                 className="bg-premier-black/50 border-premier-pearl-gray/20 text-premier-pearl"
               />
+
+              <select
+                value={filters.courtLevel}
+                onChange={(e) => handleFilterChange('courtLevel', e.target.value)}
+                className="px-4 py-2 rounded-md bg-premier-black/50 border border-premier-pearl-gray/20 text-premier-pearl"
+              >
+                <option value="">所有法院層級</option>
+                <option value="CFA">終審法院 (CFA)</option>
+                <option value="CA">上訴法庭 (CA)</option>
+                <option value="CFI">原訟法庭 (CFI)</option>
+                <option value="DC">區域法院 (DC)</option>
+                <option value="FC">家事法庭 (FC)</option>
+                <option value="MC">裁判法院 (MC)</option>
+                <option value="LT">土地審裁處 (LT)</option>
+                <option value="LABOUR">勞資審裁處</option>
+                <option value="SAR">小額錢債審裁處</option>
+                <option value="COMPETITION">競爭事務審裁處</option>
+              </select>
             </div>
 
             {/* Active Filters & Clear */}
-            {(filters.query || filters.source || filters.category || filters.court) && (
+            {(filters.query || filters.source || filters.category || filters.court || filters.courtLevel) && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-premier-pearl-gray">已套用篩選條件:</span>
                 <div className="flex gap-2 flex-wrap">
@@ -230,6 +250,11 @@ export default function PublicCasesPage() {
                   {filters.court && (
                     <Badge variant="outline" className="bg-premier-gold/20 text-premier-gold border-premier-gold/30">
                       法院: {filters.court}
+                    </Badge>
+                  )}
+                  {filters.courtLevel && (
+                    <Badge variant="outline" className="bg-premier-gold/20 text-premier-gold border-premier-gold/30">
+                      法院層級: {filters.courtLevel}
                     </Badge>
                   )}
                 </div>

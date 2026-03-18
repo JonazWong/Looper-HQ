@@ -25,6 +25,9 @@ export interface PublicCaseData {
   tags: string[];
   publishedAt?: Date;
   author?: string;
+  neutralCitation?: string;
+  courtLevel?: string;
+  fullText?: string;
 }
 
 export interface FetchResult {
