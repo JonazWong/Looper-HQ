@@ -468,8 +468,6 @@ class HkliiCrawler {
   private async saveCaseCitations(citingCaseId: string, citationTexts: string[]): Promise<void> {
     for (const citationText of citationTexts) {
       try {
-        const normalised = citationText.replace(/\s+/g, '_');
-
         const citedCase = await prisma.publicCase.findFirst({
           where: { neutralCitation: { equals: citationText } },
           select: { id: true },
