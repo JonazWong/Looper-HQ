@@ -4,6 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  prisma: 5.17.0
+  '@prisma/client': 5.17.0
+
 importers:
 
   .:
@@ -231,8 +235,8 @@ importers:
         specifier: workspace:*
         version: link:../database
       '@prisma/client':
-        specifier: ^5.17.0
-        version: 5.22.0
+        specifier: 5.17.0
+        version: 5.17.0(prisma@5.17.0)
       csv-parse:
         specifier: ^5.5.0
         version: 5.6.0
@@ -339,7 +343,7 @@ packages:
   /@auth/prisma-adapter@2.11.1(@prisma/client@5.17.0):
     resolution: {integrity: sha512-Ke7DXP0Fy0Mlmjz/ZJLXwQash2UkA4621xCM0rMtEczr1kppLc/njCbUkHkIQ/PnmILjqSPEKeTjDPsYruvkug==}
     peerDependencies:
-      '@prisma/client': '>=2.26.0 || >=3 || >=4 || >=5 || >=6'
+      '@prisma/client': 5.17.0
     dependencies:
       '@auth/core': 0.41.1
       '@prisma/client': 5.17.0(prisma@5.17.0)
@@ -1531,23 +1535,12 @@ packages:
     engines: {node: '>=16.13'}
     requiresBuild: true
     peerDependencies:
-      prisma: '*'
+      prisma: 5.17.0
     peerDependenciesMeta:
       prisma:
         optional: true
     dependencies:
       prisma: 5.17.0
-    dev: false
-
-  /@prisma/client@5.22.0:
-    resolution: {integrity: sha512-M0SVXfyHnQREBKxCgyo7sffrKttwE6R8PMq330MIUF0pTwjUhLbW84pFDlf06B27XyCR++VtjugEnIHdr07SVA==}
-    engines: {node: '>=16.13'}
-    requiresBuild: true
-    peerDependencies:
-      prisma: '*'
-    peerDependenciesMeta:
-      prisma:
-        optional: true
     dev: false
 
   /@prisma/debug@5.17.0:

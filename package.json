@@ -59,5 +59,11 @@
     "tsx": "^4.7.0",
     "turbo": "^1.11.2",
     "typescript": "^5.3.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "prisma": "5.17.0",
+      "@prisma/client": "5.17.0"
+    }
   }
 }
