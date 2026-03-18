@@ -117,7 +117,7 @@ async function main() {
     console.log(`\n⚠️  Errors occurred (${stats.errors.length}):`);
     stats.errors.forEach((err) => console.log(`   - ${err}`));
     console.log('\n⚠️  Daily tracking completed with errors (non-fatal)');
-    // Don't fail if only RSS/HKLII sources have issues - they retry automatically
+    // Don't fail if only RSS sources have issues – RSS crawler has its own retry handling
     // process.exit(1); // Disabled - allow partial success
   }
 
