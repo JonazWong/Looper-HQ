@@ -12,6 +12,29 @@ export interface ClassificationResult {
   keywords: string[];
 }
 
+// Human-readable descriptions for each category, used in the AI prompt
+const CATEGORY_DESCRIPTIONS: Record<CaseCategory, string> = {
+  CIVIL: '民事案件',
+  CRIMINAL: '刑事案件',
+  CRIMINAL_APPEAL: '刑事上訴案件',
+  CONSTITUTIONAL: '憲制及行政法（包括司法複核）',
+  CORPORATE: '公司法及商業案件',
+  FAMILY: '家事法（離婚、撫養等）',
+  PROPERTY: '土地及物業案件',
+  EMPLOYMENT: '勞工及僱傭案件',
+  INTELLECTUAL_PROPERTY: '知識產權案件',
+  IMMIGRATION: '移民及居留權案件',
+  PERSONAL_INJURY: '人身傷亡索償案件',
+  PROBATE: '遺產承辦及遺囑案件',
+  OTHER: '其他類別',
+};
+
+// Derive the category union string from the enum at runtime so it stays in sync
+const CATEGORY_UNION = Object.values(CaseCategory).join('|');
+const CATEGORY_GUIDE = Object.entries(CATEGORY_DESCRIPTIONS)
+  .map(([key, desc]) => `- ${key}: ${desc}`)
+  .join('\n');
+
 export async function classifyCase(
   title: string,
   content: string
@@ -23,7 +46,7 @@ export async function classifyCase(
 
 請以 JSON 格式回覆：
 {
-  "category": "CIVIL|CRIMINAL|CRIMINAL_APPEAL|CONSTITUTIONAL|CORPORATE|FAMILY|PROPERTY|EMPLOYMENT|INTELLECTUAL_PROPERTY|IMMIGRATION|PERSONAL_INJURY|PROBATE|OTHER",
+  "category": "${CATEGORY_UNION}",
   "court": "法院名稱",
   "judge": "法官姓名",
   "parties": ["當事人1", "當事人2"],
@@ -34,19 +57,7 @@ export async function classifyCase(
 }
 
 類別說明：
-- CIVIL: 民事案件
-- CRIMINAL: 刑事案件
-- CRIMINAL_APPEAL: 刑事上訴案件
-- CONSTITUTIONAL: 憲制及行政法（包括司法複核）
-- CORPORATE: 公司法及商業案件
-- FAMILY: 家事法（離婚、撫養等）
-- PROPERTY: 土地及物業案件
-- EMPLOYMENT: 勞工及僱傭案件
-- INTELLECTUAL_PROPERTY: 知識產權案件
-- IMMIGRATION: 移民及居留權案件
-- PERSONAL_INJURY: 人身傷亡索償案件
-- PROBATE: 遺產承辦及遺囑案件
-- OTHER: 其他類別`;
+${CATEGORY_GUIDE}`;
 
   const responseContent = await generateCompletion({
     systemPrompt: '你是專業的香港法律案例分析助手。',
