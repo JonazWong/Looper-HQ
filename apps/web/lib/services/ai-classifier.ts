@@ -23,7 +23,7 @@ export async function classifyCase(
 
 請以 JSON 格式回覆：
 {
-  "category": "CIVIL|CRIMINAL|PROPERTY|EMPLOYMENT|FAMILY|CORPORATE",
+  "category": "CIVIL|CRIMINAL|CRIMINAL_APPEAL|CORPORATE|FAMILY|PROPERTY|EMPLOYMENT|INTELLECTUAL_PROPERTY|ADMINISTRATIVE|CONSTITUTIONAL|IMMIGRATION|PERSONAL_INJURY|TORT|CONTRACT|BANKRUPTCY_INSOLVENCY|SECURITIES|ARBITRATION|JUDICIAL_REVIEW|HUMAN_RIGHTS|COMPETITION|TAX|OTHER",
   "court": "法院名稱",
   "judge": "法官姓名",
   "parties": ["當事人1", "當事人2"],
@@ -31,7 +31,31 @@ export async function classifyCase(
   "summary": "50字摘要",
   "confidence": 0.95,
   "keywords": ["關鍵詞1", "關鍵詞2"]
-}`;
+}
+
+分類說明：
+- CIVIL: 民事訴訟（一般）
+- CRIMINAL: 刑事案件
+- CRIMINAL_APPEAL: 刑事上訴
+- CORPORATE: 公司法、商業法
+- FAMILY: 家事、離婚、撫養
+- PROPERTY: 物業、土地
+- EMPLOYMENT: 勞工、僱傭
+- INTELLECTUAL_PROPERTY: 知識產權、版權、商標
+- ADMINISTRATIVE: 行政法、政府決定
+- CONSTITUTIONAL: 憲法、基本法
+- IMMIGRATION: 入境事務、居留權
+- PERSONAL_INJURY: 人身傷害、損害賠償
+- TORT: 侵權法（一般）
+- CONTRACT: 合約糾紛
+- BANKRUPTCY_INSOLVENCY: 破產、清盤
+- SECURITIES: 證券、期貨
+- ARBITRATION: 仲裁
+- JUDICIAL_REVIEW: 司法覆核
+- HUMAN_RIGHTS: 人權法
+- COMPETITION: 競爭法
+- TAX: 稅務
+- OTHER: 其他`;
 
   const responseContent = await generateCompletion({
     systemPrompt: '你是專業的香港法律案例分析助手。',

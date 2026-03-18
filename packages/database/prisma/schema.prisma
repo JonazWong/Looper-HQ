@@ -134,6 +134,33 @@ enum CaseCategory {
   PROPERTY
   EMPLOYMENT
   INTELLECTUAL_PROPERTY
+  ADMINISTRATIVE        // 行政法
+  CONSTITUTIONAL        // 憲法/基本法
+  IMMIGRATION           // 入境事務
+  PERSONAL_INJURY       // 人身傷害
+  TORT                  // 侵權法
+  CONTRACT              // 合約法
+  BANKRUPTCY_INSOLVENCY // 破產/清盤
+  SECURITIES            // 證券法
+  ARBITRATION           // 仲裁
+  JUDICIAL_REVIEW       // 司法覆核
+  HUMAN_RIGHTS          // 人權法
+  COMPETITION           // 競爭法
+  TAX                   // 稅務
+  OTHER
+}
+
+enum CourtLevel {
+  CFA         // 終審法院 Court of Final Appeal
+  CA          // 上訴法庭 Court of Appeal
+  CFI         // 原訟法庭 Court of First Instance
+  DC          // 區域法院 District Court
+  FC          // 家事法庭 Family Court
+  MC          // 裁判法院 Magistrates Courts
+  LT          // 土地審裁處 Lands Tribunal
+  LABOUR      // 勞資審裁處 Labour Tribunal
+  SAR         // 小額錢債審裁處
+  COMPETITION // 競爭事務審裁處
   OTHER
 }
 
@@ -536,6 +563,15 @@ model PublicCase {
   // Full-text search vector
   searchVector Unsupported("tsvector")? @map("search_vector")
   
+  // New fields for HKLII integration
+  neutralCitation String?    // e.g. [2024] HKCFA 1
+  courtLevel      CourtLevel?
+  fullText        String?    @db.Text // Full judgment text
+  
+  // Case citation relations
+  citingCases  CaseCitation[] @relation("CitingCase")
+  citedByCases CaseCitation[] @relation("CitedCase")
+  
   // Metadata
   crawledAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -551,6 +587,7 @@ model PublicCase {
   @@index([caseNumber])
   @@index([keywords])
   @@index([publishedAt])
+  @@index([neutralCitation])
   @@index([searchVector], type: Gin)
   @@map("public_cases")
 }
@@ -561,6 +598,30 @@ enum CaseSource {
   MINGPAO_INS_RSS
   HKLII
   HKGOVNEWS_RSS
+}
+
+// Case Citation - tracks which cases cite which other cases
+model CaseCitation {
+  id           String @id @default(cuid())
+
+  // The case that contains the citation
+  citingCaseId String
+  citingCase   PublicCase @relation("CitingCase", fields: [citingCaseId], references: [id], onDelete: Cascade)
+
+  // The case being cited
+  citedCaseId String
+  citedCase   PublicCase @relation("CitedCase", fields: [citedCaseId], references: [id], onDelete: Cascade)
+
+  // Citation context
+  citationText String? // The neutral citation string as it appears
+  context      String? @db.Text // Surrounding text where citation was found
+
+  createdAt DateTime @default(now())
+
+  @@unique([citingCaseId, citedCaseId])
+  @@index([citingCaseId])
+  @@index([citedCaseId])
+  @@map("case_citations")
 }
 
 // RSS Source configuration

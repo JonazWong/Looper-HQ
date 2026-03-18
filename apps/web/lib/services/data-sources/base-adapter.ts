@@ -1,4 +1,4 @@
-import { CaseSource } from '@looper-hq/database';
+import { CaseSource, CourtLevel } from '@looper-hq/database';
 
 export interface SearchParams {
   query?: string;
@@ -25,6 +25,9 @@ export interface PublicCaseData {
   tags: string[];
   publishedAt?: Date;
   author?: string;
+  neutralCitation?: string;
+  courtLevel?: CourtLevel;
+  fullText?: string;
 }
 
 export interface FetchResult {

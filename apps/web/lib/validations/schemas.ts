@@ -1,5 +1,31 @@
 import { z } from 'zod'
 
+// Shared category values (must stay in sync with Prisma CaseCategory enum)
+const CASE_CATEGORY_VALUES = [
+  'CIVIL',
+  'CRIMINAL',
+  'CRIMINAL_APPEAL',
+  'CORPORATE',
+  'FAMILY',
+  'PROPERTY',
+  'EMPLOYMENT',
+  'INTELLECTUAL_PROPERTY',
+  'ADMINISTRATIVE',
+  'CONSTITUTIONAL',
+  'IMMIGRATION',
+  'PERSONAL_INJURY',
+  'TORT',
+  'CONTRACT',
+  'BANKRUPTCY_INSOLVENCY',
+  'SECURITIES',
+  'ARBITRATION',
+  'JUDICIAL_REVIEW',
+  'HUMAN_RIGHTS',
+  'COMPETITION',
+  'TAX',
+  'OTHER',
+] as const
+
 // Case validation schemas
 export const caseSchema = z.object({
   // Bilingual fields
@@ -10,16 +36,7 @@ export const caseSchema = z.object({
   publicNote_zh: z.string().optional(),
   publicNote_en: z.string().optional(),
   
-  category: z.enum([
-    'CIVIL',
-    'CRIMINAL',
-    'CORPORATE',
-    'FAMILY',
-    'PROPERTY',
-    'EMPLOYMENT',
-    'INTELLECTUAL_PROPERTY',
-    'OTHER',
-  ]),
+  category: z.enum(CASE_CATEGORY_VALUES),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
   status: z.enum(['ACTIVE', 'PENDING', 'COMPLETED', 'ARCHIVED', 'CANCELLED']).default('ACTIVE'),
   clientId: z.string(),
@@ -174,16 +191,7 @@ export type CaseNoteInput = z.infer<typeof caseNoteSchema>
 // Search validation schemas
 export const searchSchema = z.object({
   query: z.string().min(1, 'Search query cannot be empty'),
-  category: z.enum([
-    'CIVIL',
-    'CRIMINAL',
-    'CORPORATE',
-    'FAMILY',
-    'PROPERTY',
-    'EMPLOYMENT',
-    'INTELLECTUAL_PROPERTY',
-    'OTHER',
-  ]).optional(),
+  category: z.enum(CASE_CATEGORY_VALUES).optional(),
   dateFrom: z.string().datetime().optional(),
   dateTo: z.string().datetime().optional(),
   status: z.enum(['ACTIVE', 'PENDING', 'COMPLETED', 'ARCHIVED', 'CANCELLED']).optional(),
@@ -203,16 +211,7 @@ export type PaginationInput = z.infer<typeof paginationSchema>
 export const caseFilterSchema = z.object({
   status: z.enum(['ACTIVE', 'PENDING', 'COMPLETED', 'ARCHIVED', 'CANCELLED']).optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  category: z.enum([
-    'CIVIL',
-    'CRIMINAL',
-    'CORPORATE',
-    'FAMILY',
-    'PROPERTY',
-    'EMPLOYMENT',
-    'INTELLECTUAL_PROPERTY',
-    'OTHER',
-  ]).optional(),
+  category: z.enum(CASE_CATEGORY_VALUES).optional(),
   clientId: z.string().optional(),
   lawyerId: z.string().optional(),
   search: z.string().optional(),
