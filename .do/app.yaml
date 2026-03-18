@@ -10,6 +10,7 @@ ingress:
   rules:
   - component:
       name: legal-case-search
+    preserve_path_prefix: false
     match:
       path:
         prefix: /legal-search
