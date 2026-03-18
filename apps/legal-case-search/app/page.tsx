@@ -2,14 +2,8 @@
 
 import { useState } from 'react'
 
-const envWebAppUrl = process.env.NEXT_PUBLIC_WEB_APP_URL
-
-if (!envWebAppUrl && process.env.NODE_ENV !== 'development') {
-  throw new Error('NEXT_PUBLIC_WEB_APP_URL must be defined in non-development environments')
-}
-
-const WEB_APP_URL =
-  envWebAppUrl || (process.env.NODE_ENV === 'development' ? 'http://localhost:3005' : undefined)
+const WEB_APP_URL = process.env.NEXT_PUBLIC_WEB_APP_URL ||
+  (process.env.NODE_ENV === 'development' ? 'http://localhost:3005' : null)
 
 interface SearchResult {
   id: string
@@ -158,11 +152,13 @@ export default function HomePage() {
       {/* Footer */}
       <footer style={{ marginTop: '3rem', textAlign: 'center', color: '#C0C0C0', fontSize: '0.8rem' }}>
         <p>Looper HQ Legal Case Search Portal — Port 3001</p>
-        <p>
-          <a href={`${WEB_APP_URL}/zh/dashboard`} style={{ color: '#D4AF37' }}>
-            前往完整管理系統 →
-          </a>
-        </p>
+        {WEB_APP_URL && (
+          <p>
+            <a href={`${WEB_APP_URL}/zh/dashboard`} style={{ color: '#D4AF37' }}>
+              前往完整管理系統 →
+            </a>
+          </p>
+        )}
       </footer>
     </main>
   )
