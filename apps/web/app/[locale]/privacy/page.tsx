@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Shield, Lock, Eye, Database, Clock, UserCog, Cookie, Users, Globe, RefreshCw, Mail } from 'lucide-react'
 
 export const metadata = {
@@ -220,7 +221,7 @@ export default function PrivacyPage() {
                 <li><span className="font-medium text-premier-pearl/90">數據可攜權：</span>您有權以結構化、常用和機器可讀的格式接收您的個人資料</li>
               </ul>
               <p className="mt-4 text-premier-pearl/70">
-                如欲行使上述權利，請透過<a href="/contact" className="text-premier-gold hover:underline">聯絡我們</a>頁面與我們聯絡。
+                如欲行使上述權利，請透過<Link href="/contact" className="text-premier-gold hover:underline">聯絡我們</Link>頁面與我們聯絡。
                 我們會在30天內回應您的請求。
               </p>
             </div>
