@@ -625,7 +625,7 @@ export async function getSearchFacets(
     idx++;
   }
 
-  const whereSQL = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const whereSQL = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : 'WHERE 1=1';
 
   // Run all four GROUP BY queries in parallel
   const [courtRows, yearRows, categoryRows, judgeRows] = await Promise.all([
