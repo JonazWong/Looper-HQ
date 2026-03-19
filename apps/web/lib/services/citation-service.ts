@@ -67,7 +67,7 @@ export async function getOutgoingCitations(
     id: e.id,
     citationText: e.citationText,
     context: e.context,
-    externalRef: (e as any).externalRef ?? null,
+    externalRef: e.externalRef,
     createdAt: e.createdAt,
     relatedCase: e.citedCase ?? null,
   }))
@@ -110,7 +110,7 @@ export async function getIncomingCitations(
     id: e.id,
     citationText: e.citationText,
     context: e.context,
-    externalRef: (e as any).externalRef ?? null,
+    externalRef: e.externalRef,
     createdAt: e.createdAt,
     relatedCase: e.citingCase,
   }))

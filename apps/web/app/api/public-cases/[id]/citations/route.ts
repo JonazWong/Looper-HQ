@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { getOutgoingCitations, getIncomingCitations, getCitationCounts } from '@/lib/services/citation-service'
+import { successResponse, errorResponse, validationErrorResponse } from '@/lib/api/response'
+import { handleApiError } from '@/lib/api/errors'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -20,10 +22,7 @@ export async function GET(
 
     const parsed = querySchema.safeParse(Object.fromEntries(searchParams))
     if (!parsed.success) {
-      return NextResponse.json(
-        { success: false, error: { message: 'Invalid parameters', code: 'VALIDATION_ERROR', details: parsed.error.issues } },
-        { status: 400 },
-      )
+      return validationErrorResponse(parsed.error.format())
     }
 
     const { type, limit, offset } = parsed.data
@@ -34,15 +33,9 @@ export async function GET(
       getCitationCounts(id),
     ])
 
-    return NextResponse.json({
-      success: true,
-      data: { outgoing, incoming, counts },
-    })
-  } catch (error: any) {
-    console.error('Citations fetch error:', error)
-    return NextResponse.json(
-      { success: false, error: { message: error.message || 'Internal server error', code: 'INTERNAL_ERROR' } },
-      { status: 500 },
-    )
+    return successResponse({ outgoing, incoming, counts })
+  } catch (error) {
+    const { message, statusCode, code, details } = handleApiError(error)
+    return errorResponse(message, statusCode, code, details)
   }
 }

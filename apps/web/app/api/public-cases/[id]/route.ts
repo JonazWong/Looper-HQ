@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/db'
+import { successResponse, notFoundResponse, errorResponse } from '@/lib/api/response'
+import { handleApiError } from '@/lib/api/errors'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,18 +25,12 @@ export async function GET(
     })
 
     if (!publicCase) {
-      return NextResponse.json(
-        { success: false, error: { message: 'Not found', code: 'NOT_FOUND' } },
-        { status: 404 },
-      )
+      return notFoundResponse('Public case not found')
     }
 
-    return NextResponse.json({ success: true, data: publicCase })
-  } catch (error: any) {
-    console.error('Public case detail error:', error)
-    return NextResponse.json(
-      { success: false, error: { message: error.message || 'Internal server error', code: 'INTERNAL_ERROR' } },
-      { status: 500 },
-    )
+    return successResponse(publicCase)
+  } catch (error) {
+    const { message, statusCode, code, details } = handleApiError(error)
+    return errorResponse(message, statusCode, code, details)
   }
 }
