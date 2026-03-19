@@ -317,8 +317,9 @@ export async function hybridSearch(options: SearchOptions): Promise<SearchResult
   const { page = 1, limit = 20 } = options;
 
   // Fetch a wider candidate set from each sub-search so the weighted merge can
-  // produce a full page of results even after deduplication.
-  const candidateLimit = limit * 3;
+  // produce a full page of results even after deduplication. Scale with `page`
+  // so later pages still have enough candidates for in-memory pagination.
+  const candidateLimit = limit * 3 * page;
 
   // Run FTS and vector searches in parallel
   const [fulltextResults, semanticResults] = await Promise.all([
