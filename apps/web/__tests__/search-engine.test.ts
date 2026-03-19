@@ -20,6 +20,7 @@ import {
   searchSuggestions,
   getTrendingSearches,
 } from '@/lib/services/search-engine';
+import * as searchEngine from '@/lib/services/search-engine';
 
 // ─── Mock setup ──────────────────────────────────────────────────────────────
 
@@ -194,15 +195,17 @@ describe('hybridSearch', () => {
       { id: 'c3', title: 'Case C', similarity: 0.6, crawledAt: new Date() },
     ];
 
-    // 1st $queryRawUnsafe call → FTS cases
-    // 2nd call → FTS count
-    // 3rd call → vector cases
-    // 4th call → vector count
-    mockPrisma.$queryRawUnsafe
-      .mockResolvedValueOnce(ftsCases)
-      .mockResolvedValueOnce([{ count: BigInt(2) }])
-      .mockResolvedValueOnce(vecCases)
-      .mockResolvedValueOnce([{ count: BigInt(2) }]);
+    // Mock the higher-level search functions instead of relying on raw query order
+    vi.spyOn(searchEngine, 'fulltextSearch').mockResolvedValue({
+      cases: ftsCases,
+      total: 2,
+      took: 5,
+    });
+    vi.spyOn(searchEngine, 'semanticSearch').mockResolvedValue({
+      cases: vecCases,
+      total: 2,
+      took: 7,
+    });
 
     const results = await hybridSearch({ query: 'criminal case', limit: 10 });
 
@@ -219,11 +222,16 @@ describe('hybridSearch', () => {
       { id: 'c2', title: 'Case B', rank: 0.5, similarity: 0.6, crawledAt: new Date() },
     ];
 
-    mockPrisma.$queryRawUnsafe
-      .mockResolvedValueOnce(cases)
-      .mockResolvedValueOnce([{ count: BigInt(2) }])
-      .mockResolvedValueOnce(cases)
-      .mockResolvedValueOnce([{ count: BigInt(2) }]);
+    vi.spyOn(searchEngine, 'fulltextSearch').mockResolvedValue({
+      cases,
+      total: 2,
+      took: 4,
+    });
+    vi.spyOn(searchEngine, 'semanticSearch').mockResolvedValue({
+      cases,
+      total: 2,
+      took: 6,
+    });
 
     const results = await hybridSearch({ query: 'test', limit: 20 });
 
