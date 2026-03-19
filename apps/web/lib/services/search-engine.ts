@@ -96,7 +96,10 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
     : '';
   
   // Use plainto_tsquery for safe handling of user input (no syntax errors)
-  // Execute full-text search with ranking; also search fullText/judgment fields on-the-fly
+  // Execute full-text search with ranking; also search fullText/judgment_en on-the-fly.
+  // NOTE: on-the-fly to_tsvector over large text columns is intentionally a fallback path
+  // for cases without a pre-computed search_vector. Once search_vector is kept up to date
+  // (e.g. via a trigger that includes those columns), the OR branches will rarely be hit.
   const [cases, countResult] = await Promise.all([
     prisma.$queryRawUnsafe<any[]>(
       `

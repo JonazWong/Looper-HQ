@@ -13,7 +13,7 @@ const prisma = new PrismaClient()
 // ── Inline regex patterns (avoid importing from apps/web) ──────────────────────
 
 /** Standard HK case number: e.g. HCAL 123/2024 */
-const CASE_NUMBER_REGEX = /\b([A-Z]{2,6})\s*(\d+)\/(\d{4})\b/g
+const CASE_NUMBER_PATTERN = /\b([A-Z]{2,6})\s*(\d+)\/(\d{4})\b/g
 
 /** Known HK court codes that appear in standard case numbers */
 const KNOWN_COURT_CODES = new Set([
@@ -24,7 +24,7 @@ const KNOWN_COURT_CODES = new Set([
 ])
 
 /** HK neutral citation: e.g. [2024] HKCFA 1 */
-const NEUTRAL_CITATION_REGEX = /\[(\d{4})\]\s+(HKCFA|HKCA|HKCFI|HKDC)\s+(\d+)/g
+const NEUTRAL_CITATION_PATTERN = /\[(\d{4})\]\s+(HKCFA|HKCA|HKCFI|HKDC)\s+(\d+)/g
 
 interface ExtractedRef {
   type: 'caseNumber' | 'neutralCitation'
@@ -35,8 +35,8 @@ function extractRefs(text: string): ExtractedRef[] {
   const refs: ExtractedRef[] = []
   const seen = new Set<string>()
 
-  // Standard case numbers
-  for (const match of text.matchAll(new RegExp(CASE_NUMBER_REGEX.source, 'g'))) {
+  // Standard case numbers – create a fresh regex instance per call to reset lastIndex
+  for (const match of text.matchAll(new RegExp(CASE_NUMBER_PATTERN.source, 'g'))) {
     const [fullNumber, courtCode] = match
     if (!KNOWN_COURT_CODES.has(courtCode)) continue
     if (!seen.has(fullNumber)) {
@@ -45,8 +45,8 @@ function extractRefs(text: string): ExtractedRef[] {
     }
   }
 
-  // Neutral citations
-  for (const match of text.matchAll(new RegExp(NEUTRAL_CITATION_REGEX.source, 'g'))) {
+  // Neutral citations – fresh regex instance per call
+  for (const match of text.matchAll(new RegExp(NEUTRAL_CITATION_PATTERN.source, 'g'))) {
     const [fullCitation] = match
     if (!seen.has(fullCitation)) {
       seen.add(fullCitation)

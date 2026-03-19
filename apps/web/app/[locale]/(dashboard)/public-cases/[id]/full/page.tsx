@@ -39,11 +39,17 @@ export default function FullTextPage({ params }: Props) {
     Promise.all([
       fetch(`/api/public-cases/${id}`).then((r) => r.json()),
       fetch(`/api/public-cases/${id}/citations?type=outgoing&limit=50`).then((r) => r.json()),
-    ]).then(([caseRes, citRes]) => {
-      if (caseRes.success) setCaseData(caseRes.data)
-      if (citRes.success) setOutgoing(citRes.data.outgoing)
-      setLoading(false)
-    })
+    ])
+      .then(([caseRes, citRes]) => {
+        if (caseRes.success) setCaseData(caseRes.data)
+        if (citRes.success) setOutgoing(citRes.data.outgoing)
+      })
+      .catch((err) => {
+        console.error('Failed to load case data:', err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }, [resolvedParams])
 
   if (!resolvedParams || loading) {
