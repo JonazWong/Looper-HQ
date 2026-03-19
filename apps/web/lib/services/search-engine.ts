@@ -341,7 +341,7 @@ export async function hybridSearch(options: SearchOptions): Promise<SearchResult
   for (const c of fulltextResults.cases) {
     const normRank = maxFtsRank > 0 ? Number(c.rank ?? 0) / maxFtsRank : 0;
     const score = FTS_WEIGHT * normRank;
-    scoreMap.set(c.id, { case_: { ...c, _hybridScore: score }, score });
+    scoreMap.set(c.id, { case_: { ...c }, score });
   }
 
   for (const c of semanticResults.cases) {
@@ -351,12 +351,12 @@ export async function hybridSearch(options: SearchOptions): Promise<SearchResult
       // Case found in both: add weighted vector contribution
       const newScore = existing.score + VEC_WEIGHT * vecSim;
       scoreMap.set(c.id, {
-        case_: { ...existing.case_, similarity: vecSim, _hybridScore: newScore },
+        case_: { ...existing.case_, similarity: vecSim },
         score: newScore,
       });
     } else {
       const score = VEC_WEIGHT * vecSim;
-      scoreMap.set(c.id, { case_: { ...c, _hybridScore: score }, score });
+      scoreMap.set(c.id, { case_: { ...c, similarity: vecSim }, score });
     }
   }
 
