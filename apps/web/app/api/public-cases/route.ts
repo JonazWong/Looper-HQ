@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { search } from '@/lib/services/search-engine';
+import { search, getSearchFacets } from '@/lib/services/search-engine';
+import { parseQuery } from '@/lib/services/query-parser';
 import { CaseSource } from '@looper-hq/database';
 import { z } from 'zod';
 
@@ -12,11 +13,17 @@ const searchSchema = z.object({
   source: z.nativeEnum(CaseSource).optional(),
   category: z.string().optional(),
   court: z.string().optional(),
+  judge: z.string().optional(),
+  year: z.coerce.number().int().min(1800).max(2100).optional(),
   dateFrom: z.string().datetime().optional(),
   dateTo: z.string().datetime().optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),
   mode: z.enum(['fulltext', 'semantic', 'hybrid']).optional(),
+  /** Include facet counts in the response */
+  includeFacets: z.coerce.boolean().default(false),
+  /** Include ts_headline highlight snippets in FTS results */
+  highlight: z.coerce.boolean().default(false),
 });
 
 export async function GET(request: NextRequest) {
@@ -24,9 +31,34 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const params = searchSchema.parse(Object.fromEntries(searchParams));
 
-    const { query, source, category, court, dateFrom, dateTo, page, limit, mode } = params;
+    let { query, source, category, court, judge, year, dateFrom, dateTo, page, limit, mode, includeFacets, highlight } = params;
 
-    // If no query, use simple Prisma query for better performance
+    // ── Advanced query syntax parsing ────────────────────────────────────────
+    // If the query contains field:value syntax, extract structured filters
+    // and leave the remainder as free-text.
+    if (query) {
+      const parsed = parseQuery(query);
+      // Merge parsed filters (URL params take precedence if explicitly set)
+      query = parsed.freeText;
+
+      if (!court && parsed.filters.court?.length) {
+        court = parsed.filters.court[0];
+      }
+      if (!judge && parsed.filters.judge?.length) {
+        judge = parsed.filters.judge[0];
+      }
+      if (!category && parsed.filters.category?.length) {
+        category = parsed.filters.category[0];
+      }
+      if (!year && parsed.filters.year?.length) {
+        year = parsed.filters.year[0];
+      }
+      if (!source && parsed.filters.source?.length) {
+        source = parsed.filters.source[0] as typeof source;
+      }
+    }
+
+    // ── No free-text query — fast Prisma path ────────────────────────────────
     if (!query) {
       const skip = (page - 1) * limit;
       const where: any = {};
@@ -34,6 +66,13 @@ export async function GET(request: NextRequest) {
       if (source) where.source = source;
       if (category) where.category = { contains: category, mode: 'insensitive' };
       if (court) where.court = { contains: court, mode: 'insensitive' };
+      if (judge) where.judge = { contains: judge, mode: 'insensitive' };
+      if (year) {
+        where.judgmentDate = {
+          gte: new Date(`${year}-01-01`),
+          lte: new Date(`${year}-12-31`),
+        };
+      }
       if (dateFrom || dateTo) {
         where.crawledAt = {};
         if (dateFrom) where.crawledAt.gte = new Date(dateFrom);
@@ -50,48 +89,75 @@ export async function GET(request: NextRequest) {
         prisma.publicCase.count({ where }),
       ]);
 
-      return NextResponse.json({
-        success: true,
-        data: {
-          cases,
-          pagination: {
-            page,
-            limit,
-            total,
-            totalPages: Math.ceil(total / limit),
-          },
-          took: 0,
+      const responseData: any = {
+        cases,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
         },
-      });
+        took: 0,
+      };
+
+      if (includeFacets) {
+        responseData.facets = await getSearchFacets({
+          query: '',
+          source,
+          category,
+          court,
+          judge,
+          year,
+          dateFrom: dateFrom ? new Date(dateFrom) : undefined,
+          dateTo: dateTo ? new Date(dateTo) : undefined,
+        });
+      }
+
+      return NextResponse.json({ success: true, data: responseData });
     }
 
-    // Use full-text search engine for queries
+    // ── FTS / semantic / hybrid search ───────────────────────────────────────
     const results = await search({
       query,
       source,
       category,
       court,
+      judge,
+      year,
       dateFrom: dateFrom ? new Date(dateFrom) : undefined,
       dateTo: dateTo ? new Date(dateTo) : undefined,
       page,
       limit,
       searchMode: mode || 'fulltext',
+      highlight,
     });
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        cases: results.cases,
-        pagination: {
-          page,
-          limit,
-          total: results.total,
-          totalPages: Math.ceil(results.total / limit),
-        },
-        took: results.took,
-        mode: mode || 'fulltext',
+    const responseData: any = {
+      cases: results.cases,
+      pagination: {
+        page,
+        limit,
+        total: results.total,
+        totalPages: Math.ceil(results.total / limit),
       },
-    });
+      took: results.took,
+      mode: mode || 'fulltext',
+    };
+
+    if (includeFacets) {
+      responseData.facets = await getSearchFacets({
+        query,
+        source,
+        category,
+        court,
+        judge,
+        year,
+        dateFrom: dateFrom ? new Date(dateFrom) : undefined,
+        dateTo: dateTo ? new Date(dateTo) : undefined,
+      });
+    }
+
+    return NextResponse.json({ success: true, data: responseData });
   } catch (error: any) {
     console.error('Public cases search error:', error);
 

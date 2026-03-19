@@ -13,11 +13,15 @@ export interface SearchOptions {
   source?: string;
   category?: string;
   court?: string;
+  judge?: string;
+  year?: number;
   dateFrom?: Date;
   dateTo?: Date;
   page?: number;
   limit?: number;
   searchMode?: 'fulltext' | 'semantic' | 'hybrid';
+  /** When true, ts_headline snippets are appended as `highlight_*` fields on each result */
+  highlight?: boolean;
 }
 
 export interface SearchResult {
@@ -53,7 +57,7 @@ interface SemanticCaseRow {
  */
 export async function fulltextSearch(options: SearchOptions): Promise<SearchResult> {
   const startTime = Date.now();
-  const { query, source, category, court, dateFrom, dateTo, page = 1, limit = 20 } = options;
+  const { query, source, category, court, judge, year, dateFrom, dateTo, page = 1, limit = 20, highlight = false } = options;
   const skip = (page - 1) * limit;
   
   // Build WHERE conditions for filters
@@ -78,6 +82,18 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
     filterParams.push(`%${court}%`);
     paramIndex++;
   }
+
+  if (judge) {
+    filterConditions.push(`judge ILIKE $${paramIndex}`);
+    filterParams.push(`%${judge}%`);
+    paramIndex++;
+  }
+
+  if (year) {
+    filterConditions.push(`EXTRACT(YEAR FROM "judgmentDate") = $${paramIndex}`);
+    filterParams.push(year);
+    paramIndex++;
+  }
   
   if (dateFrom) {
     filterConditions.push(`"crawledAt" >= $${paramIndex}`);
@@ -94,6 +110,15 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
   const whereClause = filterConditions.length > 0 
     ? `AND ${filterConditions.join(' AND ')}`
     : '';
+
+  // ts_headline options for highlighted snippets
+  const hlOptions = `'StartSel=<mark>, StopSel=</mark>, MaxWords=35, MinWords=15, ShortWord=3, HighlightAll=false, MaxFragments=2, FragmentDelimiter=" … "'`;
+
+  const highlightCols = highlight
+    ? `,
+        ts_headline('chinese', COALESCE(title, ''), plainto_tsquery('chinese', $1), ${hlOptions}) AS highlight_title,
+        ts_headline('chinese', COALESCE(description, ''), plainto_tsquery('chinese', $1), ${hlOptions}) AS highlight_description`
+    : '';
   
   // Use plainto_tsquery for safe handling of user input (no syntax errors)
   // Execute full-text search with ranking; also search fullText/judgment_en on-the-fly.
@@ -106,7 +131,8 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
       SELECT 
         id, source, "externalId", "sourceUrl", "caseNumber",
         title, description, category, court, judge, 
-        "judgmentDate", keywords, tags, "crawledAt",
+        "judgmentDate", keywords, tags, "crawledAt"
+        ${highlightCols},
         GREATEST(
           COALESCE(ts_rank(search_vector, plainto_tsquery('chinese', $1)), 0),
           CASE 
@@ -191,7 +217,7 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
  */
 export async function semanticSearch(options: SearchOptions): Promise<SearchResult> {
   const startTime = Date.now();
-  const { query, source, category, court, dateFrom, dateTo, page = 1, limit = 20 } = options;
+  const { query, source, category, court, judge, year, dateFrom, dateTo, page = 1, limit = 20 } = options;
   const skip = (page - 1) * limit;
 
   // ── pgvector path ────────────────────────────────────────────────────────────
@@ -223,6 +249,18 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
     if (court) {
       filterConditions.push(`pc.court ILIKE $${paramIndex}`);
       filterParams.push(`%${court}%`);
+      paramIndex++;
+    }
+
+    if (judge) {
+      filterConditions.push(`pc.judge ILIKE $${paramIndex}`);
+      filterParams.push(`%${judge}%`);
+      paramIndex++;
+    }
+
+    if (year) {
+      filterConditions.push(`EXTRACT(YEAR FROM pc."judgmentDate") = $${paramIndex}`);
+      filterParams.push(year);
       paramIndex++;
     }
 
@@ -304,6 +342,17 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
 
   if (court) {
     where.court = { contains: court, mode: 'insensitive' };
+  }
+
+  if (judge) {
+    where.judge = { contains: judge, mode: 'insensitive' };
+  }
+
+  if (year) {
+    where.judgmentDate = {
+      gte: new Date(`${year}-01-01`),
+      lte: new Date(`${year}-12-31`),
+    };
   }
 
   if (dateFrom || dateTo) {
@@ -484,4 +533,218 @@ export async function getTrendingSearches(limit = 10): Promise<Array<{ query: st
     query: t.query,
     count: t._count.query,
   }));
+}
+
+// ─── FacetResult ─────────────────────────────────────────────────────────────
+
+export interface FacetBucket {
+  value: string;
+  count: number;
+}
+
+export interface FacetResult {
+  courts: FacetBucket[];
+  years: FacetBucket[];
+  categories: FacetBucket[];
+  judges: FacetBucket[];
+}
+
+/**
+ * Compute facet counts for the current query + filters.
+ *
+ * Uses PostgreSQL GROUP BY over the filtered result set so the counts always
+ * reflect what the user would see after applying all active filters.
+ *
+ * @param options  Same options as `search()` (query + filters).
+ * @param topN     Max buckets per facet dimension (default 20).
+ */
+export async function getSearchFacets(
+  options: Omit<SearchOptions, 'page' | 'limit' | 'searchMode' | 'highlight'>,
+  topN = 20,
+): Promise<FacetResult> {
+  const { query, source, category, court, judge, year, dateFrom, dateTo } = options;
+
+  // Build a common WHERE clause that covers both FTS match and scalar filters.
+  // We include the FTS match only when a query is present.
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let idx = 1;
+
+  if (query) {
+    conditions.push(
+      `(search_vector @@ plainto_tsquery('chinese', $${idx})
+        OR (search_vector IS NULL AND (
+          to_tsvector('english', COALESCE("fullText", '')) @@ plainto_tsquery('english', $${idx})
+          OR to_tsvector('english', COALESCE("judgment_en", '')) @@ plainto_tsquery('english', $${idx})
+          OR to_tsvector('chinese', COALESCE("judgment_zh", '')) @@ plainto_tsquery('chinese', $${idx})
+        ))
+      )`,
+    );
+    params.push(query);
+    idx++;
+  }
+
+  if (source) {
+    conditions.push(`source = $${idx}`);
+    params.push(source);
+    idx++;
+  }
+
+  if (category) {
+    conditions.push(`category::text ILIKE $${idx}`);
+    params.push(`%${category}%`);
+    idx++;
+  }
+
+  if (court) {
+    conditions.push(`court ILIKE $${idx}`);
+    params.push(`%${court}%`);
+    idx++;
+  }
+
+  if (judge) {
+    conditions.push(`judge ILIKE $${idx}`);
+    params.push(`%${judge}%`);
+    idx++;
+  }
+
+  if (year) {
+    conditions.push(`EXTRACT(YEAR FROM "judgmentDate") = $${idx}`);
+    params.push(year);
+    idx++;
+  }
+
+  if (dateFrom) {
+    conditions.push(`"crawledAt" >= $${idx}`);
+    params.push(dateFrom.toISOString());
+    idx++;
+  }
+
+  if (dateTo) {
+    conditions.push(`"crawledAt" <= $${idx}`);
+    params.push(dateTo.toISOString());
+    idx++;
+  }
+
+  const whereSQL = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  // Run all four GROUP BY queries in parallel
+  const [courtRows, yearRows, categoryRows, judgeRows] = await Promise.all([
+    prisma.$queryRawUnsafe<Array<{ value: string; count: bigint }>>(
+      `SELECT court AS value, COUNT(*) AS count
+       FROM "public_cases"
+       ${whereSQL}
+       AND court IS NOT NULL AND court <> ''
+       GROUP BY court
+       ORDER BY count DESC
+       LIMIT $${idx}`,
+      ...params,
+      topN,
+    ),
+    prisma.$queryRawUnsafe<Array<{ value: string; count: bigint }>>(
+      `SELECT EXTRACT(YEAR FROM "judgmentDate")::text AS value, COUNT(*) AS count
+       FROM "public_cases"
+       ${whereSQL}
+       AND "judgmentDate" IS NOT NULL
+       GROUP BY value
+       ORDER BY value DESC
+       LIMIT $${idx}`,
+      ...params,
+      topN,
+    ),
+    prisma.$queryRawUnsafe<Array<{ value: string; count: bigint }>>(
+      `SELECT category::text AS value, COUNT(*) AS count
+       FROM "public_cases"
+       ${whereSQL}
+       AND category IS NOT NULL
+       GROUP BY category
+       ORDER BY count DESC
+       LIMIT $${idx}`,
+      ...params,
+      topN,
+    ),
+    prisma.$queryRawUnsafe<Array<{ value: string; count: bigint }>>(
+      `SELECT judge AS value, COUNT(*) AS count
+       FROM "public_cases"
+       ${whereSQL}
+       AND judge IS NOT NULL AND judge <> ''
+       GROUP BY judge
+       ORDER BY count DESC
+       LIMIT $${idx}`,
+      ...params,
+      topN,
+    ),
+  ]);
+
+  const toFacetBuckets = (rows: Array<{ value: string; count: bigint }>): FacetBucket[] =>
+    rows.filter(r => r.value).map(r => ({ value: r.value, count: Number(r.count) }));
+
+  return {
+    courts: toFacetBuckets(courtRows),
+    years: toFacetBuckets(yearRows),
+    categories: toFacetBuckets(categoryRows),
+    judges: toFacetBuckets(judgeRows),
+  };
+}
+
+/**
+ * Get typed suggestions for autocomplete.
+ *
+ * @param query  Prefix typed by the user.
+ * @param type   Suggestion type: 'caseNumber' | 'judge' | 'court' | 'general'
+ * @param limit  Maximum number of results.
+ */
+export async function getTypedSuggestions(
+  query: string,
+  type: 'caseNumber' | 'judge' | 'court' | 'general' = 'general',
+  limit = 8,
+): Promise<string[]> {
+  if (!query || query.length < 1) return [];
+
+  const safeLimit = Math.min(Math.max(1, limit), 50);
+
+  switch (type) {
+    case 'caseNumber': {
+      const rows = await prisma.$queryRawUnsafe<Array<{ value: string }>>(
+        `SELECT DISTINCT "caseNumber" AS value
+         FROM "public_cases"
+         WHERE "caseNumber" ILIKE $1
+         ORDER BY value
+         LIMIT $2`,
+        `${query}%`,
+        safeLimit,
+      );
+      return rows.map(r => r.value).filter(Boolean);
+    }
+
+    case 'judge': {
+      const rows = await prisma.$queryRawUnsafe<Array<{ value: string }>>(
+        `SELECT DISTINCT judge AS value
+         FROM "public_cases"
+         WHERE judge ILIKE $1
+         ORDER BY value
+         LIMIT $2`,
+        `${query}%`,
+        safeLimit,
+      );
+      return rows.map(r => r.value).filter(Boolean);
+    }
+
+    case 'court': {
+      const rows = await prisma.$queryRawUnsafe<Array<{ value: string }>>(
+        `SELECT DISTINCT court AS value
+         FROM "public_cases"
+         WHERE court ILIKE $1
+         ORDER BY value
+         LIMIT $2`,
+        `${query}%`,
+        safeLimit,
+      );
+      return rows.map(r => r.value).filter(Boolean);
+    }
+
+    case 'general':
+    default:
+      return searchSuggestions(query, safeLimit);
+  }
 }
