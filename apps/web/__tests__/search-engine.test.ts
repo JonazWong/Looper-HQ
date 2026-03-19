@@ -91,13 +91,26 @@ describe('fulltextSearch', () => {
   });
 
   it('should respect pagination', async () => {
-    mockPrisma.$queryRawUnsafe.mockResolvedValue([{ count: BigInt(0) }]);
+    mockPrisma.$queryRawUnsafe
+      .mockResolvedValueOnce([
+        { id: 'c1', title: 'Test Case 1', rank: 0.9, crawledAt: new Date() },
+      ])
+      .mockResolvedValueOnce([{ count: BigInt(2) }])
+      .mockResolvedValueOnce([
+        { id: 'c2', title: 'Test Case 2', rank: 0.8, crawledAt: new Date() },
+      ])
+      .mockResolvedValueOnce([{ count: BigInt(2) }]);
 
-    const page1 = await fulltextSearch({ query: 'test', page: 1, limit: 5 });
-    const page2 = await fulltextSearch({ query: 'test', page: 2, limit: 5 });
+    const page1 = await fulltextSearch({ query: 'test', page: 1, limit: 1 });
+    const page2 = await fulltextSearch({ query: 'test', page: 2, limit: 1 });
 
     expect(Array.isArray(page1.cases)).toBe(true);
+    expect(page1.cases).toHaveLength(1);
+    expect(page1.cases[0]?.id).toBe('c1');
+
     expect(Array.isArray(page2.cases)).toBe(true);
+    expect(page2.cases).toHaveLength(1);
+    expect(page2.cases[0]?.id).toBe('c2');
   });
 
   it('should handle date filters', async () => {
