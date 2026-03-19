@@ -6,7 +6,7 @@ import { AutoLinkText } from '@/lib/case-linking/use-case-linking'
 import type { CitationEdge } from '@/lib/services/citation-service'
 
 interface Props {
-  params: Promise<{ locale: string; id: string }>
+  params: { locale: string; id: string }
 }
 
 interface CaseData {
@@ -22,15 +22,11 @@ interface CaseData {
 }
 
 export default function FullTextPage({ params }: Props) {
-  const [resolvedParams, setResolvedParams] = useState<{ locale: string; id: string } | null>(null)
+  const [resolvedParams] = useState<{ locale: string; id: string }>(params)
   const [lang, setLang] = useState<'zh' | 'en'>('zh')
   const [caseData, setCaseData] = useState<CaseData | null>(null)
   const [outgoing, setOutgoing] = useState<CitationEdge[]>([])
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    params.then(setResolvedParams)
-  }, [params])
 
   useEffect(() => {
     if (!resolvedParams) return
@@ -52,7 +48,23 @@ export default function FullTextPage({ params }: Props) {
       })
   }, [resolvedParams])
 
-  if (!resolvedParams || loading) {
+    Promise.all([
+      fetch(`/api/public-cases/${id}`).then((r) => r.json()),
+      fetch(`/api/public-cases/${id}/citations?type=outgoing&limit=50`).then((r) => r.json()),
+    ])
+      .then(([caseRes, citRes]) => {
+        if (caseRes.success) setCaseData(caseRes.data)
+        if (citRes.success) setOutgoing(citRes.data.outgoing)
+      })
+      .catch((err) => {
+        console.error('Failed to load case data:', err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [resolvedParams])
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-premier-black flex items-center justify-center">
         <div className="text-premier-gold animate-pulse text-lg">載入中…</div>
