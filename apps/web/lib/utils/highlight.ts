@@ -51,17 +51,21 @@ export function highlightTokens(text: string, tokens: string[]): string {
   if (!tokens.length || !text) return escapeHtml(text);
 
   // Build a single regex that matches any of the tokens (longest first to avoid
-  // partial shadowing) — use word-boundary where possible for Latin scripts.
+  // partial shadowing) — use case-insensitive flag only (not global, to avoid
+  // lastIndex side effects when calling re.test()).
   const sorted = [...tokens].sort((a, b) => b.length - a.length);
   const pattern = sorted
     .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('|');
 
-  const re = new RegExp(`(${pattern})`, 'gi');
+  // Use a fresh RegExp for matching and splitting (with 'gi' flag on split regex).
+  const splitRe = new RegExp(`(${pattern})`, 'gi');
+  // Separate test regex without 'g' flag to avoid lastIndex side effects.
+  const testRe = new RegExp(`^(?:${pattern})$`, 'i');
 
   // Split, escape, reassemble with <mark> wrappers
-  const parts = text.split(re);
+  const parts = text.split(splitRe);
   return parts
-    .map((part) => (re.test(part) ? `<mark>${escapeHtml(part)}</mark>` : escapeHtml(part)))
+    .map((part) => (testRe.test(part) ? `<mark>${escapeHtml(part)}</mark>` : escapeHtml(part)))
     .join('');
 }

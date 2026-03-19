@@ -115,9 +115,8 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
   const hlOptions = `'StartSel=<mark>, StopSel=</mark>, MaxWords=35, MinWords=15, ShortWord=3, HighlightAll=false, MaxFragments=2, FragmentDelimiter=" … "'`;
 
   const highlightCols = highlight
-    ? `,
-        ts_headline('chinese', COALESCE(title, ''), plainto_tsquery('chinese', $1), ${hlOptions}) AS highlight_title,
-        ts_headline('chinese', COALESCE(description, ''), plainto_tsquery('chinese', $1), ${hlOptions}) AS highlight_description`
+    ? `ts_headline('chinese', COALESCE(title, ''), plainto_tsquery('chinese', $1), ${hlOptions}) AS highlight_title,
+        ts_headline('chinese', COALESCE(description, ''), plainto_tsquery('chinese', $1), ${hlOptions}) AS highlight_description,`
     : '';
   
   // Use plainto_tsquery for safe handling of user input (no syntax errors)
@@ -131,8 +130,8 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
       SELECT 
         id, source, "externalId", "sourceUrl", "caseNumber",
         title, description, category, court, judge, 
-        "judgmentDate", keywords, tags, "crawledAt"
-        ${highlightCols},
+        "judgmentDate", keywords, tags, "crawledAt",
+        ${highlightCols}
         GREATEST(
           COALESCE(ts_rank(search_vector, plainto_tsquery('chinese', $1)), 0),
           CASE 
