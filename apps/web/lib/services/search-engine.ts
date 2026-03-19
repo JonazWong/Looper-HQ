@@ -170,9 +170,9 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
     const filterParams: any[] = [vectorLiteral];
     let paramIndex = 2;
 
-    if (source) {
+    if (source && Object.values(CaseSource).includes(source as CaseSource)) {
       filterConditions.push(`pc.source = $${paramIndex}`);
-      filterParams.push(source);
+      filterParams.push(source as CaseSource);
       paramIndex++;
     }
 
