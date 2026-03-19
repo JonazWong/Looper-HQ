@@ -43,7 +43,7 @@ interface SemanticCaseRow {
   keywords: string[];
   tags: string[];
   crawledAt: Date;
-  /** Cosine similarity in [0, 1]; higher = more similar. */
+  /** Cosine similarity in [-1, 1]; higher = more similar. */
   similarity: number;
 }
 
