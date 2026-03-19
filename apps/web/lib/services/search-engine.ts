@@ -108,15 +108,33 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
         title, description, category, court, judge, 
         "judgmentDate", keywords, tags, "crawledAt",
         GREATEST(
-          ts_rank(search_vector, plainto_tsquery('chinese', $1)),
-          ts_rank(to_tsvector('english', COALESCE("fullText", '')), plainto_tsquery('english', $1)),
-          ts_rank(to_tsvector('english', COALESCE("judgment_en", '')), plainto_tsquery('english', $1))
+          COALESCE(ts_rank(search_vector, plainto_tsquery('chinese', $1)), 0),
+          CASE 
+            WHEN search_vector IS NULL 
+              THEN ts_rank(to_tsvector('english', COALESCE("fullText", '')), plainto_tsquery('english', $1)) 
+            ELSE 0 
+          END,
+          CASE 
+            WHEN search_vector IS NULL 
+              THEN ts_rank(to_tsvector('english', COALESCE("judgment_en", '')), plainto_tsquery('english', $1)) 
+            ELSE 0 
+          END,
+          CASE
+            WHEN search_vector IS NULL
+              THEN ts_rank(to_tsvector('chinese', COALESCE("judgment_zh", '')), plainto_tsquery('chinese', $1))
+            ELSE 0
+          END
         ) as rank
       FROM "public_cases"
       WHERE (
         search_vector @@ plainto_tsquery('chinese', $1)
-        OR to_tsvector('english', COALESCE("fullText", '')) @@ plainto_tsquery('english', $1)
-        OR to_tsvector('english', COALESCE("judgment_en", '')) @@ plainto_tsquery('english', $1)
+        OR (
+          search_vector IS NULL AND (
+            to_tsvector('english', COALESCE("fullText", '')) @@ plainto_tsquery('english', $1)
+            OR to_tsvector('english', COALESCE("judgment_en", '')) @@ plainto_tsquery('english', $1)
+            OR to_tsvector('chinese', COALESCE("judgment_zh", '')) @@ plainto_tsquery('chinese', $1)
+          )
+        )
       )
         ${whereClause}
       ORDER BY rank DESC, "crawledAt" DESC
@@ -133,8 +151,13 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
       FROM "public_cases"
       WHERE (
         search_vector @@ plainto_tsquery('chinese', $1)
-        OR to_tsvector('english', COALESCE("fullText", '')) @@ plainto_tsquery('english', $1)
-        OR to_tsvector('english', COALESCE("judgment_en", '')) @@ plainto_tsquery('english', $1)
+        OR (
+          search_vector IS NULL AND (
+            to_tsvector('english', COALESCE("fullText", '')) @@ plainto_tsquery('english', $1)
+            OR to_tsvector('english', COALESCE("judgment_en", '')) @@ plainto_tsquery('english', $1)
+            OR to_tsvector('chinese', COALESCE("judgment_zh", '')) @@ plainto_tsquery('chinese', $1)
+          )
+        )
       )
         ${whereClause}
       `,
