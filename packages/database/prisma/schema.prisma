@@ -721,7 +721,11 @@ model Embedding {
   // Embedding 資訊
   model         String   @default("text-embedding-3-large")
   dimensions    Int      @default(3072)
+  // Legacy Float[] kept for backward compatibility; new writes also populate embeddingVectorV.
   embeddingVector Float[]
+  // pgvector column: vector(3072) — used for ANN cosine-similarity search.
+  // Populated by the add_pgvector_search.sql migration (requires pgvector extension).
+  embeddingVectorV Unsupported("vector(3072)")? @map("embedding_vector_v")
   
   // Source text info
   sourceField   String   @default("content")
