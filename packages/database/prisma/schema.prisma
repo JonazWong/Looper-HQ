@@ -621,7 +621,10 @@ model CaseCitation {
 
   createdAt DateTime @default(now())
 
-  @@unique([citingCaseId, citedCaseId, externalRef])
+  // Ensure uniqueness for resolved citations (citedCaseId non-null)
+  @@unique([citingCaseId, citedCaseId])
+  // Ensure uniqueness for unresolved citations (externalRef non-null)
+  @@unique([citingCaseId, externalRef])
   @@index([citingCaseId])
   @@index([citedCaseId])
   @@map("case_citations")
