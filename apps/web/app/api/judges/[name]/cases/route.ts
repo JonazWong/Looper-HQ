@@ -56,7 +56,7 @@ export async function GET(
 
     return successResponse(
       { judge: judgeName, cases },
-      { page, limit, total, totalPages: Math.ceil(total / limit) },
+      { page, perPage: limit, total, totalPages: Math.ceil(total / limit) },
     )
   } catch (error) {
     const { message, statusCode, code, details } = handleApiError(error)

@@ -24,6 +24,7 @@ import {
   ChevronRight,
   Database,
   ShieldCheck,
+  Scale,
 } from "lucide-react"
 
 export function Sidebar() {
@@ -57,6 +58,11 @@ export function Sidebar() {
       labelKey: "search" as const,
       href: `/${locale}/search`,
       icon: Search,
+    },
+    {
+      labelKey: "legalDatabase" as const,
+      href: `/${locale}/public-cases`,
+      icon: Scale,
     },
     {
       labelKey: "services" as const,

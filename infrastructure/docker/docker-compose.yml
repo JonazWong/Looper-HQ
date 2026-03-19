@@ -1,7 +1,7 @@
 services:
-  # PostgreSQL 16 - Primary database
+  # PostgreSQL 16 with pgvector - Primary database
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: looper-hq-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
