@@ -608,9 +608,12 @@ model CaseCitation {
   citingCaseId String
   citingCase   PublicCase @relation("CitingCase", fields: [citingCaseId], references: [id], onDelete: Cascade)
 
-  // The case being cited
-  citedCaseId String
-  citedCase   PublicCase @relation("CitedCase", fields: [citedCaseId], references: [id], onDelete: Cascade)
+  // The case being cited (nullable for unresolved citations)
+  citedCaseId String?
+  citedCase   PublicCase? @relation("CitedCase", fields: [citedCaseId], references: [id], onDelete: Cascade)
+
+  // For unresolved citations (when citedCaseId is null, store raw citation text)
+  externalRef String?
 
   // Citation context
   citationText String? // The neutral citation string as it appears
@@ -618,7 +621,10 @@ model CaseCitation {
 
   createdAt DateTime @default(now())
 
+  // Ensure uniqueness for resolved citations (citedCaseId non-null)
   @@unique([citingCaseId, citedCaseId])
+  // Ensure uniqueness for unresolved citations (externalRef non-null)
+  @@unique([citingCaseId, externalRef])
   @@index([citingCaseId])
   @@index([citedCaseId])
   @@map("case_citations")

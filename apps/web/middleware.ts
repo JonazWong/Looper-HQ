@@ -48,8 +48,11 @@ export default auth((req) => {
   // Handle API routes separately
   if (pathname.startsWith('/api')) {
     const isAuthApi = pathname.startsWith('/api/auth');
-    const isPublicApi = pathname === '/api/health' || 
+    const isPublicApi = pathname === '/api/health' ||
                         pathname === '/api/public-cases' ||
+                        pathname.startsWith('/api/public-cases/') ||
+                        pathname.startsWith('/api/judges/') ||
+                        pathname.startsWith('/api/courts/') ||
                         pathname === '/api/translate';
     
     if (!isAuthApi && !isPublicApi && !isLoggedIn) {

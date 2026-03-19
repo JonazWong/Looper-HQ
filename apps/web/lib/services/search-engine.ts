@@ -96,7 +96,10 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
     : '';
   
   // Use plainto_tsquery for safe handling of user input (no syntax errors)
-  // Execute full-text search with ranking
+  // Execute full-text search with ranking; also search fullText/judgment_en on-the-fly.
+  // NOTE: on-the-fly to_tsvector over large text columns is intentionally a fallback path
+  // for cases without a pre-computed search_vector. Once search_vector is kept up to date
+  // (e.g. via a trigger that includes those columns), the OR branches will rarely be hit.
   const [cases, countResult] = await Promise.all([
     prisma.$queryRawUnsafe<any[]>(
       `
@@ -104,9 +107,35 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
         id, source, "externalId", "sourceUrl", "caseNumber",
         title, description, category, court, judge, 
         "judgmentDate", keywords, tags, "crawledAt",
-        ts_rank(search_vector, plainto_tsquery('chinese', $1)) as rank
+        GREATEST(
+          COALESCE(ts_rank(search_vector, plainto_tsquery('chinese', $1)), 0),
+          CASE 
+            WHEN search_vector IS NULL 
+              THEN ts_rank(to_tsvector('english', COALESCE("fullText", '')), plainto_tsquery('english', $1)) 
+            ELSE 0 
+          END,
+          CASE 
+            WHEN search_vector IS NULL 
+              THEN ts_rank(to_tsvector('english', COALESCE("judgment_en", '')), plainto_tsquery('english', $1)) 
+            ELSE 0 
+          END,
+          CASE
+            WHEN search_vector IS NULL
+              THEN ts_rank(to_tsvector('chinese', COALESCE("judgment_zh", '')), plainto_tsquery('chinese', $1))
+            ELSE 0
+          END
+        ) as rank
       FROM "public_cases"
-      WHERE search_vector @@ plainto_tsquery('chinese', $1)
+      WHERE (
+        search_vector @@ plainto_tsquery('chinese', $1)
+        OR (
+          search_vector IS NULL AND (
+            to_tsvector('english', COALESCE("fullText", '')) @@ plainto_tsquery('english', $1)
+            OR to_tsvector('english', COALESCE("judgment_en", '')) @@ plainto_tsquery('english', $1)
+            OR to_tsvector('chinese', COALESCE("judgment_zh", '')) @@ plainto_tsquery('chinese', $1)
+          )
+        )
+      )
         ${whereClause}
       ORDER BY rank DESC, "crawledAt" DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -120,7 +149,16 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
       `
       SELECT COUNT(*) as count
       FROM "public_cases"
-      WHERE search_vector @@ plainto_tsquery('chinese', $1)
+      WHERE (
+        search_vector @@ plainto_tsquery('chinese', $1)
+        OR (
+          search_vector IS NULL AND (
+            to_tsvector('english', COALESCE("fullText", '')) @@ plainto_tsquery('english', $1)
+            OR to_tsvector('english', COALESCE("judgment_en", '')) @@ plainto_tsquery('english', $1)
+            OR to_tsvector('chinese', COALESCE("judgment_zh", '')) @@ plainto_tsquery('chinese', $1)
+          )
+        )
+      )
         ${whereClause}
       `,
       query,

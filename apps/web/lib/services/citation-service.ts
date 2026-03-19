@@ -15,6 +15,7 @@ export interface CitationEdge {
   id: string
   citationText: string | null
   context: string | null
+  externalRef: string | null
   createdAt: Date
   relatedCase: {
     id: string
@@ -26,7 +27,7 @@ export interface CitationEdge {
     judgmentDate: Date | null
     source: string
     sourceUrl: string | null
-  }
+  } | null
 }
 
 /**
@@ -66,8 +67,9 @@ export async function getOutgoingCitations(
     id: e.id,
     citationText: e.citationText,
     context: e.context,
+    externalRef: e.externalRef,
     createdAt: e.createdAt,
-    relatedCase: e.citedCase,
+    relatedCase: e.citedCase ?? null,
   }))
 }
 
@@ -108,6 +110,7 @@ export async function getIncomingCitations(
     id: e.id,
     citationText: e.citationText,
     context: e.context,
+    externalRef: e.externalRef,
     createdAt: e.createdAt,
     relatedCase: e.citingCase,
   }))

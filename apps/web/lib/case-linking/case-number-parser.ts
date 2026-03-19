@@ -106,6 +106,59 @@ const COURT_CODE_MAP: Record<string, {
 const CASE_NUMBER_REGEX = /\b([A-Z]{2,6})\s*(\d+)\/(\d{4})\b/g;
 
 /**
+ * HK neutral citation abbreviation → HKLII path mapping
+ */
+export const NEUTRAL_CITATION_COURT_MAP: Record<string, string> = {
+  HKCFA: 'hk/cases/hkcfa',
+  HKCA: 'hk/cases/hkca',
+  HKCFI: 'hk/cases/hkcfi',
+  HKDC: 'hk/cases/hkdc',
+};
+
+/**
+ * Neutral citation regex
+ * Matches: [YYYY] HKCFA N, [YYYY] HKCA N, [YYYY] HKCFI N, [YYYY] HKDC N
+ */
+export const NEUTRAL_CITATION_REGEX = /\[(\d{4})\]\s+(HKCFA|HKCA|HKCFI|HKDC)\s+(\d+)/g;
+
+export interface NeutralCitationInfo {
+  /** Full citation string, e.g. "[2024] HKCFA 1" */
+  fullCitation: string;
+  year: string;
+  /** Court abbreviation, e.g. "HKCFA" */
+  court: string;
+  number: string;
+  /** HKLII URL path segment if available */
+  hkliiPath?: string;
+}
+
+/**
+ * Extract all HK neutral citations from text.
+ * Returns deduplicated results.
+ */
+export function extractNeutralCitations(text: string): NeutralCitationInfo[] {
+  const matches = Array.from(text.matchAll(new RegExp(NEUTRAL_CITATION_REGEX.source, 'g')));
+  const seen = new Set<string>();
+  const results: NeutralCitationInfo[] = [];
+
+  for (const match of matches) {
+    const [fullCitation, year, court, number] = match;
+    if (seen.has(fullCitation)) continue;
+    seen.add(fullCitation);
+
+    results.push({
+      fullCitation,
+      year,
+      court,
+      number,
+      hkliiPath: NEUTRAL_CITATION_COURT_MAP[court],
+    });
+  }
+
+  return results;
+}
+
+/**
  * 從文本中提取所有案件編號
  */
 export function extractCaseNumbers(text: string): CaseNumberInfo[] {
