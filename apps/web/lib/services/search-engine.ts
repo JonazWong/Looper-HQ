@@ -96,7 +96,7 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
     : '';
   
   // Use plainto_tsquery for safe handling of user input (no syntax errors)
-  // Execute full-text search with ranking
+  // Execute full-text search with ranking; also search fullText/judgment fields on-the-fly
   const [cases, countResult] = await Promise.all([
     prisma.$queryRawUnsafe<any[]>(
       `
@@ -104,9 +104,17 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
         id, source, "externalId", "sourceUrl", "caseNumber",
         title, description, category, court, judge, 
         "judgmentDate", keywords, tags, "crawledAt",
-        ts_rank(search_vector, plainto_tsquery('chinese', $1)) as rank
+        GREATEST(
+          ts_rank(search_vector, plainto_tsquery('chinese', $1)),
+          ts_rank(to_tsvector('english', COALESCE("fullText", '')), plainto_tsquery('english', $1)),
+          ts_rank(to_tsvector('english', COALESCE("judgment_en", '')), plainto_tsquery('english', $1))
+        ) as rank
       FROM "public_cases"
-      WHERE search_vector @@ plainto_tsquery('chinese', $1)
+      WHERE (
+        search_vector @@ plainto_tsquery('chinese', $1)
+        OR to_tsvector('english', COALESCE("fullText", '')) @@ plainto_tsquery('english', $1)
+        OR to_tsvector('english', COALESCE("judgment_en", '')) @@ plainto_tsquery('english', $1)
+      )
         ${whereClause}
       ORDER BY rank DESC, "crawledAt" DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -120,7 +128,11 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
       `
       SELECT COUNT(*) as count
       FROM "public_cases"
-      WHERE search_vector @@ plainto_tsquery('chinese', $1)
+      WHERE (
+        search_vector @@ plainto_tsquery('chinese', $1)
+        OR to_tsvector('english', COALESCE("fullText", '')) @@ plainto_tsquery('english', $1)
+        OR to_tsvector('english', COALESCE("judgment_en", '')) @@ plainto_tsquery('english', $1)
+      )
         ${whereClause}
       `,
       query,
