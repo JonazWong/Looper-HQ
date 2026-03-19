@@ -37,11 +37,12 @@ function extractRefs(text: string): ExtractedRef[] {
 
   // Standard case numbers – create a fresh regex instance per call to reset lastIndex
   for (const match of text.matchAll(new RegExp(CASE_NUMBER_PATTERN.source, 'g'))) {
-    const [fullNumber, courtCode] = match
+    const [fullNumber, courtCode, sequence, year] = match
     if (!KNOWN_COURT_CODES.has(courtCode)) continue
-    if (!seen.has(fullNumber)) {
-      seen.add(fullNumber)
-      refs.push({ type: 'caseNumber', raw: fullNumber })
+    const normalizedNumber = `${courtCode} ${sequence}/${year}`
+    if (!seen.has(normalizedNumber)) {
+      seen.add(normalizedNumber)
+      refs.push({ type: 'caseNumber', raw: normalizedNumber })
     }
   }
 
