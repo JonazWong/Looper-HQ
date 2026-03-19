@@ -187,7 +187,7 @@ export function CaseSearchClient() {
       ? sanitiseHighlight(case_.highlight_title)
       : freeTextTokens.length
       ? highlightTokens(case_.title, freeTextTokens)
-      : case_.title;
+      : sanitiseHighlight(case_.title);
 
   const getDescription = (case_: PublicCase): string | null => {
     if (!case_.description) return null;
