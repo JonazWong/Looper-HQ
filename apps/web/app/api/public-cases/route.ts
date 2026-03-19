@@ -54,7 +54,10 @@ export async function GET(request: NextRequest) {
         year = parsed.filters.year[0];
       }
       if (!source && parsed.filters.source?.length) {
-        source = parsed.filters.source[0] as typeof source;
+        const parsedSource = parsed.filters.source[0];
+        if (Object.values(CaseSource).includes(parsedSource as CaseSource)) {
+          source = parsedSource as CaseSource;
+        }
       }
     }
 
