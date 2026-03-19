@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { use, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { AutoLinkText } from '@/lib/case-linking/use-case-linking'
 import type { CitationEdge } from '@/lib/services/citation-service'
 
 interface Props {
-  params: { locale: string; id: string }
+  params: Promise<{ locale: string; id: string }>
 }
 
 interface CaseData {
@@ -22,7 +22,7 @@ interface CaseData {
 }
 
 export default function FullTextPage({ params }: Props) {
-  const [resolvedParams] = useState<{ locale: string; id: string }>(params)
+  const resolvedParams = use(params)
   const [lang, setLang] = useState<'zh' | 'en'>('zh')
   const [caseData, setCaseData] = useState<CaseData | null>(null)
   const [outgoing, setOutgoing] = useState<CitationEdge[]>([])
