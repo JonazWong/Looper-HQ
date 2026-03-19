@@ -31,6 +31,10 @@ interface ExtractedRef {
   raw: string
 }
 
+// Cache resolved PublicCase IDs by raw reference to avoid N+1 lookups
+const caseNumberResolutionCache = new Map<string, string | null>()
+const neutralCitationResolutionCache = new Map<string, string | null>()
+
 function extractRefs(text: string): ExtractedRef[] {
   const refs: ExtractedRef[] = []
   const seen = new Set<string>()
@@ -115,17 +119,29 @@ async function main() {
         let resolvedId: string | null = null
 
         if (ref.type === 'caseNumber') {
-          const match = await prisma.publicCase.findFirst({
-            where: { caseNumber: ref.raw },
-            select: { id: true },
-          })
-          resolvedId = match?.id ?? null
+          const cached = caseNumberResolutionCache.get(ref.raw)
+          if (cached !== undefined) {
+            resolvedId = cached
+          } else {
+            const match = await prisma.publicCase.findFirst({
+              where: { caseNumber: ref.raw },
+              select: { id: true },
+            })
+            resolvedId = match?.id ?? null
+            caseNumberResolutionCache.set(ref.raw, resolvedId)
+          }
         } else {
-          const match = await prisma.publicCase.findFirst({
-            where: { neutralCitation: ref.raw },
-            select: { id: true },
-          })
-          resolvedId = match?.id ?? null
+          const cached = neutralCitationResolutionCache.get(ref.raw)
+          if (cached !== undefined) {
+            resolvedId = cached
+          } else {
+            const match = await prisma.publicCase.findFirst({
+              where: { neutralCitation: ref.raw },
+              select: { id: true },
+            })
+            resolvedId = match?.id ?? null
+            neutralCitationResolutionCache.set(ref.raw, resolvedId)
+          }
         }
 
         if (resolvedId) {
