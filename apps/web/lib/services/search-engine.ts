@@ -211,7 +211,9 @@ export async function semanticSearch(options: SearchOptions): Promise<SearchResu
       `
       SELECT
         pc.id, pc.source, pc."externalId", pc."sourceUrl", pc."caseNumber",
-        pc.title, pc.description, pc.category, pc.court, pc.judge,
+        COALESCE(pc."title_en", pc."title_zh") AS title,
+        COALESCE(pc."description_en", pc."description_zh") AS description,
+        pc.category, pc.court, pc.judge,
         pc."judgmentDate", pc.keywords, pc.tags, pc."crawledAt",
         (1 - (e."embedding_vector_v" <=> $1::vector))::float AS similarity
       FROM "embeddings" e
