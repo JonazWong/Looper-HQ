@@ -148,10 +148,9 @@ async function main() {
           // Resolved citation – upsert with citedCaseId
           await prisma.caseCitation.upsert({
             where: {
-              citingCaseId_citedCaseId_externalRef: {
+              citingCaseId_citedCaseId: {
                 citingCaseId: sourceCase.id,
                 citedCaseId: resolvedId,
-                externalRef: null,
               },
             },
             create: {
@@ -165,9 +164,8 @@ async function main() {
           // Unresolved citation – store as externalRef
           await prisma.caseCitation.upsert({
             where: {
-              citingCaseId_citedCaseId_externalRef: {
+              citingCaseId_externalRef: {
                 citingCaseId: sourceCase.id,
-                citedCaseId: null,
                 externalRef: ref.raw,
               },
             },
