@@ -1,0 +1,109 @@
+name: HK Judiciary Daily Crawler
+
+# 每天香港時間 2:00 AM 執行 (UTC+8)
+# 使用 14:00 UTC 相當於 22:00 前一天 HKT，14:30 UTC 相當於 22:30 前一天 HKT
+# 應該使用 18:00 UTC 相當於 02:00 HKT
+on:
+  schedule:
+    # 每天 02:00 HKT (18:00 UTC 前一天)
+    - cron: '0 18 * * *'
+  
+  # 允許手動觸發
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '案件表日期 (格式: YYYY-MM-DD，留空則自動取最新)'
+        required: false
+        default: ''
+
+jobs:
+  crawl-judiciary:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x]
+    
+    steps:
+      - name: 簽出代碼
+        uses: actions/checkout@v4
+      
+      - name: 設置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      
+      - name: 安裝依賴
+        run: pnpm install
+      
+      - name: 生成 Prisma Client
+        run: pnpm prisma generate
+      
+      - name: 執行爬蟲
+        run: |
+          if [ -z "${{ github.event.inputs.date }}" ]; then
+            pnpm crawler:judiciary
+          else
+            pnpm crawler:judiciary -- --date ${{ github.event.inputs.date }}
+          fi
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NODE_ENV: production
+      
+      - name: 上傳爬蟲日誌
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawler-logs
+          path: logs/
+          retention-days: 30
+      
+      - name: 發送通知 (失敗)
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: '香港司法機構爬蟲執行失敗'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+      
+      - name: 發送通知 (成功)
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: '香港司法機構爬蟲執行成功'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+
+  # 定期健康檢查
+  health-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+      - name: 簽出代碼
+        uses: actions/checkout@v4
+      
+      - name: 設置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: 'pnpm'
+      
+      - name: 安裝依賴
+        run: pnpm install
+      
+      - name: 檢查爬蟲健康狀態
+        run: pnpm crawler:health
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NODE_ENV: production
+      
+      - name: 驗證資料完整性
+        run: |
+          # 檢查最近 24 小時內是否有新案件
+          node scripts/verify-crawler-data.js
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

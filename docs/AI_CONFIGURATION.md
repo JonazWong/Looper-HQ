@@ -32,7 +32,7 @@ AI_TEMPERATURE=0.3
 
 # OpenAI / OpenRouter (擇一使用)
 OPENAI_API_KEY=sk-...                          # 必填
-OPENAI_MODEL=gpt-4o-mini                       # 推薦: gpt-4o-mini (快速) 或 gpt-4o (高品質)
+OPENAI_MODEL=gpt-5.1                       # 推薦: gpt-4o-mini (快速) 或 gpt-4o (高品質)
 OPENAI_BASE_URL=https://openrouter.ai/api/v1   # OpenRouter 或 https://api.openai.com/v1
 
 # OpenRouter 專用（可選）
@@ -52,7 +52,7 @@ OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 |--------|------|--------|------|
 | `AI_PROVIDER` | ❌ | `openai` | AI 提供商：openai / openrouter / azure |
 | `OPENAI_API_KEY` | ✅ | - | OpenAI 或 OpenRouter API Key |
-| `OPENAI_MODEL` | ❌ | `gpt-4o-mini` | 使用的模型名稱 |
+| `OPENAI_MODEL` | ❌ | `gpt-5.1` | 使用的模型名稱 |
 | `OPENAI_BASE_URL` | ❌ | `https://api.openai.com/v1` | API endpoint |
 | `AI_MAX_TOKENS` | ❌ | `2048` | 最大 token 數 |
 | `AI_TEMPERATURE` | ❌ | `0.3` | 溫度參數 (0-1) |
@@ -204,7 +204,7 @@ AZURE_OPENAI_API_VERSION=2024-02-15-preview
 AI_PROVIDER=openai
 OPENAI_API_KEY=sk-...
 OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=gpt-4o
+OPENAI_MODEL=gpt-5.1
 ```
 
 ## 🚀 部署配置
@@ -220,7 +220,7 @@ envs:
   - key: OPENAI_API_KEY
     type: SECRET  # 在 DO 控制台填入
   - key: OPENAI_MODEL
-    value: gpt-4o-mini
+    value: gpt-5.1
   - key: AI_MAX_TOKENS
     value: "2048"
 ```
@@ -240,7 +240,7 @@ vercel env add AI_PROVIDER production
 ```dockerfile
 # Dockerfile
 ENV AI_PROVIDER=openai
-ENV OPENAI_MODEL=gpt-4o-mini
+ENV OPENAI_MODEL=gpt-5.1
 # OPENAI_API_KEY 通過 docker run -e 注入
 ```
 
