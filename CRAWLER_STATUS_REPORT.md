@@ -1,8 +1,8 @@
 # 爬虫系统状态报告
 
-**日期**: 2026年2月18日  
-**状态**: ✅ 已修复 - 仅RSS爬虫运行  
-**变更**: 暂时禁用司法机构爬虫（源已被封）
+**日期**: 2026年3月20日  
+**状态**: ✅ 活跃 - RSS + HKLII + 司法机构审讯时间表爬虫运行中  
+**变更**: 新增 HK Judiciary Daily Cause List (DCL) 爬虫
 
 ---
 
@@ -14,13 +14,36 @@
 |--------|------|-----|----------|
 | **明报即时新闻** | ✅ **ACTIVE** | `news.mingpao.com/rss/ins/s00001.xml` | 每15分钟 |
 | 明报日报港闻 | ❌ INACTIVE | `news.mingpao.com/rss/pns/s00002.xml` | 禁用 (403错误) |
-| 香港司法机构 | ⏸️ DISABLED | `legalref.judiciary.hk` | 禁用 (源被封/改版) |
-
-**当前只有 1 个活跃的RSS源在工作。**
+| 香港司法机构 (旧版) | ⏸️ DISABLED | `legalref.judiciary.hk` | 禁用 (源被封/改版) |
+| **香港司法机构审讯时间表** | ✅ **ACTIVE** | `e-services.judiciary.hk/dcl/index.jsp` | 每日 |
+| HKLII | ✅ **ACTIVE** | `www.hklii.hk` | 每日 |
 
 ---
 
-## 🔧 已执行的修复
+## 🔧 已执行的修复 / 变更记录
+
+### 2026-03-20: 新增 HK Judiciary Daily Cause List (DCL) 爬虫
+
+**新增文件**: `scripts/crawlers/hk-judiciary-dcl-crawler.ts`
+
+爬取 `https://e-services.judiciary.hk/dcl/index.jsp` 的每日审讯时间表，支持 17 个法院：
+
+- 区域法院 (DC / DCMC)
+- 高等法院上诉法庭 (HCA)
+- 高等法院原讼法庭 (HCCFI / HCMC)
+- 裁判法院 (MC / EDD / KCC / KTN / WKL / ST / FL / TM)
+- 家事法庭 (FHC)
+- 土地审裁处 (LT)
+- 劳资审裁处 (LEC)
+- 小额钱债审裁处 (SDCC)
+
+**更新文件**:
+- `scripts/crawlers/unified-tracker.ts` — 集成新爬虫 (`judiciaryDCL` stats 字段)
+- `package.json` — 新增 `crawler:judiciary-dcl` 命令
+
+---
+
+## 🔧 历史修复记录
 
 ### 1. 禁用司法机构爬虫
 

@@ -2,6 +2,7 @@ import { PrismaClient } from '../../packages/database';
 import { trackJudiciaryCases } from './hk-judiciary-crawler';
 import { trackRssNews } from './rss-news-crawler';
 import { trackHkliiCases } from './hklii-crawler';
+import { trackJudiciaryDailyList } from './hk-judiciary-dcl-crawler';
 
 const prisma = new PrismaClient();
 let currentJobRunId: string | number | null = null;
@@ -27,12 +28,13 @@ async function main() {
     judiciary: 0,
     rss: 0,
     hklii: 0,
+    judiciaryDCL: 0,
     errors: [] as string[],
   };
 
   // 1. Track HK Judiciary - TEMPORARILY DISABLED (source blocked/changed)
   // TODO: Re-implement with new judiciary.hk API when available
-  console.log('\n⏸️  HK Judiciary tracking: DISABLED (source blocked)');
+  console.log('\n⏸️  HK Judiciary (legacy) tracking: DISABLED (source blocked)');
   console.log('   Waiting for new API implementation');
   stats.judiciary = 0;
   
@@ -46,6 +48,19 @@ async function main() {
   //   console.error('\n❌ Judiciary tracking failed:', error.message);
   //   stats.errors.push(`Judiciary: ${error.message}`);
   // }
+
+  // 1b. Track HK Judiciary Daily Cause List (新審訊時間表爬蟲)
+  let judiciaryDclError: string | null = null;
+  try {
+    console.log('\n⚖️  Tracking HK Judiciary Daily Cause List...');
+    console.log('-'.repeat(60));
+    stats.judiciaryDCL = await trackJudiciaryDailyList();
+    console.log(`\n✅ Judiciary DCL: ${stats.judiciaryDCL} hearings processed`);
+  } catch (error: any) {
+    console.error('\n❌ Judiciary DCL tracking failed:', error.message);
+    stats.errors.push(`JudiciaryDCL: ${error.message}`);
+    judiciaryDclError = error.message;
+  }
 
   // 2. Track RSS News
   let rssError: string | null = null;
@@ -75,7 +90,7 @@ async function main() {
 
   const completedAt = new Date();
   const durationSeconds = Math.round((completedAt.getTime() - startedAt.getTime()) / 1000);
-  const totalAdded = stats.judiciary + stats.rss + stats.hklii;
+  const totalAdded = stats.judiciary + stats.rss + stats.hklii + stats.judiciaryDCL;
   const hasErrors = stats.errors.length > 0;
 
   // Determine final status
@@ -92,6 +107,7 @@ async function main() {
       totalErrors: stats.errors.length,
       sourceStats: {
         judiciary: { added: stats.judiciary, errors: 0 },
+        judiciaryDCL: { added: stats.judiciaryDCL, errors: judiciaryDclError ? 1 : 0 },
         rss: { added: stats.rss, errors: rssError ? 1 : 0 },
         hklii: { added: stats.hklii, errors: hkliiError ? 1 : 0 },
       },
@@ -105,7 +121,8 @@ async function main() {
   console.log('\n' + '='.repeat(60));
   console.log('📊 Tracking Summary:');
   console.log('='.repeat(60));
-  console.log(`   HK Judiciary: ${stats.judiciary} cases`);
+  console.log(`   HK Judiciary (legacy): ${stats.judiciary} cases`);
+  console.log(`   Judiciary DCL:         ${stats.judiciaryDCL} hearings`);
   console.log(`   RSS News:     ${stats.rss} articles`);
   console.log(`   HKLII:        ${stats.hklii} cases`);
   console.log(`   Total:        ${totalAdded} items`);
