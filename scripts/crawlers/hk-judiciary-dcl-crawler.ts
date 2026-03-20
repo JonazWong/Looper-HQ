@@ -345,6 +345,7 @@ class JudiciaryDclCrawler {
             court: record.court_zh,
             judge: record.judge || undefined,
             keywords,
+            sourceUrl: record.sourceUrl,
             updatedAt: new Date(),
           },
         });
