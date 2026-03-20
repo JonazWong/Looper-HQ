@@ -376,6 +376,7 @@ class JudiciaryDclCrawler {
       const label = known ? '⚠️' : '❌';
       console.error(`    ${label} 儲存案件失敗 (${record.caseNumber}): ${error.message}`);
       this.stats.errors++;
+      this.stats.skipped++;
       return 'skipped';
     }
   }
