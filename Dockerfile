@@ -20,7 +20,7 @@ RUN corepack enable && corepack prepare pnpm@8.15.0 --activate
 COPY . .
 
 # Set DATABASE_URL for Prisma generation
-ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/defaultdb"
 
 # Install dependencies (including devDependencies needed for build)
 # postinstall hook will generate Prisma Client

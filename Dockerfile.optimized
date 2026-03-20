@@ -42,7 +42,7 @@ COPY . .
 # Set environment variables for build
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/defaultdb"
 
 # Build using Turborepo with cache mounts for faster rebuilds
 RUN --mount=type=cache,target=/app/.turbo \
