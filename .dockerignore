@@ -127,9 +127,10 @@ v4_*
 # ==============================================================================
 # Scripts (not needed in runtime)
 # ==============================================================================
-# Ignore most scripts except startup.sh
+# Ignore most scripts except startup scripts
 scripts/*
 !scripts/startup.sh
+!scripts/startup-legal-case-search.sh
 *.bat
 *.ps1
 
