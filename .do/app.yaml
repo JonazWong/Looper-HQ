@@ -38,7 +38,7 @@ jobs:
   instance_size_slug: apps-s-1vcpu-1gb
   kind: PRE_DEPLOY
   name: db-migrate
-  run_command: cd packages/database && npx prisma migrate deploy
+  run_command: sh -c "cd packages/database && npx prisma migrate deploy"
   source_dir: /
 name: lp-app
 region: sgp
