@@ -1,7 +1,8 @@
 'use client'
 
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CheckCircle2, XCircle, AlertTriangle, Clock, Database, RefreshCw, Settings, Rss, Activity, Calendar } from 'lucide-react'
+import { CheckCircle2, XCircle, AlertTriangle, Clock, Database, RefreshCw, Settings, Rss, Activity, Calendar, Brain } from 'lucide-react'
 
 interface RssSourceRow {
   id: string
@@ -277,39 +278,65 @@ export function AdminDashboardClient({ rssSources, totalPublicCases, todayPublic
       <div className="glass-card rounded-premier-lg p-6">
         <h2 className="text-lg font-semibold text-premier-gold flex items-center gap-2 mb-4">
           <Settings className="w-5 h-5" />
-          {isEn ? 'System Settings' : '系統設置'}
+          {isEn ? 'System Settings & Tools' : '系統設置與工具'}
         </h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-premier-pearl-gray text-sm mb-2">
-              {isEn ? 'Crawler Global Switch' : '爬蟲全局開關'}
-            </label>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-5 bg-green-700 rounded-full relative cursor-pointer">
-                <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full" />
-              </div>
-              <span className="text-green-400 text-sm">{isEn ? 'Enabled' : '已啟用'}</span>
+        
+        {/* AI Tools Section */}
+        <div className="mb-6">
+          <h3 className="text-premier-pearl text-sm font-medium mb-3">
+            {isEn ? 'AI Tools' : 'AI 工具'}
+          </h3>
+          <Link
+            href={`${pathname.split('/').slice(0, -1).join('/')}/ai-classify`}
+            className="flex items-center gap-3 p-4 bg-premier-gold/10 border border-premier-gold/30 rounded-premier-md hover:bg-premier-gold/20 transition-colors group"
+          >
+            <div className="p-2 bg-premier-gold/20 rounded-lg group-hover:bg-premier-gold/30 transition-colors">
+              <Brain className="w-5 h-5 text-premier-gold" />
             </div>
-          </div>
-          <div>
-            <label className="block text-premier-pearl-gray text-sm mb-2">
-              {isEn ? 'Success Rate Threshold' : '成功率閾值'}
-            </label>
-            <div className="flex items-center gap-2">
-              <div className="bg-premier-black-light border border-premier-gold/20 rounded-premier-md px-3 py-2 text-premier-pearl text-sm w-24">
-                60%
+            <div className="flex-1">
+              <div className="text-premier-pearl font-medium text-sm">
+                {isEn ? 'AI Batch Classification' : 'AI 智能批量分類'}
               </div>
-              <span className="text-premier-pearl-gray text-xs">
-                {isEn ? '(Auto-alert below this threshold)' : '（低於此值時自動告警）'}
-              </span>
+              <div className="text-premier-pearl-gray text-xs mt-0.5">
+                {isEn ? 'Automatically classify public cases using AI' : '使用 AI 自動分類公開案例'}
+              </div>
+            </div>
+            <div className="text-premier-gold text-xs">→</div>
+          </Link>
+        </div>
+
+        {/* Configuration Section */}
+        <div>
+          <h3 className="text-premier-pearl text-sm font-medium mb-3">
+            {isEn ? 'Configuration' : '配置'}
+          </h3>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-premier-pearl-gray text-sm mb-2">
+                {isEn ? 'Crawler Global Switch' : '爬蟲全局開關'}
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-5 bg-green-700 rounded-full relative cursor-pointer">
+                  <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full" />
+                </div>
+                <span className="text-green-400 text-sm">{isEn ? 'Enabled' : '已啟用'}</span>
+              </div>
+            </div>
+            <div>
+              <label className="block text-premier-pearl-gray text-sm mb-2">
+                {isEn ? 'Success Rate Threshold' : '成功率閾值'}
+              </label>
+              <div className="flex items-center gap-2">
+                <div className="bg-premier-black-light border border-premier-gold/20 rounded-premier-md px-3 py-2 text-premier-pearl text-sm w-24">
+                  60%
+                </div>
+                <span className="text-premier-pearl-gray text-xs">
+                  {isEn ? '(Auto-alert below this threshold)' : '（低於此值時自動告警）'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-        <p className="text-premier-pearl-gray text-xs mt-4">
-          {isEn
-            ? 'Full settings management coming soon.'
-            : '完整設置管理即將推出。'}
-        </p>
       </div>
     </div>
   )

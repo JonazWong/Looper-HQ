@@ -4,6 +4,7 @@
  */
 
 import Link from "next/link"
+import { getTranslations } from 'next-intl/server'
 import { 
   DollarSign, 
   FileText, 
@@ -42,6 +43,7 @@ interface SearchParams {
 }
 
 interface BillingPageProps {
+  params: Promise<{ locale: string }>
   searchParams: Promise<SearchParams>
 }
 
@@ -167,8 +169,10 @@ function isOverdue(dueDate: Date, status: InvoiceStatus): boolean {
   return status === 'PENDING' && new Date(dueDate) < new Date()
 }
 
-export default async function BillingPage({ searchParams }: BillingPageProps) {
+export default async function BillingPage({ params, searchParams }: BillingPageProps) {
+  const { locale } = await params
   const resolvedSearchParams = await searchParams
+  const t = await getTranslations({ locale, namespace: 'billing' })
   
   const [{ invoices, totalInvoices, currentPage, totalPages }, stats] = await Promise.all([
     getInvoices(resolvedSearchParams),
@@ -181,13 +185,13 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gradient-gold">
-            Billing & Invoices
+            {t('title')}
           </h1>
           <p className="text-premier-pearl-gray">
-            Manage invoices and track payments
+            {t('subtitle')}
           </p>
         </div>
-        <Link href="/billing/new">
+        <Link href={`/${locale}/billing/new`}>
           <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
             New Invoice
           </PremierButton>
@@ -226,7 +230,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
       <GlassCard variant="default">
         <GlassCardContent className="pt-6">
           <div className="flex flex-wrap gap-2">
-            <Link href="/billing">
+            <Link href={`/${locale}/billing`}>
               <Badge 
                 variant="outline"
                 className={!resolvedSearchParams.status 
@@ -238,7 +242,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
               </Badge>
             </Link>
             {Object.values(InvoiceStatus).map((status) => (
-              <Link key={status} href={`/billing?status=${status}`}>
+              <Link key={status} href={`/${locale}/billing?status=${status}`}>
                 <Badge 
                   variant="outline"
                   className={resolvedSearchParams.status === status
@@ -277,7 +281,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
                   ? 'Try adjusting your filters to find what you\'re looking for.'
                   : 'Get started by creating your first invoice.'}
               </p>
-              <Link href="/billing/new">
+              <Link href={`/${locale}/billing/new`}>
                 <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
                   Create Invoice
                 </PremierButton>
@@ -309,7 +313,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
                         >
                           <TableCell className="font-medium">
                             <Link
-                              href={`/billing/${invoice.id}`}
+                              href={`/${locale}/billing/${invoice.id}`}
                               className="text-premier-gold hover:underline"
                             >
                               {invoice.invoiceNumber}
@@ -317,7 +321,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
                           </TableCell>
                           <TableCell>
                             <Link
-                              href={`/cases/${invoice.case.id}`}
+                              href={`/${locale}/cases/${invoice.case.id}`}
                               className="text-premier-pearl hover:underline"
                             >
                               {invoice.case.caseNumber}
@@ -345,7 +349,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Link href={`/billing/${invoice.id}`}>
+                              <Link href={`/${locale}/billing/${invoice.id}`}>
                                 <PremierButton 
                                   variant="ghost" 
                                   size="icon" 
@@ -376,14 +380,14 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
                   </p>
                   <div className="flex gap-2">
                     {currentPage > 1 && (
-                      <Link href={`/billing?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage - 1) })}`}>
+                      <Link href={`/${locale}/billing?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage - 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
                           Previous
                         </PremierButton>
                       </Link>
                     )}
                     {currentPage < totalPages && (
-                      <Link href={`/billing?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage + 1) })}`}>
+                      <Link href={`/${locale}/billing?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage + 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
                           Next
                         </PremierButton>

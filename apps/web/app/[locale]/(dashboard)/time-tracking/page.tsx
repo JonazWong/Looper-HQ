@@ -4,6 +4,7 @@
  */
 
 import Link from "next/link"
+import { getTranslations } from 'next-intl/server'
 import { 
   Clock, 
   DollarSign, 
@@ -231,6 +232,7 @@ async function getCasesForFilter() {
 export default async function TimeTrackingPage({ params, searchParams }: TimeTrackingPageProps) {
   const { locale } = await params
   const resolvedSearchParams = await searchParams
+  const t = await getTranslations({ locale, namespace: 'timeTracking' })
   
   const [{ timeLogs, totalLogs, currentPage, totalPages }, stats, cases] = await Promise.all([
     getTimeLogs(resolvedSearchParams),
@@ -244,10 +246,10 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gradient-gold">
-            Time Tracking
+            {t('title')}
           </h1>
           <p className="text-premier-pearl-gray">
-            Track billable hours and manage time logs
+            {t('subtitle')}
           </p>
         </div>
         <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
@@ -284,7 +286,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
       {/* Filters */}
       <GlassCard variant="default">
         <GlassCardContent className="pt-6">
-          <form action="/time-tracking" method="get" className="space-y-4">
+          <form action={`/${locale}/time-tracking`} method="get" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {/* Case Filter */}
               <div className="space-y-2">
@@ -344,7 +346,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
               <PremierButton type="submit" variant="primary" icon={<Filter className="h-4 w-4" />} size="sm">
                 Apply Filters
               </PremierButton>
-              <Link href="/time-tracking">
+              <Link href={`/${locale}/time-tracking`}>
                 <PremierButton type="button" variant="ghost" size="sm">
                   Clear Filters
                 </PremierButton>
@@ -415,7 +417,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
                           </TableCell>
                           <TableCell>
                             <Link
-                              href={`/cases/${log.case.id}`}
+                              href={`/${locale}/cases/${log.case.id}`}
                               className="text-premier-gold hover:underline"
                             >
                               {log.case.caseNumber}

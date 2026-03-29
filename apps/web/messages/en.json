@@ -77,12 +77,25 @@
     "categories": {
       "CIVIL": "Civil",
       "CRIMINAL": "Criminal",
+      "CRIMINAL_APPEAL": "Criminal Appeal",
       "CORPORATE": "Corporate",
       "FAMILY": "Family",
       "PROPERTY": "Property",
       "EMPLOYMENT": "Employment",
       "INTELLECTUAL_PROPERTY": "Intellectual Property",
+      "ADMINISTRATIVE": "Administrative",
+      "CONSTITUTIONAL": "Constitutional",
       "IMMIGRATION": "Immigration",
+      "PERSONAL_INJURY": "Personal Injury",
+      "TORT": "Tort",
+      "CONTRACT": "Contract",
+      "BANKRUPTCY_INSOLVENCY": "Bankruptcy & Insolvency",
+      "SECURITIES": "Securities",
+      "ARBITRATION": "Arbitration",
+      "JUDICIAL_REVIEW": "Judicial Review",
+      "HUMAN_RIGHTS": "Human Rights",
+      "COMPETITION": "Competition",
+      "TAX": "Tax",
       "OTHER": "Other"
     },
     "statuses": {
@@ -157,26 +170,36 @@
     "category": "Category"
   },
   "billing": {
-    "title": "Billing",
-    "subtitle": "Manage invoices and payments",
-    "invoiceNumber": "Invoice Number",
+    "title": "Billing & Invoices",
+    "subtitle": "Manage invoices and track payments",
+    "newInvoice": "New Invoice",
+    "invoicesTitle": "Invoices",
+    "invoiceNumber": "Invoice #",
     "amount": "Amount",
     "status": "Status",
+    "issueDate": "Issue Date",
     "dueDate": "Due Date",
     "paid": "Paid",
     "unpaid": "Unpaid",
     "overdue": "Overdue",
     "totalRevenue": "Total Revenue",
-    "pendingRevenue": "Pending Revenue"
+    "pendingRevenue": "Pending Amount",
+    "paidInvoices": "Paid Invoices",
+    "overdueInvoices": "Overdue Invoices",
+    "all": "All"
   },
   "timeTracking": {
     "title": "Time Tracking",
-    "subtitle": "Track billable hours and activities",
+    "subtitle": "Track billable hours and manage time logs",
+    "addTimeLog": "Add Time Log",
     "hours": "Hours",
     "hourlyRate": "Hourly Rate",
     "totalAmount": "Total Amount",
     "billable": "Billable",
-    "nonBillable": "Non-Billable"
+    "nonBillable": "Non-Billable",
+    "applyFilters": "Apply Filters",
+    "clearFilters": "Clear Filters",
+    "noTimeLogs": "No time logs found"
   },
   "ai": {
     "classify": "AI Classification",

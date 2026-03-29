@@ -117,7 +117,7 @@ export function Sidebar() {
         <nav className="grid gap-1 px-3">
           {sidebarItems.map((item, index) => {
             const Icon = item.icon
-            const isActive = pathname === item.href
+            const isActive = pathname === item.href || (item.href !== `/${locale}/dashboard` && pathname.startsWith(item.href + '/'))
             const label = t(`nav.${item.labelKey}`)
             
             return (

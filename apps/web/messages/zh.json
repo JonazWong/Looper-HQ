@@ -78,12 +78,25 @@
     "categories": {
       "CIVIL": "民事",
       "CRIMINAL": "刑事",
+      "CRIMINAL_APPEAL": "刑事上訴",
       "CORPORATE": "公司",
       "FAMILY": "家事",
       "PROPERTY": "物業",
       "EMPLOYMENT": "勞工",
       "INTELLECTUAL_PROPERTY": "知識產權",
-      "IMMIGRATION": "移民",
+      "ADMINISTRATIVE": "行政法",
+      "CONSTITUTIONAL": "憲法",
+      "IMMIGRATION": "入境事務",
+      "PERSONAL_INJURY": "人身傷害",
+      "TORT": "侵權",
+      "CONTRACT": "合約",
+      "BANKRUPTCY_INSOLVENCY": "破產清盤",
+      "SECURITIES": "證券",
+      "ARBITRATION": "仲裁",
+      "JUDICIAL_REVIEW": "司法覆核",
+      "HUMAN_RIGHTS": "人權",
+      "COMPETITION": "競爭法",
+      "TAX": "稅務",
       "OTHER": "其他"
     },
     "statuses": {
@@ -160,24 +173,34 @@
   "billing": {
     "title": "帳單",
     "subtitle": "管理發票及付款",
+    "newInvoice": "新發票",
+    "invoicesTitle": "發票列表",
     "invoiceNumber": "發票編號",
     "amount": "金額",
     "status": "狀態",
+    "issueDate": "開票日期",
     "dueDate": "到期日",
     "paid": "已付款",
     "unpaid": "未付款",
     "overdue": "逾期",
     "totalRevenue": "總收入",
-    "pendingRevenue": "待收收入"
+    "pendingRevenue": "待收收入",
+    "paidInvoices": "已付發票",
+    "overdueInvoices": "逾期發票",
+    "all": "全部"
   },
   "timeTracking": {
     "title": "時間追蹤",
     "subtitle": "追蹤計費時數及活動",
+    "addTimeLog": "新增時間記錄",
     "hours": "時數",
     "hourlyRate": "時薪",
     "totalAmount": "總金額",
     "billable": "可計費",
-    "nonBillable": "不可計費"
+    "nonBillable": "不可計費",
+    "applyFilters": "套用篩選",
+    "clearFilters": "清除篩選",
+    "noTimeLogs": "沒有時間記錄"
   },
   "ai": {
     "classify": "AI 智能分類",

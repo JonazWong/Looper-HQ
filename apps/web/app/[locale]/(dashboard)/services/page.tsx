@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import { Search, Database, FileText, Download, Clock, Activity, TrendingUp, ExternalLink } from 'lucide-react';
 
@@ -27,8 +27,8 @@ const HOT_TAGS_EN = ['Commercial Litigation', 'Criminal', 'Family Law', 'Propert
 
 export default function MemberDashboardPage() {
   const { data: session } = useSession();
-  const pathname = usePathname() || '/';
-  const isEn = pathname.startsWith('/en');
+  const locale = useLocale();
+  const isEn = locale === 'en';
   const [stats, setStats] = useState<DatabaseStats>({
     totalCases: 0,
     todayNew: 0,
@@ -146,7 +146,7 @@ export default function MemberDashboardPage() {
             }}
           />
           <Link
-            href={`/case-search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}
+            href={`/${locale}/case-search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-premier-gold to-premier-gold-rose text-premier-black rounded-premier-md font-medium hover:shadow-premier-glow transition-all"
             data-role="quick-search-link"
           >
@@ -158,7 +158,7 @@ export default function MemberDashboardPage() {
           {hotTags.map(tag => (
             <Link
               key={tag}
-              href={`/case-search?q=${encodeURIComponent(tag)}`}
+              href={`/${locale}/case-search?q=${encodeURIComponent(tag)}`}
               className="px-3 py-1 text-xs rounded-full border border-premier-gold/20 text-premier-pearl-gray hover:border-premier-gold hover:text-premier-gold transition-colors"
             >
               {tag}
@@ -195,7 +195,7 @@ export default function MemberDashboardPage() {
                       {record.resultCount} {isEn ? 'results' : '項結果'} · {new Date(record.searchedAt).toLocaleString()}
                     </p>
                   </div>
-                  <Link href={`/case-search?q=${encodeURIComponent(record.keyword)}`} className="text-premier-gold hover:text-premier-gold-champagne">
+                  <Link href={`/${locale}/case-search?q=${encodeURIComponent(record.keyword)}`} className="text-premier-gold hover:text-premier-gold-champagne">
                     <Search className="w-4 h-4" />
                   </Link>
                 </div>
@@ -242,9 +242,9 @@ export default function MemberDashboardPage() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { icon: <Database className="w-5 h-5" />, label: isEn ? 'Case Database' : '瀏覽法案資料庫', href: '/case-search' },
-            { icon: <FileText className="w-5 h-5" />, label: isEn ? 'Forms Repository' : '司法表格庫', href: '/case-search?filter=forms' },
-            { icon: <TrendingUp className="w-5 h-5" />, label: isEn ? 'AI Smart Search' : 'AI 智能搜尋', href: '/case-search?mode=ai' },
+            { icon: <Database className="w-5 h-5" />, label: isEn ? 'Case Database' : '瀏覽法案資料庫', href: `/${locale}/case-search` },
+            { icon: <FileText className="w-5 h-5" />, label: isEn ? 'Forms Repository' : '司法表格庫', href: `/${locale}/case-search?filter=forms` },
+            { icon: <TrendingUp className="w-5 h-5" />, label: isEn ? 'AI Smart Search' : 'AI 智能搜尋', href: `/${locale}/case-search?mode=ai` },
           ].map((link, i) => (
             <Link
               key={i}

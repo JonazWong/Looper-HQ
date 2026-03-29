@@ -88,27 +88,29 @@ interface DashboardContentProps {
   membershipTier: MembershipTier
 }
 
-const getStatusDisplay = (status: string) => {
-  const statusMap: Record<string, { label: string; className: string }> = {
-    'ACTIVE': { label: 'Active', className: 'bg-amber-500/20 text-amber-200' },
-    'PENDING': { label: 'Pending', className: 'bg-blue-500/20 text-blue-200' },
-    'COMPLETED': { label: 'Completed', className: 'bg-green-500/20 text-green-200' },
-    'ARCHIVED': { label: 'Archived', className: 'bg-gray-500/20 text-gray-200' },
-  }
-  return statusMap[status] || { label: status, className: 'bg-gray-500/20 text-gray-200' }
-}
 export function DashboardContent({ stats, activities, membershipTier }: DashboardContentProps) {
   const locale = useLocale()
+  const t = useTranslations()
   
   // Quick actions with locale-aware routes
   const quickActions = [
-    { label: 'New Case', icon: <Plus className="h-4 w-4" />, variant: 'primary' as const, href: `/${locale}/cases/new` },
-    { label: 'Add Client', icon: <Users className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/clients` },
-    { label: 'Search Cases', icon: <Search className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/search` },
-    { label: 'View Cases', icon: <Briefcase className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/cases` },
-    { label: 'View Clients', icon: <Users className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/clients` },
-    { label: 'Upload Documents', icon: <Upload className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/documents` },
+    { label: t('dashboard.newCase'), icon: <Plus className="h-4 w-4" />, variant: 'primary' as const, href: `/${locale}/cases/new` },
+    { label: t('dashboard.addClient'), icon: <Users className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/clients` },
+    { label: t('dashboard.searchCases'), icon: <Search className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/search` },
+    { label: t('dashboard.viewCases'), icon: <Briefcase className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/cases` },
+    { label: t('dashboard.viewClients'), icon: <Users className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/clients` },
+    { label: t('dashboard.uploadDocuments'), icon: <Upload className="h-4 w-4" />, variant: 'secondary' as const, href: `/${locale}/documents` },
   ]
+
+  const getStatusDisplay = (status: string) => {
+    const statusMap: Record<string, { label: string; className: string }> = {
+      'ACTIVE': { label: t('case.statuses.ACTIVE'), className: 'bg-amber-500/20 text-amber-200' },
+      'PENDING': { label: t('case.statuses.PENDING'), className: 'bg-blue-500/20 text-blue-200' },
+      'COMPLETED': { label: t('case.statuses.COMPLETED'), className: 'bg-green-500/20 text-green-200' },
+      'ARCHIVED': { label: t('case.statuses.ARCHIVED'), className: 'bg-gray-500/20 text-gray-200' },
+    }
+    return statusMap[status] || { label: status, className: 'bg-gray-500/20 text-gray-200' }
+  }
   
   // Convert serialized activities to Activity format with icons
   const activitiesWithIcons: Activity[] = activities.map(activity => ({
@@ -130,10 +132,10 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
       {/* Header */}
       <motion.div variants={itemVariants}>
         <h1 className="text-4xl font-serif font-bold text-gradient-gold mb-2">
-          Looper HQ
+          {t('common.appName')}
         </h1>
         <p className="text-premier-pearl-gray">
-          香港法律案件管理系統 - 專業高效的案件與客戶管理平台
+          {t('dashboard.subtitle')}
         </p>
       </motion.div>
 
@@ -144,7 +146,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
       >
         <motion.div variants={itemVariants}>
           <StatCard
-            title="Total Cases"
+            title={t('dashboard.totalCases')}
             value={stats.totalCases}
             change={{ value: 12, trend: 'up', label: 'from last month' }}
             icon={<Briefcase className="h-4 w-4" />}
@@ -153,7 +155,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
         
         <motion.div variants={itemVariants}>
           <StatCard
-            title="Active Clients"
+            title={t('dashboard.activeClients')}
             value={stats.totalClients}
             change={{ value: 5, trend: 'up', label: 'from last month' }}
             icon={<Users className="h-4 w-4" />}
@@ -162,7 +164,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
         
         <motion.div variants={itemVariants}>
           <StatCard
-            title="Pending Reviews"
+            title={t('dashboard.pendingReviews')}
             value={stats.pendingCases}
             change={{ value: 3, trend: 'down', label: 'from yesterday' }}
             icon={<FileText className="h-4 w-4" />}
@@ -171,7 +173,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
         
         <motion.div variants={itemVariants}>
           <StatCard
-            title="Success Rate"
+            title={t('dashboard.successRate')}
             value={`${stats.successRate}%`}
             change={{ value: 8, trend: 'up', label: 'this quarter' }}
             icon={<TrendingUp className="h-4 w-4" />}
@@ -183,7 +185,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
       <motion.div variants={itemVariants}>
         <GlassCard variant="frosted" glow={false}>
           <GlassCardHeader>
-            <GlassCardTitle>Quick Actions</GlassCardTitle>
+            <GlassCardTitle>{t('dashboard.quickActions')}</GlassCardTitle>
           </GlassCardHeader>
           <GlassCardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -221,7 +223,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
         <motion.div variants={itemVariants}>
           <GlassCard variant="gold" glow>
             <GlassCardHeader>
-              <GlassCardTitle>Case Distribution</GlassCardTitle>
+              <GlassCardTitle>{t('dashboard.casesByStatus')}</GlassCardTitle>
             </GlassCardHeader>
             <GlassCardContent className="flex justify-center py-8">
               <ProgressRing segments={stats.casesByStatus} size={240} strokeWidth={24} />
@@ -233,7 +235,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
         <motion.div variants={itemVariants}>
           <GlassCard variant="mystery" glow>
             <GlassCardHeader>
-              <GlassCardTitle>Recent Activity</GlassCardTitle>
+              <GlassCardTitle>{t('dashboard.recentActivity')}</GlassCardTitle>
             </GlassCardHeader>
             <GlassCardContent>
               <ActivityTimeline 
@@ -250,7 +252,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
       <motion.div variants={itemVariants}>
         <GlassCard variant="default" glow>
           <GlassCardHeader>
-            <GlassCardTitle>Recent Cases</GlassCardTitle>
+            <GlassCardTitle>{t('dashboard.recentCases')}</GlassCardTitle>
           </GlassCardHeader>
           <GlassCardContent>
             <div className="space-y-4">

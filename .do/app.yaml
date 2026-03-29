@@ -18,6 +18,28 @@ ingress:
     match:
       path:
         prefix: /
+jobs:
+- dockerfile_path: /Dockerfile
+  envs:
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+  - key: TZ
+    scope: RUN_AND_BUILD_TIME
+    value: Asia/Hong_Kong
+  - key: DATABASE_URL
+    scope: RUN_AND_BUILD_TIME
+    value: ${db-postgresql-sgp1-75753.DATABASE_URL}
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: JonazWong/Looper-HQ
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-1gb
+  kind: PRE_DEPLOY
+  name: db-migrate
+  run_command: cd packages/database && npx prisma migrate deploy
+  source_dir: /
 name: lp-app
 region: sgp
 services:
@@ -49,7 +71,7 @@ services:
     value: EV[1:z/Enip1HuKR/rOgZismNG9W0q6LyAymv:hvc6b4xT4P6+RITOUe49MGOHFMXQcxDLPWxbbv6lCRYi2dSqE2oaamsUm/bTiFsHouNnLfbXZVHZLWzPN73I6GtKYL5w/TjqS6UCopCsslCmUsX5CAPnHlk=]
   - key: OPENAI_MODEL
     scope: RUN_AND_BUILD_TIME
-    value: gpt-4o-mini
+    value: gpt-5.1
   - key: OPENAI_BASE_URL
     scope: RUN_AND_BUILD_TIME
     value: https://openrouter.ai/api/v1
