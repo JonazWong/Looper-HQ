@@ -14,13 +14,21 @@ fi
 
 echo "✅ DATABASE_URL is configured"
 
+PRISMA_VERSION="5.17.0"
+
 # Sync database schema (using db push since project doesn't use migrations)
 echo "📊 Syncing database schema..."
 if [ -d "/app/prisma" ]; then
   cd /app
   
+  # Enable pgvector extension before schema sync
+  echo "🔧 Enabling pgvector extension..."
+  echo "CREATE EXTENSION IF NOT EXISTS vector;" | pnpm dlx "prisma@${PRISMA_VERSION}" db execute --schema=./prisma/schema.prisma --stdin 2>&1 || {
+    echo "⚠️  pgvector extension setup failed (continuing anyway - extension may not be supported)"
+  }
+
   # Use pnpm dlx to execute prisma without installation (force-reset for clean state)
-  pnpm dlx prisma@5.17.0 db push --force-reset --skip-generate --schema=./prisma/schema.prisma 2>&1 || {
+  pnpm dlx "prisma@${PRISMA_VERSION}" db push --force-reset --skip-generate --schema=./prisma/schema.prisma 2>&1 || {
     EXITCODE=$?
     echo "⚠️  Schema sync failed with exit code $EXITCODE"
     echo "   Continuing startup anyway - check DATABASE_URL and network connectivity"
