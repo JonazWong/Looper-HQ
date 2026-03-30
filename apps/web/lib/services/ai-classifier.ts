@@ -1,6 +1,11 @@
 import { generateCompletion } from '@looper-hq/utils';
 import { CaseCategory } from '@looper-hq/database';
 
+const OPENROUTER_HEADERS = {
+  'HTTP-Referer': 'https://looper-hq.app',
+  'X-Title': 'Looper HQ',
+};
+
 export interface ClassificationResult {
   category: CaseCategory;
   court: string | null;
@@ -95,7 +100,7 @@ async function classifyCaseWithRetry(
 請分析以下香港法律案例，提取結構化信息。
 
 標題: ${title}
-內容: ${content.substring(0, 2500)}
+內容: ${content.substring(0, 2000)}
 
 請以 JSON 格式回覆（不要加其他文字）：
 {
@@ -142,11 +147,15 @@ async function classifyCaseWithRetry(
         await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt - 1)));
       }
 
+      const isOpenRouter = (process.env.OPENAI_BASE_URL || '').includes('openrouter');
       const responseContent = await generateCompletion({
         systemPrompt: '你是專業的香港法律案例分析助手。請嚴格按照 JSON 格式回覆，不要加入任何說明文字。',
         userPrompt: prompt,
         jsonMode: true,
-        maxTokens: 800,
+        maxTokens: 1000,
+        ...(isOpenRouter && {
+          requestOptions: { headers: OPENROUTER_HEADERS },
+        }),
       });
 
       // Extract JSON from response (handle code blocks)

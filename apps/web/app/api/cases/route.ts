@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
 
     // Parse pagination
     const paginationResult = paginationSchema.safeParse({
-      page: searchParams.get('page'),
-      perPage: searchParams.get('perPage'),
+      page: searchParams.get('page') ?? undefined,
+      perPage: searchParams.get('perPage') ?? undefined,
     })
 
     if (!paginationResult.success) {
@@ -34,12 +34,12 @@ export async function GET(request: NextRequest) {
 
     // Parse filters
     const filterResult = caseFilterSchema.safeParse({
-      status: searchParams.get('status'),
-      priority: searchParams.get('priority'),
-      category: searchParams.get('category'),
-      clientId: searchParams.get('clientId'),
-      lawyerId: searchParams.get('lawyerId'),
-      search: searchParams.get('search'),
+      status: searchParams.get('status') ?? undefined,
+      priority: searchParams.get('priority') ?? undefined,
+      category: searchParams.get('category') ?? undefined,
+      clientId: searchParams.get('clientId') ?? undefined,
+      lawyerId: searchParams.get('lawyerId') ?? undefined,
+      search: searchParams.get('search') ?? undefined,
     })
 
     if (!filterResult.success) {

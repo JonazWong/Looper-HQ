@@ -133,8 +133,10 @@ describe('GET /api/cases', () => {
         where: expect.objectContaining({
           OR: expect.arrayContaining([
             { caseNumber: { contains: 'contract', mode: 'insensitive' } },
-            { title: { contains: 'contract', mode: 'insensitive' } },
-            { description: { contains: 'contract', mode: 'insensitive' } },
+            { title_zh: { contains: 'contract', mode: 'insensitive' } },
+            { title_en: { contains: 'contract', mode: 'insensitive' } },
+            { description_zh: { contains: 'contract', mode: 'insensitive' } },
+            { description_en: { contains: 'contract', mode: 'insensitive' } },
           ]),
         }),
       })
@@ -167,8 +169,10 @@ describe('POST /api/cases', () => {
   it('should create a new case', async () => {
     // Arrange
     const newCaseData = {
-      title: 'New Case',
-      description: 'New case description',
+      title_zh: '新民事案件',
+      title_en: 'New Case',
+      description_zh: '新案件描述',
+      description_en: 'New case description',
       category: 'CIVIL',
       priority: 'MEDIUM',
       status: 'ACTIVE',
@@ -203,7 +207,7 @@ describe('POST /api/cases', () => {
       expect.objectContaining({
         data: expect.objectContaining({
           userId: mockSession.user.id,
-          type: 'CASE_CREATED',
+          activityType: 'CASE_CREATED',
         }),
       })
     )
@@ -220,7 +224,8 @@ describe('POST /api/cases', () => {
 
     const request = createMockRequest('POST', 'http://localhost:3000/api/cases', {
       body: {
-        title: 'Test Case',
+        title_zh: '測試法律案件',
+        title_en: 'Test Case',
         category: 'CIVIL',
         clientId: 'client-123',
       },
@@ -236,7 +241,7 @@ describe('POST /api/cases', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           caseNumber: expect.objectContaining({
-            startsWith: expect.stringContaining('HK-2024-'),
+            startsWith: expect.stringMatching(/^HK-\d{4}-$/),
           }),
         }),
       })

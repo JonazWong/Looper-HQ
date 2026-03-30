@@ -72,6 +72,10 @@ function getClient(): OpenAI {
   return client
 }
 
+export interface CompletionRequestOptions {
+  headers?: Record<string, string>
+}
+
 export interface CompletionParams {
   systemPrompt?: string
   userPrompt: string
@@ -79,6 +83,7 @@ export interface CompletionParams {
   maxTokens?: number
   temperature?: number
   jsonMode?: boolean
+  requestOptions?: CompletionRequestOptions
 }
 
 /**
@@ -92,6 +97,7 @@ export async function generateCompletion(params: CompletionParams): Promise<stri
     maxTokens = Number(process.env.AI_MAX_TOKENS || 2048),
     temperature = Number(process.env.AI_TEMPERATURE || 0.3),
     jsonMode = false,
+    requestOptions,
   } = params
 
   const messages: OpenAI.Chat.ChatCompletionMessageParam[] = []
@@ -109,7 +115,7 @@ export async function generateCompletion(params: CompletionParams): Promise<stri
       temperature,
       max_tokens: maxTokens,
       ...(jsonMode && { response_format: { type: 'json_object' } }),
-    })
+    }, requestOptions)
 
     return response.choices?.[0]?.message?.content ?? ''
   } catch (error) {
