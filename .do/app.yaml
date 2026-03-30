@@ -38,7 +38,7 @@ jobs:
   instance_size_slug: apps-s-1vcpu-1gb
   kind: PRE_DEPLOY
   name: db-migrate
-  run_command: sh -c "npx prisma@5.17.0 db push --schema=prisma/schema.prisma --skip-generate"
+  run_command: sh -c "npx prisma@5.17.0 db push --schema=prisma/schema.prisma --skip-generate --accept-data-loss"
   source_dir: /
 name: lp-app
 region: sgp
