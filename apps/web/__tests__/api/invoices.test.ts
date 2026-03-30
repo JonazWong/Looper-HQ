@@ -168,7 +168,7 @@ describe('POST /api/invoices', () => {
       expect.objectContaining({
         data: expect.objectContaining({
           userId: mockSession.user.id,
-          type: 'PAYMENT_RECEIVED',
+          activityType: 'PAYMENT_RECEIVED',
         }),
       })
     )
