@@ -254,7 +254,7 @@ describe('POST /api/time-logs', () => {
       expect.objectContaining({
         data: expect.objectContaining({
           userId: mockSession.user.id,
-          type: 'CASE_UPDATED',
+          activityType: 'CASE_UPDATED',
           description: expect.stringContaining('3.5 hours'),
         }),
       })

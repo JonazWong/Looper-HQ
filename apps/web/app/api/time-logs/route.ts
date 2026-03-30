@@ -26,8 +26,8 @@ export async function GET(request: NextRequest) {
 
     // Parse pagination
     const paginationResult = paginationSchema.safeParse({
-      page: searchParams.get('page'),
-      perPage: searchParams.get('perPage'),
+      page: searchParams.get('page') ?? undefined,
+      perPage: searchParams.get('perPage') ?? undefined,
     })
 
     if (!paginationResult.success) {
@@ -38,10 +38,10 @@ export async function GET(request: NextRequest) {
 
     // Parse filters
     const filterResult = timeLogFilterSchema.safeParse({
-      caseId: searchParams.get('caseId'),
-      billable: searchParams.get('billable'),
-      dateFrom: searchParams.get('dateFrom'),
-      dateTo: searchParams.get('dateTo'),
+      caseId: searchParams.get('caseId') ?? undefined,
+      billable: searchParams.get('billable') ?? undefined,
+      dateFrom: searchParams.get('dateFrom') ?? undefined,
+      dateTo: searchParams.get('dateTo') ?? undefined,
     })
 
     if (!filterResult.success) {

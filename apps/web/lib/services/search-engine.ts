@@ -195,7 +195,7 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
   
   return {
     cases,
-    total: Number(countResult[0].count),
+    total: countResult?.[0]?.count ? Number(countResult[0].count) : 0,
     took,
   };
 }

@@ -26,8 +26,8 @@ export async function GET(request: NextRequest) {
 
     // Parse pagination
     const paginationResult = paginationSchema.safeParse({
-      page: searchParams.get('page'),
-      perPage: searchParams.get('perPage'),
+      page: searchParams.get('page') ?? undefined,
+      perPage: searchParams.get('perPage') ?? undefined,
     })
 
     if (!paginationResult.success) {
@@ -38,8 +38,8 @@ export async function GET(request: NextRequest) {
 
     // Parse filters
     const filterResult = invoiceFilterSchema.safeParse({
-      status: searchParams.get('status'),
-      caseId: searchParams.get('caseId'),
+      status: searchParams.get('status') ?? undefined,
+      caseId: searchParams.get('caseId') ?? undefined,
     })
 
     if (!filterResult.success) {

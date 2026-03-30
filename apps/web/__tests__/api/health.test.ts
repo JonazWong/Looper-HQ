@@ -10,24 +10,14 @@ vi.mock('@/lib/db', () => ({
 process.env.OPENAI_API_KEY = 'test-api-key'
 process.env.OPENAI_BASE_URL = 'https://test.openrouter.ai/api/v1'
 process.env.npm_package_version = '2.0.0'
-const originalNodeEnv = process.env.NODE_ENV
-Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true, configurable: true }) // Allow detailed checks in tests
+vi.stubEnv('NODE_ENV', 'development') // Allow detailed checks in tests
 process.env.HEALTH_CHECK_SECRET = 'test-secret-key'
 
 // Import route AFTER mocking
 import { GET } from '@/app/api/health/route'
 
 afterAll(() => {
-  if (originalNodeEnv === undefined) {
-    // Restore to unset state if it was originally undefined
-    Object.defineProperty(process.env, 'NODE_ENV', { value: undefined, writable: true, configurable: true })
-  } else {
-    Object.defineProperty(process.env, 'NODE_ENV', {
-      value: originalNodeEnv,
-      writable: true,
-      configurable: true,
-    })
-  }
+  vi.unstubAllEnvs()
 })
 
 // Helper to create mock request
@@ -44,6 +34,7 @@ describe('GET /api/health', () => {
   beforeEach(() => {
     resetMockPrisma()
     vi.clearAllMocks()
+    vi.stubEnv('NODE_ENV', 'development') // reset to development before each test
   })
 
   describe('Public Health Check (minimal info)', () => {
@@ -111,30 +102,21 @@ describe('GET /api/health', () => {
     })
 
     it('should return detailed metrics with internal header', async () => {
-      const originalNodeEnv = process.env.NODE_ENV
-      try {
-        // Arrange
-        Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true, configurable: true }) // Simulate production
-        mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
+      // Arrange
+      vi.stubEnv('NODE_ENV', 'production')
+      mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
 
-        // Act - with internal header
-        const response = await GET(createMockRequest(
-          'http://localhost:3000/api/health?detailed=true',
-          { 'X-Internal-Health-Check': 'test-secret-key' }
-        ))
-        const data = await response.json()
+      // Act - with internal header
+      const response = await GET(createMockRequest(
+        'http://localhost:3000/api/health?detailed=true',
+        { 'X-Internal-Health-Check': 'test-secret-key' }
+      ))
+      const data = await response.json()
 
-        // Assert
-        expect(response.status).toBe(200)
-        expect(data).toHaveProperty('checks')
-        expect(data.checks.database).toHaveProperty('responseTime')
-      } finally {
-        Object.defineProperty(process.env, 'NODE_ENV', {
-          value: originalNodeEnv ?? 'development',
-          writable: true,
-          configurable: true,
-        })
-      }
+      // Assert
+      expect(response.status).toBe(200)
+      expect(data).toHaveProperty('checks')
+      expect(data.checks.database).toHaveProperty('responseTime')
     })
 
     it('should include database response time in detailed mode', async () => {
@@ -236,8 +218,7 @@ describe('GET /api/health', () => {
   describe('Security', () => {
     it('should not expose detailed metrics without proper authentication in production', async () => {
       // Arrange
-      const previousNodeEnv = process.env.NODE_ENV
-      Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true, configurable: true })
+      vi.stubEnv('NODE_ENV', 'production')
       mockPrismaClient.$queryRaw.mockResolvedValueOnce([{ result: 1 }])
 
       // Act - detailed=true but no internal header in production
@@ -250,17 +231,6 @@ describe('GET /api/health', () => {
       expect(data).not.toHaveProperty('checks')
       expect(data).not.toHaveProperty('uptime')
       expect(data).not.toHaveProperty('version')
-
-      // Restore to the previous value within this test
-      if (previousNodeEnv === undefined) {
-        Object.defineProperty(process.env, 'NODE_ENV', { value: undefined, writable: true, configurable: true })
-      } else {
-        Object.defineProperty(process.env, 'NODE_ENV', {
-          value: previousNodeEnv,
-          writable: true,
-          configurable: true,
-        })
-      }
     })
   })
 })
