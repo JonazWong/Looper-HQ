@@ -134,6 +134,7 @@ export async function* generateStreamingCompletion(params: CompletionParams): As
     model = process.env.OPENAI_MODEL || 'gpt-5.1',
     maxTokens = Number(process.env.AI_MAX_TOKENS || 2048),
     temperature = Number(process.env.AI_TEMPERATURE || 0.3),
+    requestOptions,
   } = params
 
   const messages: OpenAI.Chat.ChatCompletionMessageParam[] = []
@@ -151,7 +152,7 @@ export async function* generateStreamingCompletion(params: CompletionParams): As
       temperature,
       max_tokens: maxTokens,
       stream: true,
-    })
+    }, requestOptions)
 
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content

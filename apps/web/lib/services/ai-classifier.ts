@@ -147,7 +147,10 @@ async function classifyCaseWithRetry(
         await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt - 1)));
       }
 
-      const isOpenRouter = (process.env.OPENAI_BASE_URL || '').includes('openrouter');
+      const isOpenRouter =
+        process.env.AI_PROVIDER === 'openrouter' ||
+        !!(process.env.OPENROUTER_BASE_URL) ||
+        (process.env.OPENAI_BASE_URL || '').includes('openrouter');
       const responseContent = await generateCompletion({
         systemPrompt: '你是專業的香港法律案例分析助手。請嚴格按照 JSON 格式回覆，不要加入任何說明文字。',
         userPrompt: prompt,
