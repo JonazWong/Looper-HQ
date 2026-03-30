@@ -32,13 +32,13 @@ jobs:
     value: ${db-postgresql-sgp1-75753.DATABASE_URL}
   github:
     branch: main
-    deploy_on_push: true
+    deploy_on_push: false
     repo: JonazWong/Looper-HQ
   instance_count: 1
   instance_size_slug: apps-s-1vcpu-1gb
   kind: PRE_DEPLOY
   name: db-migrate
-  run_command: sh -c "npx prisma@5.17.0 migrate deploy --schema=prisma/schema.prisma"
+  run_command: sh -c "npx prisma@5.17.0 db push --schema=prisma/schema.prisma --skip-generate"
   source_dir: /
 name: lp-app
 region: sgp
@@ -115,7 +115,7 @@ services:
     value: ${db-postgresql-sgp1-75753.DATABASE_URL}
   github:
     branch: main
-    deploy_on_push: true
+    deploy_on_push: false
     repo: JonazWong/Looper-HQ
   http_port: 3000
   instance_count: 1
@@ -142,7 +142,7 @@ services:
     scope: RUN_AND_BUILD_TIME
   github:
     branch: main
-    deploy_on_push: true
+    deploy_on_push: false
     repo: JonazWong/Looper-HQ
   http_port: 3001
   instance_count: 1
