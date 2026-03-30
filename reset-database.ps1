@@ -32,7 +32,7 @@ Write-Host ""
 
 # 2. 設置環境變數
 Write-Host "📋 步驟 2/5: 設置環境變數..." -ForegroundColor Yellow
-$env:DATABASE_URL = "postgresql://postgres:Ken202318@localhost:5432/looper_hq"
+$env:DATABASE_URL = "postgresql://postgres:Ken202318@localhost:5433/looper_hq"
 Write-Host "✅ 環境變數已設置" -ForegroundColor Green
 Write-Host ""
 
@@ -70,7 +70,7 @@ Write-Host ""
 # 5. 初始化 RSS 來源配置（使用精簡版 seed）
 Write-Host "📋 步驟 5/5: 初始化 RSS 來源配置..." -ForegroundColor Yellow
 Push-Location "packages\database"
-$env:DATABASE_URL = "postgresql://postgres:Ken202318@localhost:5432/looper_hq"
+$env:DATABASE_URL = "postgresql://postgres:Ken202318@localhost:5433/looper_hq"
 npx tsx prisma/seed-minimal.ts
 $seedExitCode = $LASTEXITCODE
 Pop-Location

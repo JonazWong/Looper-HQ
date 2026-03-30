@@ -144,7 +144,7 @@ AI_PROVIDER=openai          # openai | openrouter | azure
 
 # OpenAI / OpenRouter
 OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-5.1
 OPENAI_BASE_URL=https://openrouter.ai/api/v1
 
 # AI 行為配置

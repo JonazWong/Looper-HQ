@@ -32,7 +32,7 @@ postgresql://looper_user:YOUR_STRONG_PASSWORD@db.looper-hq.com:5432/looper_hq?sc
 
 **本地測試範例**:
 ```bash
-postgresql://postgres:postgres@localhost:5432/looper_hq?schema=public
+postgresql://postgres:postgres@localhost:5433/looper_hq?schema=public
 ```
 
 ### 2️⃣ 驗證 Workflow 配置

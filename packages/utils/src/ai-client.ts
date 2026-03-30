@@ -9,7 +9,7 @@
  * const result = await generateCompletion({
  *   systemPrompt: 'You are a legal assistant',
  *   userPrompt: 'Summarize this case',
- *   model: 'gpt-4o-mini', // optional
+ *   model: 'gpt-5.1', // optional
  * })
  * ```
  */
@@ -88,7 +88,7 @@ export async function generateCompletion(params: CompletionParams): Promise<stri
   const {
     systemPrompt,
     userPrompt,
-    model = process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    model = process.env.OPENAI_MODEL || 'gpt-5.1',
     maxTokens = Number(process.env.AI_MAX_TOKENS || 2048),
     temperature = Number(process.env.AI_TEMPERATURE || 0.3),
     jsonMode = false,
@@ -125,7 +125,7 @@ export async function* generateStreamingCompletion(params: CompletionParams): As
   const {
     systemPrompt,
     userPrompt,
-    model = process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    model = process.env.OPENAI_MODEL || 'gpt-5.1',
     maxTokens = Number(process.env.AI_MAX_TOKENS || 2048),
     temperature = Number(process.env.AI_TEMPERATURE || 0.3),
   } = params
@@ -210,7 +210,7 @@ export async function generateEmbedding(
 export function getProviderInfo() {
   return {
     provider,
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    model: process.env.OPENAI_MODEL || 'gpt-5.1',
     locale: process.env.AI_DEFAULT_LOCALE || 'zh-HK',
     maxTokens: Number(process.env.AI_MAX_TOKENS || 2048),
     temperature: Number(process.env.AI_TEMPERATURE || 0.3),

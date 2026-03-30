@@ -190,7 +190,7 @@ pnpm docker:down
 Create `.env.local` in `apps/legal-case-search/`:
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5433/looper_hq"
 NEXTAUTH_URL="http://localhost:3001"
 NEXTAUTH_SECRET="your-secret-here"
 KEYCLOAK_CLIENT_ID="legal-case-search"

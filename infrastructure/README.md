@@ -153,12 +153,12 @@ docker-compose -f infrastructure/docker/docker-compose.yml restart postgres
 
 | Service    | Internal Port | External Port | Purpose                |
 |------------|---------------|---------------|------------------------|
-| PostgreSQL | 5432          | 5432          | Database connections   |
-| Redis      | 6379          | 6379          | Cache/Session storage  |
+| PostgreSQL | 5432          | 5433          | Database connections   |
+| Redis      | 6379          | 6380          | Cache/Session storage  |
 | Keycloak   | 8080          | 8080          | Auth server & Admin UI |
 | pgAdmin    | 80            | 5050          | Database management UI |
 
-**Note**: External ports can be customized via environment variables (e.g., `POSTGRES_PORT=55432` to expose PostgreSQL on port 55432 instead of 5432).
+**Note**: External ports can be customized via environment variables (e.g., `POSTGRES_PORT=55433` to expose PostgreSQL on port 55433 instead of 5433).
 
 ## 🔑 Access Credentials
 
@@ -167,19 +167,19 @@ docker-compose -f infrastructure/docker/docker-compose.yml restart postgres
 **PostgreSQL**:
 ```
 Host: localhost
-Port: 5432
+Port: 5433
 User: postgres
 Password: postgres
 Database: looper_hq
-Connection URL: postgresql://postgres:postgres@localhost:5432/looper_hq
+Connection URL: postgresql://postgres:postgres@localhost:5433/looper_hq
 ```
 
 **Redis**:
 ```
 Host: localhost
-Port: 6379
+Port: 6380
 Password: (optional, not set by default)
-Connection URL: redis://localhost:6379
+Connection URL: redis://localhost:6380
 ```
 
 **Keycloak Admin Console**:
@@ -213,13 +213,13 @@ Key variables:
 
 ```env
 # Database
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/looper_hq
+DATABASE_URL=postgresql://postgres:postgres@localhost:5433/looper_hq
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=looper_hq
 
 # Redis
-REDIS_URL=redis://localhost:6379
+REDIS_URL=redis://localhost:6380
 REDIS_PASSWORD=  # Optional
 
 # Keycloak
@@ -233,8 +233,8 @@ KEYCLOAK_FRONTEND_URL=http://localhost:8080
 Override default ports via environment variables:
 
 ```env
-POSTGRES_PORT=55432  # Example: expose PostgreSQL on port 55432
-REDIS_PORT=6380
+POSTGRES_PORT=55433  # Example: expose PostgreSQL on port 55433
+REDIS_PORT=6381
 KEYCLOAK_PORT=8081
 PGADMIN_PORT=5051
 ```
@@ -258,8 +258,8 @@ Or use the Keycloak Admin Console to make changes via UI.
 **Solutions**:
 ```bash
 # Check if ports are already in use
-sudo lsof -i :5432  # PostgreSQL
-sudo lsof -i :6379  # Redis
+sudo lsof -i :5433  # PostgreSQL
+sudo lsof -i :6380  # Redis
 sudo lsof -i :8080  # Keycloak
 
 # Stop conflicting services or change ports in .env

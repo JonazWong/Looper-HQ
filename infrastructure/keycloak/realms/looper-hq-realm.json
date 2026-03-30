@@ -44,6 +44,7 @@
       "description": "Main web application client",
       "enabled": true,
       "publicClient": false,
+      "secret": "looper-hq-local-dev-secret",
       "protocol": "openid-connect",
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
@@ -51,10 +52,16 @@
       "serviceAccountsEnabled": false,
       "redirectUris": [
         "http://localhost:3000/*",
-        "http://localhost:3000/api/auth/callback/keycloak"
+        "http://localhost:3005/*",
+        "http://localhost:3000/api/auth/callback/keycloak",
+        "http://localhost:3005/api/auth/callback/keycloak",
+        "https://www.looperhq.hk/*",
+        "https://www.looperhq.hk/api/auth/callback/keycloak"
       ],
       "webOrigins": [
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "http://localhost:3005",
+        "https://www.looperhq.hk"
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256"
@@ -78,6 +85,7 @@
       "description": "Legal case management and search client",
       "enabled": true,
       "publicClient": false,
+      "secret": "legal-case-search-local-dev-secret",
       "protocol": "openid-connect",
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,

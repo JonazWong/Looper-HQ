@@ -9,7 +9,9 @@ import { PremierButton } from "@/components/ui/premier-button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardFooter, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
-import { Chrome, Github } from "lucide-react"
+import { Chrome, Github, Shield } from "lucide-react"
+
+const keycloakEnabled = process.env.NEXT_PUBLIC_KEYCLOAK_ENABLED !== "false" && Boolean(process.env.NEXT_PUBLIC_KEYCLOAK_URL && process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID)
 
 function LoginForm() {
   const router = useRouter()
@@ -122,6 +124,18 @@ function LoginForm() {
 
           {/* OAuth Login Options */}
           <div className="space-y-3">
+            {keycloakEnabled && (
+              <PremierButton
+                type="button"
+                onClick={handleKeycloakLogin}
+                disabled={isLoading}
+                className="w-full"
+                variant="ghost"
+              >
+                <Shield className="h-4 w-4" />
+                使用 Keycloak SSO 登入
+              </PremierButton>
+            )}
             <PremierButton
               type="button"
               onClick={() => handleOAuthLogin('google')}

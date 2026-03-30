@@ -7,10 +7,10 @@ export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   
   // Database
-  DATABASE_URL: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/looper_hq',
+  DATABASE_URL: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5433/looper_hq',
   
   // Redis
-  REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
+  REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6380',
   
   // Keycloak
   KEYCLOAK_URL: process.env.KEYCLOAK_FRONTEND_URL || 'http://localhost:8080',

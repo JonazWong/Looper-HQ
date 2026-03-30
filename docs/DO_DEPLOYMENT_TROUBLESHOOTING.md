@@ -401,7 +401,7 @@ curl -H "X-Internal-Health-Check: YOUR_SECRET" \
 | 變數名 | Scope | 說明 | 默認值 |
 |--------|-------|------|--------|
 | `OPENAI_API_KEY` | `RUN_AND_BUILD_TIME` | OpenAI/OpenRouter API 密鑰 | - |
-| `OPENAI_MODEL` | `RUN_AND_BUILD_TIME` | AI 模型名稱 | `gpt-4o-mini` |
+| `OPENAI_MODEL` | `RUN_AND_BUILD_TIME` | AI 模型名稱 | `gpt-5.1` |
 | `OPENAI_BASE_URL` | `RUN_AND_BUILD_TIME` | API 基礎 URL | `https://openrouter.ai/api/v1` |
 | `KEYCLOAK_CLIENT_ID` | `RUN_AND_BUILD_TIME` | Keycloak OAuth 客戶端 ID | - |
 | `KEYCLOAK_ISSUER` | `RUN_AND_BUILD_TIME` | Keycloak Issuer URL | - |

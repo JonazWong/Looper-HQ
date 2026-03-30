@@ -76,7 +76,7 @@ async function main() {
   console.log('🤖 Bootstrapping AI configuration...')
   
   const aiProvider = process.env.AI_PROVIDER || 'openai'
-  const aiModel = process.env.OPENAI_MODEL || 'gpt-4o-mini'
+  const aiModel = process.env.OPENAI_MODEL || 'gpt-5.1'
   const aiLocale = process.env.AI_DEFAULT_LOCALE || 'zh-HK'
 
   console.log(`   Provider: ${aiProvider}`)

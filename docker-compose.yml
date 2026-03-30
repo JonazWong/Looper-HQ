@@ -9,6 +9,8 @@
 #   Production:  docker compose -f docker-compose.yml -f docker-compose.prod.yml up
 #   With tools:  docker compose --profile tools up
 
+name: looper-hq
+
 services:
   # ===========================================================================
   # Infrastructure Services
@@ -16,7 +18,7 @@ services:
 
   # PostgreSQL 16 - Primary Database
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: looper-hq-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -26,7 +28,7 @@ services:
       TZ: Asia/Hong_Kong
       PGTZ: Asia/Hong_Kong
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro
@@ -63,7 +65,7 @@ services:
     environment:
       TZ: Asia/Hong_Kong
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT:-6380}:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -115,7 +117,7 @@ services:
       # AI Configuration
       AI_PROVIDER: ${AI_PROVIDER:-openai}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.1}
       OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
       AI_DEFAULT_LOCALE: ${AI_DEFAULT_LOCALE:-zh-HK}
       AI_MAX_TOKENS: ${AI_MAX_TOKENS:-2048}

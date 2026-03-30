@@ -91,12 +91,12 @@ make prod   # Production stack
 │                ▼                            │
 │       ┌────────────────┐                    │
 │       │  PostgreSQL 16 │                    │
-│       │    (5432)      │                    │
+│       │    (5433)      │                    │
 │       └────────────────┘                    │
 │                ▼                            │
 │       ┌────────────────┐                    │
 │       │    Redis 7     │                    │
-│       │    (6379)      │                    │
+│       │    (6380)      │                    │
 │       └────────────────┘                    │
 │                ▼                            │
 │       ┌────────────────┐                    │
@@ -319,7 +319,7 @@ Copy `.env.example` to `.env` and configure:
 
 ```bash
 # Critical settings
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5433/looper_hq"
 NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
 KEYCLOAK_CLIENT_SECRET="your-keycloak-secret"
 OPENAI_API_KEY="your-api-key"
@@ -331,8 +331,8 @@ OPENAI_API_KEY="your-api-key"
 |---------|------|-----|
 | Web App | 3005 | http://localhost:3005 |
 | Legal Search | 3001 | http://localhost:3001 |
-| PostgreSQL | 5432 | localhost:5432 |
-| Redis | 6379 | localhost:6379 |
+| PostgreSQL | 5433 | localhost:5433 |
+| Redis | 6380 | localhost:6380 |
 | Keycloak | 8080 | http://localhost:8080 |
 | pgAdmin | 5050 | http://localhost:5050 |
 

@@ -3,7 +3,7 @@
  */
 
 export const databaseConfig = {
-  url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/looper_hq',
+  url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5433/looper_hq',
   
   // Connection pool settings
   pool: {

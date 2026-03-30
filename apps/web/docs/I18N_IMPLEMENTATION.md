@@ -67,7 +67,7 @@ This document describes the implementation of a complete Chinese-English bilingu
 
 1. **Translator Service**
    - Location: `lib/services/translator.ts`
-   - OpenAI GPT-4o-mini integration
+   - OpenAI GPT-5.1 integration
    - Features:
      - Legal context-aware translation
      - Auto-detect language direction

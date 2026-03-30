@@ -185,7 +185,7 @@ pnpm crawler:check
 確保環境變數設置正確：
 ```bash
 OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-5.1
 OPENAI_BASE_URL=https://openrouter.ai/api/v1
 ```
 

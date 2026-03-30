@@ -79,7 +79,7 @@ All core functionality from JonazWong/HK-Legal-Case-Agency has been successfully
 Copy `.env.example` to `.env` and configure:
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5433/looper_hq"
 CRAWLER_ENABLED=true
 RSS_TIMEOUT=30000
 RSS_MAX_RETRIES=3

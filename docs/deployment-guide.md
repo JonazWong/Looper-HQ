@@ -192,6 +192,12 @@ If using Keycloak for authentication:
 - **KEYCLOAK_CLIENT_ID**: Your Keycloak client ID
 - **KEYCLOAK_CLIENT_SECRET**: Your Keycloak client secret (Secret type)
 - **KEYCLOAK_ISSUER**: `https://your-keycloak.com/realms/looper-hq`
+- **NEXT_PUBLIC_KEYCLOAK_ENABLED**: `true`
+- **NEXT_PUBLIC_KEYCLOAK_URL**: `https://your-keycloak.com`
+- **NEXT_PUBLIC_KEYCLOAK_REALM**: `looper-hq`
+- **NEXT_PUBLIC_KEYCLOAK_CLIENT_ID**: `looper-hq-web`
+
+The server-side provider and the client-side SSO UI must be configured together. If you only set `KEYCLOAK_*` and omit the `NEXT_PUBLIC_KEYCLOAK_*` variables, the OAuth provider may exist but the login and registration pages will not expose the Keycloak entry points.
 
 #### Error Monitoring (Optional)
 
@@ -212,7 +218,7 @@ These are already set in `.do/app.yaml` and don't need manual configuration:
 ✅ `NODE_ENV=production`  
 ✅ `TZ=Asia/Hong_Kong`  
 ✅ `NEXTAUTH_URL=${APP_URL}` (auto-generated)  
-✅ `OPENAI_MODEL=gpt-4o-mini`  
+✅ `OPENAI_MODEL=gpt-5.1`  
 ✅ `OPENAI_BASE_URL=https://openrouter.ai/api/v1`  
 ✅ `AI_PROVIDER=openai`  
 ✅ `CRAWLER_ENABLED=true`  
@@ -288,7 +294,7 @@ The deployment process includes:
 
 2. **Database Migration** (1-2 minutes)
    - Pre-deploy job runs
-   - Executes: `prisma migrate deploy`
+   - Executes: `npx prisma@5.17.0 migrate deploy --schema=packages/database/prisma/schema.prisma`
 
 3. **Deployment** (2-3 minutes)
    - Rolling update to new version
@@ -428,13 +434,18 @@ jobs:
   - name: db-migrate
     kind: PRE_DEPLOY
     run_command: |
-      pnpm --filter=@looper-hq/database prisma migrate deploy
+         npx prisma@5.17.0 migrate deploy --schema=packages/database/prisma/schema.prisma
 ```
+
+**Important (Monorepo + DigitalOcean App Platform):**
+- Do not use plain `npx prisma migrate deploy` in pre-deploy jobs.
+- Plain `npx prisma` may auto-install the latest Prisma CLI (for example Prisma 7), which can require Node.js >= 22 and fail on Node 20 build images.
+- Always pin Prisma CLI version and pass explicit schema path for this repository layout.
 
 **Process**:
 1. Deployment triggered (push to main)
 2. Pre-deploy job starts
-3. Runs `prisma migrate deploy`
+3. Runs `npx prisma@5.17.0 migrate deploy --schema=packages/database/prisma/schema.prisma`
 4. If successful, deployment continues
 5. If fails, deployment aborts (rollback)
 
@@ -471,7 +482,7 @@ doctl apps create-deployment YOUR_APP_ID --force-build
 
 # Or create a one-off job in DO Console:
 # Apps → Your App → Jobs → Create Job
-# Run: pnpm --filter=@looper-hq/database prisma migrate deploy
+# Run: npx prisma@5.17.0 migrate deploy --schema=packages/database/prisma/schema.prisma
 ```
 
 ### Migration Rollback
@@ -751,7 +762,8 @@ doctl apps spec get YOUR_APP_ID
 
 **Optional but recommended**:
 - `OPENAI_API_KEY` - For AI features
-- `KEYCLOAK_CLIENT_ID`, `KEYCLOAK_ISSUER` - For OAuth
+- `KEYCLOAK_CLIENT_ID`, `KEYCLOAK_CLIENT_SECRET`, `KEYCLOAK_ISSUER` - For OAuth provider
+- `NEXT_PUBLIC_KEYCLOAK_ENABLED`, `NEXT_PUBLIC_KEYCLOAK_URL`, `NEXT_PUBLIC_KEYCLOAK_REALM`, `NEXT_PUBLIC_KEYCLOAK_CLIENT_ID` - For Keycloak SSO UI
 - `CRAWLER_ENABLED` - For automated case crawling
 
 #### Issue: Database connection refused
@@ -827,6 +839,10 @@ pnpm --filter=@looper-hq/database prisma migrate deploy
 # 1. Conflicting data in production
 # 2. Locked database (wait and retry)
 # 3. Schema conflict (resolve manually)
+
+# If DO pre-deploy shows "Missing prisma schema" or Node engine errors,
+# use this command in pre-deploy job:
+# npx prisma@5.17.0 migrate deploy --schema=packages/database/prisma/schema.prisma
 ```
 
 ### Getting Help

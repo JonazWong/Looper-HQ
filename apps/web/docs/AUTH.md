@@ -40,16 +40,20 @@ Copy `.env.local.example` to `.env.local` and configure:
 
 \`\`\`bash
 # NextAuth Configuration
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL=http://localhost:3005
 NEXTAUTH_SECRET=<generate-with-openssl-rand-base64-32>
 
 # Keycloak Configuration
-KEYCLOAK_CLIENT_ID=looper-hq
-KEYCLOAK_CLIENT_SECRET=<your-keycloak-client-secret>
+KEYCLOAK_CLIENT_ID=looper-hq-web
+KEYCLOAK_CLIENT_SECRET=looper-hq-local-dev-secret
 KEYCLOAK_ISSUER=http://localhost:8080/realms/looper-hq
+NEXT_PUBLIC_KEYCLOAK_ENABLED=true
+NEXT_PUBLIC_KEYCLOAK_URL=http://localhost:8080
+NEXT_PUBLIC_KEYCLOAK_REALM=looper-hq
+NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=looper-hq-web
 
 # Database
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/looper_hq
+DATABASE_URL=postgresql://postgres:postgres@localhost:5433/looper_hq
 \`\`\`
 
 **Generate NEXTAUTH_SECRET:**
@@ -61,16 +65,28 @@ openssl rand -base64 32
 
 1. **Create Realm**: `looper-hq`
 2. **Create Client**: 
-   - Client ID: `looper-hq`
+  - Client ID: `looper-hq-web`
    - Client Protocol: `openid-connect`
    - Access Type: `confidential`
-   - Valid Redirect URIs: `http://localhost:3000/api/auth/callback/keycloak`
+  - Valid Redirect URIs: `http://localhost:3005/api/auth/callback/keycloak`, `https://www.looperhq.hk/api/auth/callback/keycloak`
 3. **Configure Roles**:
    - Create realm roles: `ADMIN`, `LAWYER`, `CLIENT`, `STAFF`
    - Assign roles to users
 4. **Get Client Secret**:
    - Go to Credentials tab
    - Copy the secret to `KEYCLOAK_CLIENT_SECRET`
+
+### 2.1 Production Alignment
+
+For DigitalOcean, use the same realm and client naming as local development, then set the production values in App Platform:
+
+- `KEYCLOAK_CLIENT_ID=looper-hq-web`
+- `KEYCLOAK_CLIENT_SECRET=<production-secret>`
+- `KEYCLOAK_ISSUER=https://your-keycloak-domain.com/realms/looper-hq`
+- `NEXT_PUBLIC_KEYCLOAK_ENABLED=true`
+- `NEXT_PUBLIC_KEYCLOAK_URL=https://your-keycloak-domain.com`
+- `NEXT_PUBLIC_KEYCLOAK_REALM=looper-hq`
+- `NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=looper-hq-web`
 
 ### 3. Database Migration
 

@@ -68,8 +68,8 @@ echo [SUCCESS] Looper HQ Docker Environment Ready!
 echo ==============================================
 echo.
 echo Services:
-echo   PostgreSQL:     localhost:5432
-echo   Redis:          localhost:6379
+echo   PostgreSQL:     localhost:5433
+echo   Redis:          localhost:6380
 echo   Keycloak:       http://localhost:8080
 echo.
 

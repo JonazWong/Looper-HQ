@@ -10,6 +10,11 @@ import { Shield, UserPlus, ArrowRight } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
+const keycloakEnabled = process.env.NEXT_PUBLIC_KEYCLOAK_ENABLED !== "false" && Boolean(process.env.NEXT_PUBLIC_KEYCLOAK_URL && process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID)
+const keycloakUrl = process.env.NEXT_PUBLIC_KEYCLOAK_URL
+const keycloakRealm = process.env.NEXT_PUBLIC_KEYCLOAK_REALM || "looper-hq"
+const keycloakClientId = process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID || "looper-hq-web"
+
 export default function RegisterPage() {
   const router = useRouter()
   const params = useParams()
@@ -57,14 +62,15 @@ export default function RegisterPage() {
 
   // Redirect to Keycloak registration
   const handleKeycloakRegister = () => {
+    if (!keycloakEnabled || !keycloakUrl) {
+      setError('Keycloak 註冊尚未完成配置')
+      return
+    }
+
     setIsLoading(true)
-    // Redirect to Keycloak registration page
-    const keycloakUrl = process.env.NEXT_PUBLIC_KEYCLOAK_URL || "http://localhost:8080"
-    const realm = "looper-hq"
-    const clientId = "looper-hq-web"
     const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/callback/keycloak`)
     
-    const registrationUrl = `${keycloakUrl}/realms/${realm}/protocol/openid-connect/registrations?client_id=${clientId}&response_type=code&scope=openid%20email%20profile&redirect_uri=${redirectUri}`
+    const registrationUrl = `${keycloakUrl}/realms/${keycloakRealm}/protocol/openid-connect/registrations?client_id=${keycloakClientId}&response_type=code&scope=openid%20email%20profile&redirect_uri=${redirectUri}`
     
     window.location.href = registrationUrl
   }
@@ -151,25 +157,26 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Keycloak SSO Registration (Alternative) */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm text-premier-pearl/70">
-              <Shield className="w-4 h-4 text-premier-gold" />
-              <span>使用 Keycloak SSO 進行安全認證</span>
+          {keycloakEnabled && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm text-premier-pearl/70">
+                <Shield className="w-4 h-4 text-premier-gold" />
+                <span>使用 Keycloak SSO 進行安全認證</span>
+              </div>
+              
+              <PremierButton
+                type="button"
+                onClick={handleKeycloakRegister}
+                disabled={isLoading}
+                className="w-full group"
+                variant="ghost"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                {isLoading ? "重定向中..." : "使用 Keycloak SSO 註冊"}
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </PremierButton>
             </div>
-            
-            <PremierButton
-              type="button"
-              onClick={handleKeycloakRegister}
-              disabled={isLoading}
-              className="w-full group"
-              variant="ghost"
-            >
-              <UserPlus className="w-4 h-4 mr-2" />
-              {isLoading ? "重定向中..." : "使用 Keycloak SSO 註冊"}
-              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-            </PremierButton>
-          </div>
+          )}
 
           {/* Demo Account Access */}
           <div className="space-y-3">

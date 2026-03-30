@@ -21,7 +21,7 @@ pnpm install --frozen-lockfile
 # 2. Copy environment file
 cp .env.example .env
 
-# 3. Start Docker services (PostgreSQL 16 on :5432, Redis on :6379, Keycloak on :8080)
+# 3. Start Docker services (PostgreSQL 16 on :5433, Redis on :6380, Keycloak on :8080)
 pnpm docker:up
 
 # 4. Wait 10-15 seconds for PostgreSQL to be ready, then sync database schema
@@ -323,7 +323,7 @@ pnpm --filter=@looper-hq/web type-check  # Explicit type check
 **Required Environment Variables** (see `.env.example`):
 ```bash
 # Database (REQUIRED)
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5433/looper_hq"
 
 # NextAuth (REQUIRED for authentication)
 NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
@@ -335,7 +335,7 @@ KEYCLOAK_ISSUER="http://localhost:8080/realms/looper-hq"
 
 # OpenAI (OPTIONAL - for AI features)
 OPENAI_API_KEY="sk-..."
-OPENAI_MODEL="gpt-4o-mini"
+OPENAI_MODEL="gpt-5.1"
 OPENAI_BASE_URL="https://openrouter.ai/api/v1"  # OpenRouter proxy support
 
 # Crawler Configuration (OPTIONAL)
@@ -346,8 +346,8 @@ RSS_MAX_RETRIES="3"
 ```
 
 **Docker Services** (`infrastructure/docker/docker-compose.yml`):
-- **PostgreSQL 16**: Port 5432, user: postgres, pass: postgres, db: looper_hq
-- **Redis 7**: Port 6379 (no password by default)
+- **PostgreSQL 16**: Port 5433, user: postgres, pass: postgres, db: looper_hq
+- **Redis 7**: Port 6380 (no password by default)
 - **Keycloak 23**: Port 8080, admin/admin, realm: looper-hq
 - **pgAdmin 4** (optional): Port 5050, admin@looper-hq.dev/admin
 
@@ -377,7 +377,7 @@ pnpm db:push                                        # Sync to DB (dev)
 - **Connection refused**: Check `pnpm docker:up` and wait 15 seconds
 - **Migration conflicts**: Use `pnpm db:push` for dev, `pnpm db:migrate` for production
 - **Seed fails**: Ensure `db:push` completed successfully first
-- **Port conflict (5432)**: Check if another PostgreSQL is running
+- **Port conflict (5433)**: Check if another PostgreSQL is running
 
 **Authentication Issues**:
 - **Keycloak not required**: App works with credentials provider (email/password)

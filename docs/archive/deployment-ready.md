@@ -156,7 +156,7 @@ All code has been committed to the `copilot/implement-full-text-search` branch.
 ### 2. Database Migration
 ```bash
 # Set up environment
-export DATABASE_URL='postgresql://user:pass@localhost:5432/looper_hq'
+export DATABASE_URL='postgresql://user:pass@localhost:5433/looper_hq'
 
 # Run migration script
 ./scripts/apply-fts-migration.sh

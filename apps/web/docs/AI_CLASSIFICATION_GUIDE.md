@@ -15,7 +15,7 @@ AI 智能案例分類系統使用 OpenAI 或 OpenRouter API 自動分析香港�
 OPENAI_API_KEY=your-api-key-here
 
 # 使用 OpenAI 官方 API
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-5.1
 # 或使用 OpenRouter (推薦，成本更低)
 OPENAI_BASE_URL=https://openrouter.ai/api/v1
 OPENAI_MODEL=anthropic/claude-3.5-sonnet
@@ -202,5 +202,6 @@ npm test -- __tests__/api/classify.test.ts
 - **響應時間**: 通常 2-5 秒
 - **準確率**: > 90%
 - **成本**: 
+  - OpenAI GPT-5.1 (當前使用): 定價待更新
   - OpenAI GPT-4o-mini: ~$0.0001/請求
   - OpenRouter Claude 3.5 Sonnet: ~$0.00005/請求

@@ -32,7 +32,7 @@ AI_TEMPERATURE=0.3
 
 # OpenAI / OpenRouter (擇一使用)
 OPENAI_API_KEY=sk-...                          # 必填
-OPENAI_MODEL=gpt-5.1                       # 推薦: gpt-4o-mini (快速) 或 gpt-4o (高品質)
+OPENAI_MODEL=gpt-5.1                       # 推薦: gpt-5.1 (快速) 或 gpt-4o (高品質)
 OPENAI_BASE_URL=https://openrouter.ai/api/v1   # OpenRouter 或 https://api.openai.com/v1
 
 # OpenRouter 專用（可選）

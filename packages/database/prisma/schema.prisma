@@ -760,7 +760,7 @@ model Classification {
   entities      Json?
   
   // Model info
-  model         String   @default("gpt-4o-mini")
+  model         String   @default("gpt-5.1")
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -785,7 +785,7 @@ model Translation {
   translatedText String  @db.Text
   
   // Quality
-  model         String   @default("gpt-4o-mini")
+  model         String   @default("gpt-5.1")
   isReviewed    Boolean  @default(false)
   
   createdAt     DateTime @default(now())
@@ -809,7 +809,7 @@ model Summary {
   // Metadata
   sourceLength  Int
   summaryLength Int
-  model         String   @default("gpt-4o-mini")
+  model         String   @default("gpt-5.1")
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

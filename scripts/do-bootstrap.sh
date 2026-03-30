@@ -40,7 +40,7 @@ cat <<EOF
 
 建議：
 - AI_PROVIDER     = ${AI_PROVIDER:-openai}
-- OPENAI_MODEL    = ${OPENAI_MODEL:-gpt-4o-mini}
+- OPENAI_MODEL    = ${OPENAI_MODEL:-gpt-5.1}
 - AI_MAX_TOKENS   = 2048
 - AI_TEMPERATURE  = 0.3
 

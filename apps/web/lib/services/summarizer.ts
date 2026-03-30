@@ -34,7 +34,7 @@ export async function summarizePublicCase(publicCaseId: string): Promise<Summary
     .filter(Boolean)
     .join('\n\n')
 
-  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
+  const model = process.env.OPENAI_MODEL || 'gpt-5.1'
   const maxLength = Number(process.env.AI_SUMMARIZE_MAX_LENGTH || 500)
 
   const systemPrompt = `你是專業的香港法律案例分析助手。請為以下法律案件生成一份雙語摘要（繁體中文和英文）。

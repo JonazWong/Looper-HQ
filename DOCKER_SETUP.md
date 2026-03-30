@@ -95,12 +95,12 @@ docker-compose up -d --build
 │                      │                              │
 │         ┌────────────▼────────────┐                 │
 │         │      PostgreSQL 16       │                 │
-│         │      (Port 5432)         │                 │
+│         │      (Port 5433)         │                 │
 │         └──────────────────────────┘                 │
 │                      │                              │
-│         ┌────────────▼────────────┐                 │
+│         ┌────────────┤──────────────┐                 │
 │         │        Redis 7           │                 │
-│         │      (Port 6379)         │                 │
+│         │      (Port 6380)         │                 │
 │         └──────────────────────────┘                 │
 │                      │                              │
 │         ┌────────────▼────────────┐                 │
@@ -143,7 +143,7 @@ docker-compose up -d --build
 
    ```bash
    # Database
-   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/looper_hq"
+   DATABASE_URL="postgresql://postgres:postgres@localhost:5433/looper_hq"
    
    # NextAuth
    NEXTAUTH_SECRET="generate-a-random-secret-here"

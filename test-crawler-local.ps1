@@ -20,7 +20,7 @@ Write-Host ""
 
 # 2. 確保環境變數可用
 Write-Host "📋 步驟 2/6: 設置環境變數..." -ForegroundColor Yellow
-$env:DATABASE_URL = "postgresql://postgres:Ken202318@localhost:5432/looper_hq"
+$env:DATABASE_URL = "postgresql://postgres:Ken202318@localhost:5433/looper_hq"
 Write-Host "✅ 環境變數已設置" -ForegroundColor Green
 Write-Host ""
 

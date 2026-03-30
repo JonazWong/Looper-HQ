@@ -38,11 +38,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   
   providers: [
     // Keycloak OAuth provider (disabled until configured)
-    ...(process.env.KEYCLOAK_CLIENT_ID && process.env.KEYCLOAK_ISSUER
+    ...(process.env.KEYCLOAK_CLIENT_ID && process.env.KEYCLOAK_CLIENT_SECRET && process.env.KEYCLOAK_ISSUER
       ? [
           Keycloak({
             clientId: process.env.KEYCLOAK_CLIENT_ID,
-            clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
+            clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
             issuer: process.env.KEYCLOAK_ISSUER,
             authorization: {
               params: {

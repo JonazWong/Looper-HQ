@@ -239,7 +239,7 @@ Migration logs are stored in `logs/`:
 Required environment variables:
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/looper_hq"
+DATABASE_URL="postgresql://user:password@localhost:5433/looper_hq"
 LOG_LEVEL="info"  # Optional: debug, info, warn, error
 ```
 

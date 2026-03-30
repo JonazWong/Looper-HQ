@@ -179,8 +179,8 @@ Internet → [Cloudflare CDN (optional)]
     └─ Security Headers
     ↓
 ├─ Next.js App :3000
-├─ PostgreSQL :5432
-├─ Redis :6379
+├─ PostgreSQL :5433
+├─ Redis :6380
 └─ Keycloak :8080
 
 [Monitoring Stack]

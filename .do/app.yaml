@@ -38,7 +38,7 @@ jobs:
   instance_size_slug: apps-s-1vcpu-1gb
   kind: PRE_DEPLOY
   name: db-migrate
-  run_command: sh -c "cd packages/database && npx prisma migrate deploy"
+  run_command: sh -c "npx prisma@5.17.0 migrate deploy --schema=packages/database/prisma/schema.prisma"
   source_dir: /
 name: lp-app
 region: sgp
@@ -60,8 +60,22 @@ services:
     value: EV[1:OLM4nbXfbN9Xw5TQ7x9sci25NgLlBdgj:z3TnCffpK55CPJ8bZBfMNAU75qGQTJ90GX5oNI+E+chedW4iAqIta8vwYZhHZp90RbfUigdJBw8VjlpL]
   - key: KEYCLOAK_CLIENT_ID
     scope: RUN_AND_BUILD_TIME
+  - key: KEYCLOAK_CLIENT_SECRET
+    scope: RUN_TIME
+    type: SECRET
   - key: KEYCLOAK_ISSUER
     scope: RUN_AND_BUILD_TIME
+  - key: NEXT_PUBLIC_KEYCLOAK_ENABLED
+    scope: RUN_AND_BUILD_TIME
+    value: "true"
+  - key: NEXT_PUBLIC_KEYCLOAK_URL
+    scope: RUN_AND_BUILD_TIME
+  - key: NEXT_PUBLIC_KEYCLOAK_REALM
+    scope: RUN_AND_BUILD_TIME
+    value: looper-hq
+  - key: NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+    scope: RUN_AND_BUILD_TIME
+    value: looper-hq-web
   - key: AI_PROVIDER
     scope: RUN_AND_BUILD_TIME
     value: openai
@@ -119,6 +133,13 @@ services:
   - key: DATABASE_URL
     scope: RUN_AND_BUILD_TIME
     value: ${db-postgresql-sgp1-75753.DATABASE_URL}
+  - key: KEYCLOAK_CLIENT_ID
+    scope: RUN_AND_BUILD_TIME
+  - key: KEYCLOAK_CLIENT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+  - key: KEYCLOAK_ISSUER
+    scope: RUN_AND_BUILD_TIME
   github:
     branch: main
     deploy_on_push: true

@@ -39,7 +39,7 @@ postgresql://looper_user:YOUR_PASSWORD@db.looper-hq.com:5432/looper_hq?schema=pu
 
 **本地測試**:
 ```
-postgresql://postgres:Ken202318@localhost:5432/looper_hq?schema=public
+postgresql://postgres:Ken202318@localhost:5433/looper_hq?schema=public
 ```
 
 ---
@@ -135,7 +135,7 @@ pnpm db:studio
 pnpm docker:up
 
 # 2. 設置環境變量
-export DATABASE_URL="postgresql://postgres:Ken202318@localhost:5432/looper_hq?schema=public"
+export DATABASE_URL="postgresql://postgres:Ken202318@localhost:5433/looper_hq?schema=public"
 
 # 3. 運行crawler
 pnpm crawler:rss

@@ -70,12 +70,12 @@ pnpm docker:up
 
 ```powershell
 # PowerShell
-$env:DATABASE_URL = "postgresql://postgres:Ken202318@localhost:5432/looper_hq"
+$env:DATABASE_URL = "postgresql://postgres:Ken202318@localhost:5433/looper_hq"
 ```
 
 ```bash
 # Bash/Zsh
-export DATABASE_URL="postgresql://postgres:Ken202318@localhost:5432/looper_hq"
+export DATABASE_URL="postgresql://postgres:Ken202318@localhost:5433/looper_hq"
 ```
 
 ### 步驟 3：完全重置資料庫
@@ -192,7 +192,7 @@ pnpm db:studio
 
 ```bash
 cd packages/database
-$env:DATABASE_URL = "postgresql://postgres:Ken202318@localhost:5432/looper_hq"
+$env:DATABASE_URL = "postgresql://postgres:Ken202318@localhost:5433/looper_hq"
 npx tsx prisma/seed-minimal.ts
 ```
 

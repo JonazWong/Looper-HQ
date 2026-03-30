@@ -1,3 +1,5 @@
+name: looper-hq
+
 services:
   # PostgreSQL 16 with pgvector - Primary database
   postgres:
@@ -11,7 +13,7 @@ services:
       TZ: Asia/Hong_Kong
       PGTZ: Asia/Hong_Kong
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ../postgres/init:/docker-entrypoint-initdb.d
@@ -42,7 +44,7 @@ services:
     environment:
       TZ: Asia/Hong_Kong
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT:-6380}:6379"
     volumes:
       - redis_data:/data
     networks:

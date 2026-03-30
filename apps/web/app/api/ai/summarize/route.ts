@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Ad-hoc text summarization
-    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
+    const model = process.env.OPENAI_MODEL || 'gpt-5.1'
     const maxLength = Number(process.env.AI_SUMMARIZE_MAX_LENGTH || 500)
 
     const response = await generateCompletion({

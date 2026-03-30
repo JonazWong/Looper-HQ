@@ -64,7 +64,7 @@ Looper HQ (v1.0)
 | 問題 | AGENCY | Looper HQ | 解決方案 |
 |------|---------|-----------|---------|
 | **RSS 來源不穩定** | 2/11 可用 | 1/4 可用 | 實作 Judiciary 爬蟲 |
-| **缺乏 AI 分類** | ❌ 簡單關鍵字 | ❌ 簡單關鍵字 | 整合 GPT-4o-mini |
+| **缺乏 AI 分類** | ❌ 簡單關鍵字 | ❌ 簡單關鍵字 | 整合 GPT-5.1 |
 | **全文搜尋效能** | ⚠️ LIKE 查詢 | ⚠️ LIKE 查詢 | PostgreSQL tsvector |
 | **數據去重機制** | ⚠️ 基於時間戳 | ⚠️ 基於 ID | 內容雜湊 + 相似度 |
 | **沒有公開搜尋頁** | ✅ 有 | ❌ **缺失** | 從 AGENCY 遷移 |
@@ -225,7 +225,7 @@ scripts/crawlers/hk-judiciary-crawler.ts
 
 #### 🟡 P1 - AI 智能分類
 
-**目標**: 使用 GPT-4o-mini 提升案件分類準確度
+**目標**: 使用 GPT-5.1 提升案件分類準確度
 
 **實作**:
 ```typescript
@@ -244,7 +244,7 @@ export async function classifyCase(title: string, content: string) {
   `;
   
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: 'gpt-5.1',
     messages: [{ role: 'user', content: prompt }]
   });
   
