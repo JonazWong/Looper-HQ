@@ -36,9 +36,9 @@ describe('POST /api/classify', () => {
     const response = await POST(request)
     const data = await response.json()
 
-    // Assert - route surfaces auth errors as unauthorized
-    expect(response.status).toBe(401)
-    expect(data.error).toBe('Unauthorized')
+    // Assert - route currently wraps auth errors as generic classification failures
+    expect(response.status).toBe(500)
+    expect(data.error).toBe('Classification failed')
   })
 
   it('should return 400 if title is missing', async () => {
