@@ -6,5 +6,7 @@ set -e
 
 echo "🚀 Starting Legal Case Search..."
 
-echo "🌐 Starting Legal Case Search server on port ${PORT:-3001}..."
+PORT="${PORT:-3001}"
+export PORT
+echo "🌐 Starting Legal Case Search server on port ${PORT}..."
 exec node apps/legal-case-search/server.js
