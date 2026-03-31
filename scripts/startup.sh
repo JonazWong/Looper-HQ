@@ -27,8 +27,8 @@ if [ -d "/app/prisma" ]; then
     echo "⚠️  pgvector extension setup failed (continuing anyway - extension may not be supported)"
   }
 
-  # Use pnpm dlx to execute prisma without installation (force-reset for clean state)
-  pnpm dlx "prisma@${PRISMA_VERSION}" db push --force-reset --skip-generate --schema=./prisma/schema.prisma 2>&1 || {
+  # Use pnpm dlx to execute prisma without installation
+  pnpm dlx "prisma@${PRISMA_VERSION}" db push --accept-data-loss --skip-generate --schema=./prisma/schema.prisma 2>&1 || {
     EXITCODE=$?
     echo "⚠️  Schema sync failed with exit code $EXITCODE"
     echo "   Continuing startup anyway - check DATABASE_URL and network connectivity"
