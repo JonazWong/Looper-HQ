@@ -19,7 +19,7 @@ services:
       NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
       NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME}
     ports:
-      - "3000:3000"
+      - "3005:3005"
     depends_on:
       postgres:
         condition: service_healthy
@@ -28,7 +28,7 @@ services:
     networks:
       - looper-network
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3005/api/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

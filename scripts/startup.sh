@@ -45,5 +45,5 @@ else
   echo "⚠️  Prisma directory not found, skipping schema sync"
 fi
 
-echo "🌐 Starting Next.js server on port ${PORT:-3000}..."
+echo "🌐 Starting Next.js server on port ${PORT:-3005}..."
 exec node apps/web/server.js

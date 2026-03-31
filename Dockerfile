@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Looper HQ - Optimized Multi-stage Dockerfile for Production
-# Supports: @looper-hq/web (port 3000)
+# Supports: @looper-hq/web (port 3005)
 
 # =============================================================================
 # Stage 1: Builder - Install dependencies and build
@@ -38,7 +38,7 @@ RUN pnpm turbo build --filter=@looper-hq/web
 RUN pnpm --filter=@looper-hq/database exec prisma generate
 
 # =============================================================================
-# Stage 2: Web App Runner - Production runtime for @looper-hq/web (port 3000)
+# Stage 2: Web App Runner - Production runtime for @looper-hq/web (port 3005)
 # =============================================================================
 FROM node:20-alpine AS runner-web
 
@@ -53,7 +53,7 @@ RUN corepack enable && corepack prepare pnpm@8.15.0 --activate
 # Set production environment
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
+ENV PORT=3005
 ENV HOSTNAME="0.0.0.0"
 
 # Create non-root user for security
@@ -89,11 +89,11 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3005
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:3000/api/health || exit 1
+  CMD curl -f http://localhost:3005/api/health || exit 1
 
 # Start the application with migration support
 CMD ["sh", "./scripts/startup.sh"]

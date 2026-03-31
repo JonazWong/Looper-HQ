@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-HEALTH_ENDPOINT="${HEALTH_ENDPOINT:-http://localhost:3000/api/health}"
+HEALTH_ENDPOINT="${HEALTH_ENDPOINT:-http://localhost:3005/api/health}"
 MAX_RETRIES="${MAX_RETRIES:-5}"
 RETRY_DELAY="${RETRY_DELAY:-5}"
 TIMEOUT="${TIMEOUT:-10}"
