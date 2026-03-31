@@ -29,7 +29,7 @@ pnpm dev:web
 pnpm dev
 ```
 
-The application will be available at [http://localhost:3000](http://localhost:3000).
+The application will be available at [http://localhost:3005](http://localhost:3005).
 
 ### Building
 

@@ -20,7 +20,7 @@ export const env = {
   
   // NextAuth
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || '',
-  NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://localhost:3005',
   
   // Application
   TZ: process.env.TZ || 'Asia/Hong_Kong',

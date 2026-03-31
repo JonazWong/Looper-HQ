@@ -61,7 +61,7 @@ jobs:
           NODE_ENV: production
           DATABASE_URL: postgresql://test:test@localhost:5433/test
           NEXTAUTH_SECRET: test-secret-for-build-only
-          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_URL: http://localhost:3005
       
       - name: Run tests
         run: pnpm test
