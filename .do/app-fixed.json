@@ -1,0 +1,152 @@
+databases:
+- cluster_name: db-postgresql-sgp1-75753
+  db_name: defaultdb
+  db_user: doadmin
+  engine: PG
+  name: db-postgresql-sgp1-75753
+  production: true
+ingress:
+  rules:
+  - component:
+      name: legal-case-search
+    match:
+      path:
+        prefix: /legal-search
+  - component:
+      name: looper-hq
+    match:
+      path:
+        prefix: /
+jobs:
+- dockerfile_path: /Dockerfile
+  envs:
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+  - key: TZ
+    scope: RUN_AND_BUILD_TIME
+    value: Asia/Hong_Kong
+  - key: DATABASE_URL
+    scope: RUN_AND_BUILD_TIME
+    value: ${db-postgresql-sgp1-75753.DATABASE_URL}
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: JonazWong/Looper-HQ
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-1gb
+  kind: PRE_DEPLOY
+  name: db-migrate
+  run_command: sh -c "npx prisma@5.17.0 db push --schema=prisma/schema.prisma --skip-generate"
+  source_dir: /
+name: lp-app
+region: sgp
+services:
+- dockerfile_path: /Dockerfile
+  envs:
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+  - key: TZ
+    scope: RUN_AND_BUILD_TIME
+    value: Asia/Hong_Kong
+  - key: NEXTAUTH_URL
+    scope: RUN_AND_BUILD_TIME
+    value: https://www.looperhq.hk
+  - key: NEXTAUTH_SECRET
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:OLM4nbXfbN9Xw5TQ7x9sci25NgLlBdgj:z3TnCffpK55CPJ8bZBfMNAU75qGQTJ90GX5oNI+E+chedW4iAqIta8vwYZhHZp90RbfUigdJBw8VjlpL]
+  - key: KEYCLOAK_CLIENT_ID
+    scope: RUN_AND_BUILD_TIME
+  - key: KEYCLOAK_CLIENT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:n+ZljnMEoYHS1yoVdrjBtkhZIamAGIUd:D2Wt1A9rUK7YfiLQSABeIQ==]
+  - key: KEYCLOAK_ISSUER
+    scope: RUN_AND_BUILD_TIME
+  - key: NEXT_PUBLIC_KEYCLOAK_ENABLED
+    scope: RUN_AND_BUILD_TIME
+    value: "true"
+  - key: NEXT_PUBLIC_KEYCLOAK_URL
+    scope: RUN_AND_BUILD_TIME
+  - key: NEXT_PUBLIC_KEYCLOAK_REALM
+    scope: RUN_AND_BUILD_TIME
+    value: looper-hq
+  - key: NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+    scope: RUN_AND_BUILD_TIME
+    value: looper-hq-web
+  - key: AI_PROVIDER
+    scope: RUN_AND_BUILD_TIME
+    value: openai
+  - key: OPENAI_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    type: SECRET
+    value: EV[1:z/Enip1HuKR/rOgZismNG9W0q6LyAymv:hvc6b4xT4P6+RITOUe49MGOHFMXQcxDLPWxbbv6lCRYi2dSqE2oaamsUm/bTiFsHouNnLfbXZVHZLWzPN73I6GtKYL5w/TjqS6UCopCsslCmUsX5CAPnHlk=]
+  - key: OPENAI_MODEL
+    scope: RUN_AND_BUILD_TIME
+    value: gpt-5.1
+  - key: OPENAI_BASE_URL
+    scope: RUN_AND_BUILD_TIME
+    value: https://openrouter.ai/api/v1
+  - key: AI_MAX_TOKENS
+    scope: RUN_AND_BUILD_TIME
+    value: "2048"
+  - key: AI_TEMPERATURE
+    scope: RUN_AND_BUILD_TIME
+    value: "0.3"
+  - key: AI_DEFAULT_LOCALE
+    scope: RUN_AND_BUILD_TIME
+    value: zh-HK
+  - key: CRAWLER_ENABLED
+    scope: RUN_AND_BUILD_TIME
+    value: "true"
+  - key: CRAWLER_SCHEDULE
+    scope: RUN_AND_BUILD_TIME
+    value: 0 18 * * *
+  - key: RSS_TIMEOUT
+    scope: RUN_AND_BUILD_TIME
+    value: "30000"
+  - key: RSS_MAX_RETRIES
+    scope: RUN_AND_BUILD_TIME
+    value: "3"
+  - key: DATABASE_URL
+    scope: RUN_AND_BUILD_TIME
+    value: ${db-postgresql-sgp1-75753.DATABASE_URL}
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: JonazWong/Looper-HQ
+  http_port: 3000
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-1gb
+  name: looper-hq
+  source_dir: /
+- dockerfile_path: /Dockerfile.legal-case-search
+  envs:
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+  - key: TZ
+    scope: RUN_AND_BUILD_TIME
+    value: Asia/Hong_Kong
+  - key: DATABASE_URL
+    scope: RUN_AND_BUILD_TIME
+    value: ${db-postgresql-sgp1-75753.DATABASE_URL}
+  - key: KEYCLOAK_CLIENT_ID
+    scope: RUN_AND_BUILD_TIME
+  - key: KEYCLOAK_CLIENT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:6X19WRKaJjVORzg9vipjx4PotyubLaZP:5o+kA7kE0cgWlGbwEKADTQ==]
+  - key: KEYCLOAK_ISSUER
+    scope: RUN_AND_BUILD_TIME
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: JonazWong/Looper-HQ
+  http_port: 3001
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-1gb
+  name: legal-case-search
+  source_dir: /

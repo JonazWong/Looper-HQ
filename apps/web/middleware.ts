@@ -53,7 +53,9 @@ export default auth((req) => {
                         pathname.startsWith('/api/public-cases/') ||
                         pathname.startsWith('/api/judges/') ||
                         pathname.startsWith('/api/courts/') ||
-                        pathname === '/api/translate';
+                        pathname === '/api/translate' ||
+                        pathname === '/api/payments/webhook' ||
+                        pathname === '/api/payments/plans';
     
     if (!isAuthApi && !isPublicApi && !isLoggedIn) {
       return NextResponse.json(

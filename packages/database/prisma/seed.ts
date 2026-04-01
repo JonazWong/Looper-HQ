@@ -7,6 +7,8 @@ async function main() {
 
   // Clear existing data
   console.log('Clearing existing data...');
+  await prisma.payment.deleteMany();
+  await prisma.membershipPlan.deleteMany();
   await prisma.activity.deleteMany();
   await prisma.caseNote.deleteMany();
   await prisma.timeLog.deleteMany();
@@ -786,6 +788,74 @@ async function main() {
   console.log(`- Search History: 3`);
   console.log(`- RSS Sources: 2`);
   console.log(`- Public Cases: 1`);
+
+  // Seed Membership Plans
+  console.log('Creating membership plans...');
+  await prisma.membershipPlan.createMany({
+    data: [
+      {
+        tier: 'BASIC',
+        name_zh: '公眾版',
+        name_en: 'Public',
+        description_zh: '基礎搜尋，每日更新摘要',
+        description_en: 'Basic search, daily update digest',
+        amount: null,
+        currency: 'HKD',
+        period: 'monthly',
+        searchLimit: 5,
+        caseLimit: null,
+        isActive: true,
+        isCustom: false,
+        sortOrder: 0,
+      },
+      {
+        tier: 'STANDARD',
+        name_zh: '基本版',
+        name_en: 'Basic',
+        description_zh: '完整搜尋，PDF下載',
+        description_en: 'Full search access, PDF download',
+        amount: 500,
+        currency: 'HKD',
+        period: 'monthly',
+        searchLimit: 100,
+        caseLimit: null,
+        isActive: true,
+        isCustom: false,
+        sortOrder: 1,
+      },
+      {
+        tier: 'PREMIUM',
+        name_zh: '專業版',
+        name_en: 'Professional',
+        description_zh: 'AI 語意搜尋，API 訪問，完整功能',
+        description_en: 'AI semantic search, API access, all features',
+        amount: 1500,
+        currency: 'HKD',
+        period: 'monthly',
+        searchLimit: -1,
+        caseLimit: null,
+        isActive: true,
+        isCustom: false,
+        sortOrder: 2,
+      },
+      {
+        tier: 'PREMIER',
+        name_zh: '機構版',
+        name_en: 'Enterprise',
+        description_zh: '完整功能，批量下載，專屬服務，按需報價',
+        description_en: 'Full features, bulk download, dedicated support, custom pricing',
+        amount: null,
+        currency: 'HKD',
+        period: 'custom',
+        searchLimit: -1,
+        caseLimit: null,
+        isActive: true,
+        isCustom: true,
+        sortOrder: 3,
+      },
+    ],
+  });
+  console.log('- Membership Plans: 4');
 }
 
 main()

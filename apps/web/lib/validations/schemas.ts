@@ -251,3 +251,55 @@ export const pipelineSchema = z.object({
 })
 
 export type PipelineInput = z.infer<typeof pipelineSchema>
+
+// ============================================
+// Airwallex Payment Schemas
+// ============================================
+
+export const membershipTierSchema = z.enum(['BASIC', 'STANDARD', 'PREMIUM', 'PREMIER'])
+export type MembershipTier = z.infer<typeof membershipTierSchema>
+
+export const paymentStatusSchema = z.enum(['PENDING', 'SUCCEEDED', 'FAILED', 'CANCELLED'])
+export type PaymentStatus = z.infer<typeof paymentStatusSchema>
+
+/** POST /api/payments/create-intent */
+export const createPaymentIntentSchema = z.object({
+  planTier: z.enum(['STANDARD', 'PREMIUM', 'PREMIER']).optional(),
+  amount: z.number().positive().optional(),
+  currency: z.string().default('HKD'),
+  description: z.string().optional(),
+}).refine((d) => d.planTier || d.amount, {
+  message: 'Either planTier or amount must be provided',
+})
+
+export type CreatePaymentIntentInput = z.infer<typeof createPaymentIntentSchema>
+
+/** POST /api/admin/payments/create-intent */
+export const adminCreatePaymentIntentSchema = z.object({
+  userId: z.string().min(1),
+  tier: z.enum(['STANDARD', 'PREMIUM', 'PREMIER']),
+  amount: z.number().positive(),
+  currency: z.string().default('HKD'),
+  description: z.string().optional(),
+})
+
+export type AdminCreatePaymentIntentInput = z.infer<typeof adminCreatePaymentIntentSchema>
+
+/** PUT /api/admin/payments/plans/[id] */
+export const updateMembershipPlanSchema = z.object({
+  name_zh: z.string().min(1).optional(),
+  name_en: z.string().min(1).optional(),
+  description_zh: z.string().optional(),
+  description_en: z.string().optional(),
+  amount: z.number().nonnegative().nullable().optional(),
+  currency: z.string().optional(),
+  period: z.string().optional(),
+  searchLimit: z.number().int().optional(),
+  caseLimit: z.number().int().nullable().optional(),
+  isActive: z.boolean().optional(),
+  isCustom: z.boolean().optional(),
+  sortOrder: z.number().int().optional(),
+})
+
+export type UpdateMembershipPlanInput = z.infer<typeof updateMembershipPlanSchema>
+

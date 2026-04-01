@@ -79,6 +79,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@airwallex/components-sdk':
+        specifier: ^1.28.3
+        version: 1.28.3
       '@auth/prisma-adapter':
         specifier: ^2.11.1
         version: 2.11.1(@prisma/client@5.17.0)
@@ -295,6 +298,16 @@ packages:
   /@adobe/css-tools@4.4.4:
     resolution: {integrity: sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg==}
     dev: true
+
+  /@airwallex/airtracker@3.2.0:
+    resolution: {integrity: sha512-PKE5N38ajTVg6ph9JzLpWsICNjqLtf/wWudNVU3UPX9SVy2I5s5ITc281sMSD8+LIE6RJoGjGTO+VYP/io5kig==}
+    dev: false
+
+  /@airwallex/components-sdk@1.28.3:
+    resolution: {integrity: sha512-W/f2eMx4Vt0k6HiZB0atzSnKVUcCk7l2VG9JKm/aJk6i832MMzeIqGiRBC1Ig2uA/HHF7d9Zy7ca8YqeXdFI/w==}
+    dependencies:
+      '@airwallex/airtracker': 3.2.0
+    dev: false
 
   /@alloc/quick-lru@5.2.0:
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}

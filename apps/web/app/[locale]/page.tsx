@@ -1,9 +1,11 @@
 import Link from "next/link"
-import { ArrowRight, Scale, Brain, Search, Globe, Database, Newspaper, Bot, FileText, Building2, CheckCircle2 } from "lucide-react"
+import { ArrowRight, Scale, Brain, Search, Globe, Database, Newspaper, Bot, FileText, Building2 } from "lucide-react"
 import { PremierButton } from "@/components/ui/premier-button"
 import { GlassCard, GlassCardContent, GlassCardDescription, GlassCardHeader, GlassCardTitle } from "@/components/ui/glass-card"
 import { ParticleBackground } from "@/components/effects/particle-background"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { MembershipPlans } from "@/components/membership/MembershipPlans"
+import { prisma } from "@/lib/db"
 
 export default async function HomePage({
   params
@@ -12,6 +14,58 @@ export default async function HomePage({
 }) {
   const { locale } = await params;
   const isEn = locale === 'en';
+
+  // Feature lists per tier
+  const planFeatures: Record<string, { zh: string[]; en: string[] }> = {
+    BASIC:    { zh: ['基礎搜尋', '每日更新摘要'], en: ['Basic search', 'Daily update digest'] },
+    STANDARD: { zh: ['完整搜尋', 'PDF 下載', '每月 100 次搜尋'], en: ['Full search access', 'PDF download', '100 searches/month'] },
+    PREMIUM:  { zh: ['AI 語意搜尋', 'API 訪問', '無限搜尋', '標準版全部功能'], en: ['AI semantic search', 'API access', 'Unlimited searches', 'All Standard features'] },
+    PREMIER:  { zh: ['完整功能', '批量下載', '專屬顧問服務', '自訂合約'], en: ['Full features', 'Bulk download', 'Dedicated support', 'Custom contract'] },
+  }
+
+  // Static fallback plans — shown when DB has no records yet
+  type PlanShape = {
+    id: string
+    tier: string
+    name_zh: string
+    name_en: string
+    description_zh: string | null
+    description_en: string | null
+    amount: number | null
+    currency: string
+    isCustom: boolean
+    features_zh: string[]
+    features_en: string[]
+  }
+
+  const FALLBACK_PLANS: PlanShape[] = [
+    { id: 'basic',    tier: 'BASIC',    name_zh: '基礎版', name_en: 'Basic',    description_zh: '適合個人用戶免費體驗',         description_en: 'Free for individual users',          amount: 0,    currency: 'HKD', isCustom: false, features_zh: planFeatures.BASIC.zh,    features_en: planFeatures.BASIC.en    },
+    { id: 'standard', tier: 'STANDARD', name_zh: '標準版', name_en: 'Standard', description_zh: '適合頻繁查閱法案的用戶',       description_en: 'For regular case research',           amount: 500,  currency: 'HKD', isCustom: false, features_zh: planFeatures.STANDARD.zh, features_en: planFeatures.STANDARD.en },
+    { id: 'premium',  tier: 'PREMIUM',  name_zh: '高級版', name_en: 'Premium',  description_zh: '適合律師事務所與法律專業人士', description_en: 'For law firms & legal professionals', amount: 1500, currency: 'HKD', isCustom: false, features_zh: planFeatures.PREMIUM.zh,  features_en: planFeatures.PREMIUM.en  },
+    { id: 'premier',  tier: 'PREMIER',  name_zh: '尊貴版', name_en: 'Premier',  description_zh: '企業定制，按需報價',           description_en: 'Enterprise, custom pricing',          amount: null, currency: 'HKD', isCustom: true,  features_zh: planFeatures.PREMIER.zh,  features_en: planFeatures.PREMIER.en  },
+  ]
+
+  // Fetch membership plans from DB; fall back to static list if empty
+  const rawPlans = await prisma.membershipPlan.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: 'asc' },
+  }).catch(() => [] as typeof FALLBACK_PLANS)
+
+  const plans: PlanShape[] = rawPlans.length > 0
+    ? rawPlans.map((p) => ({
+        id: p.id,
+        tier: p.tier,
+        name_zh: p.name_zh,
+        name_en: p.name_en,
+        description_zh: p.description_zh,
+        description_en: p.description_en,
+        amount: p.amount !== null ? Number(p.amount) : null,
+        currency: p.currency,
+        isCustom: p.isCustom,
+        features_zh: planFeatures[p.tier]?.zh ?? [],
+        features_en: planFeatures[p.tier]?.en ?? [],
+      }))
+    : FALLBACK_PLANS
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-premier-black via-premier-black-medium to-premier-black">
@@ -198,106 +252,9 @@ export default async function HomePage({
         <p className="text-premier-pearl-gray text-center mb-12">
           {isEn ? 'Choose a plan that suits your needs' : '選擇適合您需要的方案'}
         </p>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-          {/* 公眾版 */}
-          <GlassCard>
-            <GlassCardHeader>
-              <GlassCardTitle className="text-xl">{isEn ? 'Public' : '公眾版'}</GlassCardTitle>
-              <div className="text-3xl font-bold text-premier-pearl mt-3">{isEn ? 'Free' : '免費'}</div>
-            </GlassCardHeader>
-            <GlassCardContent>
-              <ul className="space-y-2 mb-6 text-sm text-premier-pearl-gray">
-                {[
-                  isEn ? 'Basic search' : '基礎搜尋',
-                  isEn ? 'Daily update digest' : '每日更新摘要',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-premier-gold shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link href={`/${locale}/case-search`} className="block">
-                <PremierButton variant="ghost" className="w-full">{isEn ? 'Try Now' : '立即體驗'}</PremierButton>
-              </Link>
-            </GlassCardContent>
-          </GlassCard>
 
-          {/* 基本版 */}
-          <GlassCard>
-            <GlassCardHeader>
-              <GlassCardTitle className="text-xl">{isEn ? 'Basic' : '基本版'}</GlassCardTitle>
-              <div className="text-3xl font-bold text-premier-pearl mt-3">HK$500<span className="text-base font-normal text-premier-pearl-gray">/{isEn ? 'mo' : '月'}</span></div>
-            </GlassCardHeader>
-            <GlassCardContent>
-              <ul className="space-y-2 mb-6 text-sm text-premier-pearl-gray">
-                {[
-                  isEn ? 'Full search access' : '完整搜尋',
-                  isEn ? 'PDF download' : 'PDF 下載',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-premier-gold shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link href={`/${locale}/register?plan=basic`} className="block">
-                <PremierButton variant="outline" className="w-full">{isEn ? 'Subscribe' : '訂閱'}</PremierButton>
-              </Link>
-            </GlassCardContent>
-          </GlassCard>
-
-          {/* 專業版 */}
-          <GlassCard variant="gold" glow className="border-2 border-premier-gold/30">
-            <GlassCardHeader>
-              <div className="text-xs font-semibold text-premier-gold uppercase tracking-wider mb-1">{isEn ? 'Most Popular' : '最受歡迎'}</div>
-              <GlassCardTitle className="text-xl">{isEn ? 'Professional' : '專業版'}</GlassCardTitle>
-              <div className="text-3xl font-bold text-premier-gold mt-3">HK$1,500<span className="text-base font-normal text-premier-pearl-gray">/{isEn ? 'mo' : '月'}</span></div>
-            </GlassCardHeader>
-            <GlassCardContent>
-              <ul className="space-y-2 mb-6 text-sm text-premier-pearl-gray">
-                {[
-                  isEn ? 'AI semantic search' : 'AI 語意搜尋',
-                  isEn ? 'API access' : 'API 訪問',
-                  isEn ? 'All Basic features' : '基本版全部功能',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-premier-gold shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link href={`/${locale}/register?plan=professional`} className="block">
-                <PremierButton variant="primary" className="w-full">{isEn ? 'Subscribe' : '訂閱'}</PremierButton>
-              </Link>
-            </GlassCardContent>
-          </GlassCard>
-
-          {/* 機構版 */}
-          <GlassCard variant="mystery">
-            <GlassCardHeader>
-              <GlassCardTitle className="text-xl">{isEn ? 'Enterprise' : '機構版'}</GlassCardTitle>
-              <div className="text-3xl font-bold text-premier-mystery-violet mt-3">{isEn ? 'Custom' : '按需報價'}</div>
-            </GlassCardHeader>
-            <GlassCardContent>
-              <ul className="space-y-2 mb-6 text-sm text-premier-pearl-gray">
-                {[
-                  isEn ? 'Full features' : '完整功能',
-                  isEn ? 'Bulk download' : '批量下載',
-                  isEn ? 'Dedicated support' : '專屬服務',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-premier-mystery-violet shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <Link href={`/${locale}/register?plan=enterprise`} className="block">
-                <PremierButton variant="mystery" className="w-full">{isEn ? 'Contact Us' : '聯絡我們'}</PremierButton>
-              </Link>
-            </GlassCardContent>
-          </GlassCard>
-        </div>
+        {/* Dynamic pricing cards with inline Airwallex Drop-in */}
+        <MembershipPlans plans={plans} locale={locale} />
       </section>
 
       {/* Footer */}
