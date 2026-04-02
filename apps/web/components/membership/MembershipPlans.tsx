@@ -42,17 +42,41 @@ export function MembershipPlans({ plans, locale }: MembershipPlansProps) {
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [errorTier, setErrorTier] = useState<string | null>(null)  // which card errored
+  const [dropInTestMode] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    return new URLSearchParams(window.location.search).get('dropinTest') === '1'
+  })
+
+  const isFreePlan = (plan: Plan) => {
+    // DB can represent free tier as amount=0 or amount=null with non-custom flag.
+    return plan.tier === 'BASIC' || plan.amount === 0 || (plan.amount === null && !plan.isCustom)
+  }
 
   async function handleSelectPlan(plan: Plan) {
     // Enterprise / custom plan — redirect to contact
-    if (plan.isCustom || plan.amount === null) {
+    if (plan.isCustom) {
       window.location.href = `/${locale}/contact`
       return
     }
 
     // Free tier — redirect to register
-    if (plan.amount === 0 || plan.tier === 'BASIC') {
-      window.location.href = `/${locale}/register`
+    if (isFreePlan(plan)) {
+      window.location.href = `/${locale}/case-search`
+      return
+    }
+
+    // Local UI validation mode:
+    // open inline panel without auth/API to verify expansion behavior.
+    if (dropInTestMode) {
+      setError(null)
+      setErrorTier(null)
+      setIntentData({
+        intentId: `test-${plan.tier.toLowerCase()}`,
+        clientSecret: 'test_client_secret',
+        amount: plan.amount ?? 0,
+        currency: plan.currency ?? 'HKD',
+      })
+      setSelectedTier(plan.tier)
       return
     }
 
@@ -120,7 +144,7 @@ export function MembershipPlans({ plans, locale }: MembershipPlansProps) {
       {plans.map((plan) => {
         const isSelected = selectedTier === plan.tier
         const isLoading = loading === plan.tier
-        const isFree = plan.amount === null && !plan.isCustom ? false : plan.amount === 0 || plan.tier === 'BASIC'
+        const isFree = isFreePlan(plan)
         const isPaid = plan.amount !== null && plan.amount > 0
         const isEnterprise = plan.isCustom
 
@@ -246,17 +270,30 @@ export function MembershipPlans({ plans, locale }: MembershipPlansProps) {
                       <X className="h-4 w-4" />
                     </button>
                   </div>
-                  <PaymentDropIn
-                    intentId={intentData.intentId}
-                    clientSecret={intentData.clientSecret}
-                    currency={intentData.currency}
-                    locale={locale === 'en' ? 'en' : 'zh-HK'}
-                    onSuccess={() => {
-                      // Keep showing success state; don't auto-close
-                    }}
-                    onError={() => setError(isEn ? 'Payment failed. Please try again.' : '付款失敗，請重試')}
-                    onClose={handleCloseDropIn}
-                  />
+                  {dropInTestMode ? (
+                    <div className="mt-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-6 text-center">
+                      <p className="font-semibold text-emerald-400">
+                        {isEn ? 'Drop-in test mode: inline panel expanded successfully.' : 'Drop-in 測試模式：卡片下方展開成功。'}
+                      </p>
+                      <p className="text-xs text-premier-pearl/60 mt-2">
+                        {isEn
+                          ? 'Disable ?dropinTest=1 to restore real payment flow.'
+                          : '移除網址參數 ?dropinTest=1 可還原真實付款流程。'}
+                      </p>
+                    </div>
+                  ) : (
+                    <PaymentDropIn
+                      intentId={intentData.intentId}
+                      clientSecret={intentData.clientSecret}
+                      currency={intentData.currency}
+                      locale={locale === 'en' ? 'en' : 'zh-HK'}
+                      onSuccess={() => {
+                        // Keep showing success state; don't auto-close
+                      }}
+                      onError={() => setError(isEn ? 'Payment failed. Please try again.' : '付款失敗，請重試')}
+                      onClose={handleCloseDropIn}
+                    />
+                  )}
                 </div>
               )}
             </div>
