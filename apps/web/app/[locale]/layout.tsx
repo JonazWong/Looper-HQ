@@ -4,7 +4,6 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { locales } from '@/i18n';
 import { SessionProvider } from '@/components/providers/session-provider';
-import '../../styles/globals.css';
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -30,24 +29,20 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  
+
   // ✅ 在 layout 裡驗證 locale（不在 i18n.ts）
   if (!locales.includes(locale as any)) {
     notFound();
   }
-  
+
   setRequestLocale(locale);
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className="dark" suppressHydrationWarning>
-      <body className="font-sans antialiased">
-        <SessionProvider>
-          <NextIntlClientProvider messages={messages}>
-            {children}
-          </NextIntlClientProvider>
-        </SessionProvider>
-      </body>
-    </html>
+    <SessionProvider>
+      <NextIntlClientProvider messages={messages}>
+        {children}
+      </NextIntlClientProvider>
+    </SessionProvider>
   );
 }

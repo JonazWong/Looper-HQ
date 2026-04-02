@@ -1,6 +1,10 @@
 import { ReactNode } from 'react'
+import '../styles/globals.css'
 
-// Root layout delegates html/body to locale layout
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return children
+  return (
+    <html lang="zh" className="dark" suppressHydrationWarning>
+      <body className="font-sans antialiased">{children}</body>
+    </html>
+  )
 }
