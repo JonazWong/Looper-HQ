@@ -42,6 +42,7 @@
     "crawler:rss": "tsx scripts/crawlers/rss-news-crawler.ts",
     "crawler:health": "tsx scripts/crawlers/health-check.ts",
     "crawler:check": "tsx scripts/check-crawler-data.ts",
+    "crawler:ensure-sources": "tsx scripts/ensure-rss-sources.ts",
     "crawler:verify-db": "tsx scripts/check-crawler-db-target.ts",
     "crawler:sync": "tsx scripts/sync-crawler-data.ts",
     "test:rss": "tsx scripts/test-rss-sources.ts",

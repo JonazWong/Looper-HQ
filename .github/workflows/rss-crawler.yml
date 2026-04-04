@@ -41,7 +41,12 @@ jobs:
         run: pnpm run crawler:verify-db
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      
+
+      - name: Ensure RSS Sources Exist
+        run: pnpm run crawler:ensure-sources
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Run RSS Crawler
         run: pnpm run crawler:rss
         env:

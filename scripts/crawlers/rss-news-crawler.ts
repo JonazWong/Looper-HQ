@@ -45,6 +45,10 @@ export async function trackRssNews(): Promise<number> {
 
     console.log(`📰 Found ${allSources.length} RSS sources in database`);
 
+    if (allSources.length === 0) {
+      throw new Error('No active RSS sources configured in database. Run crawler:ensure-sources first.');
+    }
+
     // Filter sources that need to be fetched based on fetchInterval
     const now = new Date();
     const sources = allSources.filter(source => {
