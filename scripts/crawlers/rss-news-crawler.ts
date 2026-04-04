@@ -265,6 +265,10 @@ export async function trackRssNews(): Promise<number> {
       if (successRate < threshold) {
         console.warn(`\n⚠️  WARNING: Success rate (${successRate.toFixed(1)}%) is below configured threshold (${threshold}%)`);
       }
+
+      if (successCount === 0) {
+        throw new Error('All active RSS sources failed to fetch or parse');
+      }
     }
 
     return totalUpdated;

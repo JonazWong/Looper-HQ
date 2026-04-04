@@ -34,15 +34,19 @@ jobs:
       
       - name: Generate Prisma Client
         run: pnpm --filter=@looper-hq/database prisma generate
+
+      - name: Verify Crawler Database Target
+        run: pnpm run crawler:verify-db
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
       
-      - name: Run Unified Tracker (RSS Only)
+      - name: Run Unified Tracker
         run: pnpm run crawler:all
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NODE_ENV: production
           RSS_TIMEOUT: 30000
           RSS_MAX_RETRIES: 3
-        continue-on-error: true  # Don't fail workflow on RSS errors
       
       - name: Create issue on failure
         if: failure()

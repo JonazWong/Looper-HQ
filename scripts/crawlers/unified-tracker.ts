@@ -133,14 +133,16 @@ async function main() {
   if (stats.errors.length > 0) {
     console.log(`\n⚠️  Errors occurred (${stats.errors.length}):`);
     stats.errors.forEach((err) => console.log(`   - ${err}`));
-    console.log('\n⚠️  Daily tracking completed with errors (non-fatal)');
-    // Don't fail if only RSS sources have issues – RSS crawler has its own retry handling
-    // process.exit(1); // Disabled - allow partial success
+    console.log('\n⚠️  Daily tracking completed with errors');
   }
 
-  console.log('\n✨ Daily tracking completed successfully!');
+  if (finalStatus === 'FAILED') {
+    console.log('\n❌ Daily tracking completed with no successful crawler sources');
+  } else {
+    console.log('\n✨ Daily tracking completed successfully!');
+  }
   await prisma.$disconnect();
-  process.exit(0);
+  process.exit(finalStatus === 'FAILED' ? 1 : 0);
 }
 
 // Handle uncaught errors
