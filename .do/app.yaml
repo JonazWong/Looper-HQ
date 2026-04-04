@@ -32,7 +32,7 @@ jobs:
     value: ${db-postgresql-sgp1-75753.DATABASE_URL}
   github:
     branch: main
-    deploy_on_push: false
+    deploy_on_push: true
     repo: JonazWong/Looper-HQ
   instance_count: 1
   instance_size_slug: apps-s-1vcpu-1gb
@@ -115,7 +115,7 @@ services:
     value: ${db-postgresql-sgp1-75753.DATABASE_URL}
   github:
     branch: main
-    deploy_on_push: false
+    deploy_on_push: true
     repo: JonazWong/Looper-HQ
   http_port: 3000
   instance_count: 1
@@ -142,7 +142,7 @@ services:
     scope: RUN_AND_BUILD_TIME
   github:
     branch: main
-    deploy_on_push: false
+    deploy_on_push: true
     repo: JonazWong/Looper-HQ
   http_port: 3001
   instance_count: 1
