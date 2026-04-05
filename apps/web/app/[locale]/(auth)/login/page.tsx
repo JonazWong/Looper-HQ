@@ -115,10 +115,14 @@ function LoginForm() {
             <div className="p-4 bg-premier-mystery/10 border border-premier-mystery/30 rounded-lg space-y-2">
               <p className="text-sm font-medium text-premier-gold">示範帳號</p>
               <div className="grid gap-1 text-xs font-mono">
-                <div><span className="text-premier-pearl/70">管理員:</span> admin@looperhq.com / demo123</div>
-                <div><span className="text-premier-pearl/70">律師:</span> sarah.chen@looperhq.com / demo123</div>
-                <div><span className="text-premier-pearl/70">客戶:</span> wong.client@example.com / demo123</div>
+                <div><span className="text-premier-pearl/70">管理員:</span> admin@looperhq.hk / 任意密碼</div>
+                <div><span className="text-premier-pearl/70">管理員:</span> admin@looperhq.com / 任意密碼</div>
+                <div><span className="text-premier-pearl/70">律師:</span> sarah.chen@looperhq.com / 任意密碼</div>
+                <div><span className="text-premier-pearl/70">客戶:</span> wong.client@example.com / 任意密碼</div>
               </div>
+              <p className="text-[11px] text-premier-pearl/60">
+                如帳號不存在，請執行 pnpm auth:ensure-demo-users
+              </p>
             </div>
           )}
 

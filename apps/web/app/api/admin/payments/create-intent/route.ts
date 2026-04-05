@@ -42,6 +42,21 @@ async function getAirwallexToken(): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     await requireRole('ADMIN')
+
+    const clientId = process.env.AIRWALLEX_CLIENT_ID
+    const apiKey = process.env.AIRWALLEX_API_KEY
+    if (!clientId || clientId === 'your-airwallex-client-id' || !apiKey || apiKey === 'your-airwallex-api-key') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: 'Airwallex 尚未設定。請配置 AIRWALLEX_CLIENT_ID、AIRWALLEX_API_KEY 後再試。',
+          },
+        },
+        { status: 503 }
+      )
+    }
+
     const body = await request.json()
     const parsed = adminCreateIntentSchema.safeParse(body)
 

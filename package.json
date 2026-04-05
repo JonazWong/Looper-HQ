@@ -45,6 +45,8 @@
     "crawler:ensure-sources": "tsx scripts/ensure-rss-sources.ts",
     "crawler:verify-db": "tsx scripts/check-crawler-db-target.ts",
     "crawler:sync": "tsx scripts/sync-crawler-data.ts",
+    "auth:ensure-demo-users": "tsx scripts/ensure-demo-users.ts",
+    "payments:verify-airwallex": "tsx scripts/check-airwallex-config.ts",
     "test:rss": "tsx scripts/test-rss-sources.ts",
     "preview": "tsx scripts/preview-page.ts",
     "snapshot": "tsx scripts/snapshot-page.ts",

@@ -99,7 +99,12 @@ export async function POST(request: NextRequest) {
     const apiKey   = process.env.AIRWALLEX_API_KEY
     if (!clientId || clientId === 'your-airwallex-client-id' || !apiKey || apiKey === 'your-airwallex-api-key') {
       return NextResponse.json(
-        { success: false, error: { message: 'Airwallex 尚未設定。請聯絡管理員配置付款憑證後再試。' } },
+        {
+          success: false,
+          error: {
+            message: 'Airwallex 尚未設定。請配置 AIRWALLEX_CLIENT_ID、AIRWALLEX_API_KEY 後再試。',
+          },
+        },
         { status: 503 }
       )
     }
