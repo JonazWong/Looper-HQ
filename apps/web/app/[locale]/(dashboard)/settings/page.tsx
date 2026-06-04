@@ -1,19 +1,23 @@
 import { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 
 export const metadata: Metadata = {
   title: 'Settings | Looper HQ',
   description: 'Manage your account settings and preferences',
 }
 
-export default function SettingsPage() {
+export default async function SettingsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  const t = await getTranslations({ locale })
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-serif font-bold text-gradient-gold mb-2">
-          Settings
+          {t('settings.title')}
         </h1>
         <p className="text-premier-pearl-gray">
-          Manage your account and application preferences
+          {t('settings.subtitle')}
         </p>
       </div>
 
@@ -40,10 +44,10 @@ export default function SettingsPage() {
           </svg>
         </div>
         <h2 className="text-xl font-semibold text-premier-pearl mb-2">
-          Settings Coming Soon
+          {t('settings.comingSoon')}
         </h2>
         <p className="text-premier-pearl-gray">
-          Account settings and preferences configuration will be available here.
+          {t('settings.comingSoonDescription')}
         </p>
       </div>
     </div>

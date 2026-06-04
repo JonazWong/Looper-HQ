@@ -22,9 +22,12 @@ async function getAirwallexToken(): Promise<string> {
   const clientId = process.env.AIRWALLEX_CLIENT_ID
   const apiKey = process.env.AIRWALLEX_API_KEY
   const env = process.env.AIRWALLEX_ENV ?? 'demo'
+  const publicEnv = process.env.NEXT_PUBLIC_AIRWALLEX_ENV ?? 'demo'
   const baseUrl = env === 'prod'
     ? 'https://api.airwallex.com'
     : 'https://api-demo.airwallex.com'
+
+  console.log('[Airwallex debug] env=', env, 'publicEnv=', publicEnv, 'baseUrl=', baseUrl, 'clientId=', clientId ? `${clientId.slice(0, 8)}...` : 'MISSING', 'apiKey=', apiKey ? 'SET' : 'MISSING')
 
   const res = await fetch(`${baseUrl}/api/v1/authentication/login`, {
     method: 'POST',
@@ -37,7 +40,7 @@ async function getAirwallexToken(): Promise<string> {
 
   if (!res.ok) {
     const err = await res.text()
-    throw new Error(`Airwallex auth failed: ${err}`)
+    throw new Error(`Airwallex auth failed: env=${env}, baseUrl=${baseUrl}, clientId=${clientId ? `${clientId.slice(0, 8)}...` : 'MISSING'}, apiKey=${apiKey ? 'SET' : 'MISSING'}; ${err}`)
   }
 
   const data = await res.json()

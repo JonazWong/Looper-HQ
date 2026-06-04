@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Search, Database, FileText, Download, Clock, Activity, TrendingUp, ExternalLink } from 'lucide-react';
 
@@ -28,7 +28,7 @@ const HOT_TAGS_EN = ['Commercial Litigation', 'Criminal', 'Family Law', 'Propert
 export default function MemberDashboardPage() {
   const { data: session } = useSession();
   const locale = useLocale();
-  const isEn = locale === 'en';
+  const t = useTranslations();
   const [stats, setStats] = useState<DatabaseStats>({
     totalCases: 0,
     todayNew: 0,
@@ -73,22 +73,21 @@ export default function MemberDashboardPage() {
   }[stats.systemStatus];
 
   const statusLabel = {
-    healthy: isEn ? 'Healthy' : '正常',
-    warning: isEn ? 'Warning' : '警告',
-    error: isEn ? 'Error' : '錯誤',
+    healthy: t('services.status.healthy'),
+    warning: t('services.status.warning'),
+    error: t('services.status.error'),
   }[stats.systemStatus];
 
-  const hotTags = isEn ? HOT_TAGS_EN : HOT_TAGS_ZH;
+  const hotTags = locale === 'en' ? HOT_TAGS_EN : HOT_TAGS_ZH;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-premier-gold">
-          {isEn ? 'Member Dashboard' : '會員資料庫'}
+          {t('services.title')}
         </h1>
         <p className="text-premier-pearl-gray mt-1 text-sm">
-          {isEn ? 'Welcome back, ' : '歡迎回來，'}
-          {session?.user?.name || 'User'}
+          {t('services.welcomeBack')} {session?.user?.name || t('services.guest')}
         </p>
       </div>
 
@@ -97,23 +96,23 @@ export default function MemberDashboardPage() {
         {[
           {
             icon: <Search className="w-5 h-5" />,
-            label: isEn ? "Today's Searches" : '今日搜尋次數',
+            label: t('services.todaySearches'),
             value: loading ? '-' : recentSearches.length,
           },
           {
             icon: <FileText className="w-5 h-5" />,
-            label: isEn ? 'Saved Documents' : '已儲存文件數',
+            label: t('services.savedDocuments'),
             value: '0',
           },
           {
             icon: <Download className="w-5 h-5" />,
-            label: isEn ? 'Downloaded PDFs' : '已下載 PDF 數',
+            label: t('services.downloadedPdfs'),
             value: '0',
           },
           {
             icon: <Activity className="w-5 h-5" />,
-            label: isEn ? 'Membership Tier' : '會員等級',
-            value: isEn ? 'Public' : '公眾版',
+            label: t('services.membershipTier'),
+            value: t('services.publicTier'),
           },
         ].map((card, i) => (
           <div key={i} className="glass-card rounded-premier-lg p-4">
@@ -129,13 +128,13 @@ export default function MemberDashboardPage() {
       {/* Quick Search */}
       <div className="glass-card rounded-premier-lg p-6">
         <h2 className="text-lg font-semibold text-premier-gold mb-4">
-          {isEn ? 'Search Database' : '搜尋資料庫'}
+          {t('services.searchDatabase')}
         </h2>
         <div className="flex gap-3">
           <input
             type="text"
             className="flex-1 bg-premier-black-light border border-premier-gold/20 rounded-premier-md px-4 py-3 text-premier-pearl placeholder-premier-pearl-gray focus:outline-none focus:border-premier-gold transition-colors"
-            placeholder={isEn ? 'Enter keywords, case number, court...' : '輸入關鍵字、案件編號、法院...'}
+            placeholder={t('services.quickSearchPlaceholder')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             onKeyDown={e => {
@@ -151,7 +150,7 @@ export default function MemberDashboardPage() {
             data-role="quick-search-link"
           >
             <Search className="w-4 h-4" />
-            {isEn ? 'Search' : '搜尋'}
+            {t('common.search')}
           </Link>
         </div>
         <div className="flex flex-wrap gap-2 mt-4">
@@ -172,7 +171,7 @@ export default function MemberDashboardPage() {
         <div className="glass-card rounded-premier-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-premier-gold">
-              {isEn ? 'Recent Searches' : '最近查閱記錄'}
+              {t('services.recentSearches')}
             </h2>
           </div>
           {loading ? (
@@ -183,7 +182,7 @@ export default function MemberDashboardPage() {
             </div>
           ) : recentSearches.length === 0 ? (
             <p className="text-premier-pearl-gray text-sm">
-              {isEn ? 'No recent searches.' : '尚無搜尋記錄。'}
+              {t('services.noRecentSearches')}
             </p>
           ) : (
             <div className="space-y-3">
@@ -192,7 +191,7 @@ export default function MemberDashboardPage() {
                   <div>
                     <p className="text-premier-pearl text-sm font-medium">{record.keyword}</p>
                     <p className="text-premier-pearl-gray text-xs mt-0.5">
-                      {record.resultCount} {isEn ? 'results' : '項結果'} · {new Date(record.searchedAt).toLocaleString()}
+                      {record.resultCount} {t('services.results')} · {new Date(record.searchedAt).toLocaleString()}
                     </p>
                   </div>
                   <Link href={`/${locale}/case-search?q=${encodeURIComponent(record.keyword)}`} className="text-premier-gold hover:text-premier-gold-champagne">
@@ -207,25 +206,25 @@ export default function MemberDashboardPage() {
         {/* Database Latest Updates */}
         <div className="glass-card rounded-premier-lg p-6">
           <h2 className="text-lg font-semibold text-premier-gold mb-4">
-            {isEn ? 'Database Updates' : '資料庫最新更新'}
+            {t('services.databaseUpdates')}
           </h2>
           <div className="space-y-4">
             <div className="flex items-center justify-between py-2 border-b border-premier-gold/10">
-              <span className="text-premier-pearl-gray text-sm">{isEn ? "Today's New Cases" : '今日新增案件數'}</span>
+              <span className="text-premier-pearl-gray text-sm">{t('services.todayNewCases')}</span>
               <span className="text-premier-gold font-bold">{loading ? '-' : stats.todayNew}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-premier-gold/10">
-              <span className="text-premier-pearl-gray text-sm">{isEn ? 'Total Cases' : '總法案數量'}</span>
+              <span className="text-premier-pearl-gray text-sm">{t('services.totalCases')}</span>
               <span className="text-premier-gold font-bold">{loading ? '-' : stats.totalCases.toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-premier-gold/10">
-              <span className="text-premier-pearl-gray text-sm">{isEn ? 'Last Crawl' : '爬蟲最後運行'}</span>
+              <span className="text-premier-pearl-gray text-sm">{t('services.lastCrawl')}</span>
               <span className="text-premier-pearl-gray text-sm">
-                {stats.crawlerLastRun ? new Date(stats.crawlerLastRun).toLocaleString() : (isEn ? 'N/A' : '未知')}
+                {stats.crawlerLastRun ? new Date(stats.crawlerLastRun).toLocaleString() : t('services.notAvailable')}
               </span>
             </div>
             <div className="flex items-center justify-between py-2">
-              <span className="text-premier-pearl-gray text-sm">{isEn ? 'System Status' : '系統健康狀態'}</span>
+              <span className="text-premier-pearl-gray text-sm">{t('services.systemStatus')}</span>
               <span className={`text-sm font-semibold flex items-center gap-1 ${statusColor}`}>
                 <span className="w-2 h-2 rounded-full bg-current inline-block" />
                 {statusLabel}
@@ -238,13 +237,13 @@ export default function MemberDashboardPage() {
       {/* Quick Links */}
       <div className="glass-card rounded-premier-lg p-6">
         <h2 className="text-lg font-semibold text-premier-gold mb-4">
-          {isEn ? 'Quick Links' : '快速連結'}
+          {t('services.quickLinks')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { icon: <Database className="w-5 h-5" />, label: isEn ? 'Case Database' : '瀏覽法案資料庫', href: `/${locale}/case-search` },
-            { icon: <FileText className="w-5 h-5" />, label: isEn ? 'Forms Repository' : '司法表格庫', href: `/${locale}/case-search?filter=forms` },
-            { icon: <TrendingUp className="w-5 h-5" />, label: isEn ? 'AI Smart Search' : 'AI 智能搜尋', href: `/${locale}/case-search?mode=ai` },
+            { icon: <Database className="w-5 h-5" />, label: t('services.caseDatabase'), href: `/${locale}/case-search` },
+            { icon: <FileText className="w-5 h-5" />, label: t('services.formsRepository'), href: `/${locale}/case-search?filter=forms` },
+            { icon: <TrendingUp className="w-5 h-5" />, label: t('services.aiSmartSearch'), href: `/${locale}/case-search?mode=ai` },
           ].map((link, i) => (
             <Link
               key={i}

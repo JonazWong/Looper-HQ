@@ -5,7 +5,8 @@
  *
  * Events handled:
  *  - payment_intent.succeeded → upgrade membership, record payment as SUCCEEDED
- *  - payment_intent.cancelled / payment_intent.payment_failed → mark FAILED
+ *  - payment_intent.cancelled → mark CANCELLED
+ *  - payment_attempt.failed → mark FAILED (Airwallex actual event name)
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
@@ -123,20 +124,32 @@ export async function POST(request: NextRequest) {
         break
       }
 
-      case 'payment_intent.cancelled':
-      case 'payment_intent.payment_failed': {
+      case 'payment_intent.cancelled': {
         const intentId = eventData.id as string
         if (!intentId) break
 
         await prisma.payment.updateMany({
           where: { intentId, status: 'PENDING' },
-          data: {
-            status: eventType === 'payment_intent.cancelled' ? 'CANCELLED' : 'FAILED',
-            rawEvent: event as object,
-          },
+          data: { status: 'CANCELLED', rawEvent: event as object },
         })
 
-        console.log(`[webhook] ⚠️ Payment ${intentId} → ${eventType}`)
+        console.log(`[webhook] ⚠️ Payment ${intentId} → CANCELLED`)
+        break
+      }
+
+      // Airwallex actual failure event: payment_attempt.failed
+      // (Dashboard only shows this option, not payment_intent.payment_failed)
+      case 'payment_attempt.failed': {
+        // payment_attempt payload: { payment_intent_id: string, ... }
+        const intentId = (eventData.payment_intent_id ?? eventData.id) as string
+        if (!intentId) break
+
+        await prisma.payment.updateMany({
+          where: { intentId, status: 'PENDING' },
+          data: { status: 'FAILED', rawEvent: event as object },
+        })
+
+        console.log(`[webhook] ❌ Payment ${intentId} → FAILED`)
         break
       }
 

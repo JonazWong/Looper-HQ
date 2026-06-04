@@ -1,4 +1,6 @@
-import { prisma } from '../../packages/database';
+import { PrismaClient } from '../../packages/database';
+
+const prisma = new PrismaClient();
 
 /**
  * Health check for RSS sources

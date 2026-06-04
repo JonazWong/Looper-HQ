@@ -193,7 +193,7 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
         </div>
         <Link href={`/${locale}/billing/new`}>
           <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
-            New Invoice
+            {t('newInvoice')}
           </PremierButton>
         </Link>
       </div>
@@ -201,25 +201,25 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Revenue"
+          title={t('totalRevenue')}
           value={`HKD ${stats.totalRevenue.toLocaleString()}`}
           icon={<DollarSign className="h-4 w-4" />}
           variant="success"
         />
         <StatCard
-          title="Pending Amount"
+          title={t('pendingRevenue')}
           value={`HKD ${stats.pendingRevenue.toLocaleString()}`}
           icon={<Clock className="h-4 w-4" />}
           variant="warning"
         />
         <StatCard
-          title="Paid Invoices"
+          title={t('paid')}
           value={stats.paidInvoices}
           icon={<CheckCircle2 className="h-4 w-4" />}
           variant="success"
         />
         <StatCard
-          title="Overdue Invoices"
+          title={t('overdue')}
           value={stats.overdueInvoices}
           icon={<AlertCircle className="h-4 w-4" />}
           variant="danger"
@@ -238,7 +238,7 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
                   : 'bg-premier-charcoal/50 text-premier-pearl-gray border-premier-gold/20 hover:bg-premier-gold/10 cursor-pointer'
                 }
               >
-                All ({stats.totalInvoices})
+                {t('allInvoices', { count: stats.totalInvoices })}
               </Badge>
             </Link>
             {Object.values(InvoiceStatus).map((status) => (
@@ -250,7 +250,7 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
                     : 'bg-premier-charcoal/50 text-premier-pearl-gray border-premier-gold/20 hover:bg-premier-gold/10 cursor-pointer'
                   }
                 >
-                  {status}
+                  {t(status.toLowerCase())}
                 </Badge>
               </Link>
             ))}
@@ -261,12 +261,9 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
       {/* Invoices Table */}
       <GlassCard variant="gold" glow>
         <GlassCardHeader>
-          <GlassCardTitle>Invoices</GlassCardTitle>
+          <GlassCardTitle>{t('invoicesTitle')}</GlassCardTitle>
           <GlassCardDescription>
-            {totalInvoices === 0 
-              ? 'No invoices found' 
-              : `${totalInvoices} invoice${totalInvoices === 1 ? '' : 's'} in the system`
-            }
+            {t('invoiceSummary', { count: totalInvoices })}
           </GlassCardDescription>
         </GlassCardHeader>
         <GlassCardContent>
@@ -274,16 +271,16 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
             <div className="flex flex-col items-center justify-center py-12">
               <FileText className="h-12 w-12 text-premier-pearl-gray mb-4" />
               <h3 className="text-lg font-medium text-premier-pearl mb-2">
-                No invoices found
+                {t('noInvoicesFound')}
               </h3>
               <p className="text-sm text-premier-pearl-gray mb-6 text-center max-w-md">
                 {resolvedSearchParams.status
-                  ? 'Try adjusting your filters to find what you\'re looking for.'
-                  : 'Get started by creating your first invoice.'}
+                  ? t('tryAdjustingFilters')
+                  : t('getStartedInvoice')}
               </p>
               <Link href={`/${locale}/billing/new`}>
                 <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
-                  Create Invoice
+                  {t('createInvoice')}
                 </PremierButton>
               </Link>
             </div>
@@ -293,14 +290,14 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
                 <Table>
                   <TableHeader>
                     <TableRow className="border-premier-gold/20">
-                      <TableHead className="text-premier-gold">Invoice #</TableHead>
-                      <TableHead className="text-premier-gold">Case</TableHead>
-                      <TableHead className="text-premier-gold">Client</TableHead>
-                      <TableHead className="text-premier-gold">Amount</TableHead>
-                      <TableHead className="text-premier-gold">Status</TableHead>
-                      <TableHead className="text-premier-gold">Issue Date</TableHead>
-                      <TableHead className="text-premier-gold">Due Date</TableHead>
-                      <TableHead className="text-premier-gold text-right">Actions</TableHead>
+                      <TableHead className="text-premier-gold">{t('invoiceNumber')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('caseLabel')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('clientLabel')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('amount')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('status')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('issueDate')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('dueDate')}</TableHead>
+                      <TableHead className="text-premier-gold text-right">{t('actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -328,7 +325,7 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
                             </Link>
                           </TableCell>
                           <TableCell className="text-premier-pearl-gray">
-                            {invoice.case.client.name || 'Unknown Client'}
+                            {invoice.case.client.name || t('unknownClient')}
                           </TableCell>
                           <TableCell className="text-premier-pearl font-medium">
                             {invoice.currency} {Number(invoice.amount).toLocaleString()}
@@ -338,7 +335,7 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
                               variant="outline" 
                               className={getStatusColor(overdue ? 'OVERDUE' : invoice.status)}
                             >
-                              {overdue ? 'OVERDUE' : invoice.status}
+                              {overdue ? t('overdue') : t(invoice.status.toLowerCase())}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-premier-pearl-gray">
@@ -374,22 +371,24 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
               {totalPages > 1 && (
                 <div className="flex items-center justify-between pt-4">
                   <p className="text-sm text-premier-pearl-gray">
-                    Showing {((currentPage - 1) * INVOICES_PER_PAGE) + 1} to{' '}
-                    {Math.min(currentPage * INVOICES_PER_PAGE, totalInvoices)} of{' '}
-                    {totalInvoices} invoices
+                    {t('showingRange', {
+                      from: ((currentPage - 1) * INVOICES_PER_PAGE) + 1,
+                      to: Math.min(currentPage * INVOICES_PER_PAGE, totalInvoices),
+                      total: totalInvoices,
+                    })}
                   </p>
                   <div className="flex gap-2">
                     {currentPage > 1 && (
                       <Link href={`/${locale}/billing?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage - 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
-                          Previous
+                          {t('previous')}
                         </PremierButton>
                       </Link>
                     )}
                     {currentPage < totalPages && (
                       <Link href={`/${locale}/billing?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage + 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
-                          Next
+                          {t('next')}
                         </PremierButton>
                       </Link>
                     )}

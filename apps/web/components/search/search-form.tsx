@@ -6,6 +6,7 @@
 
 import * as React from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Search, Filter, X, Calendar } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { PremierButton } from '@/components/ui/premier-button'
@@ -30,10 +31,30 @@ export function SearchForm({
   initialCategory = '',
   initialStatus = '',
 }: SearchFormProps) {
+  const t = useTranslations()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [query, setQuery] = React.useState(initialQuery)
+
+  const categoryLabels: Record<string, string> = {
+    CIVIL: t('case.categories.CIVIL'),
+    CRIMINAL: t('case.categories.CRIMINAL'),
+    CORPORATE: t('case.categories.CORPORATE'),
+    FAMILY: t('case.categories.FAMILY'),
+    PROPERTY: t('case.categories.PROPERTY'),
+    EMPLOYMENT: t('case.categories.EMPLOYMENT'),
+    INTELLECTUAL_PROPERTY: t('case.categories.INTELLECTUAL_PROPERTY'),
+    OTHER: t('case.categories.OTHER'),
+  }
+
+  const statusLabels: Record<string, string> = {
+    ACTIVE: t('case.statuses.ACTIVE'),
+    PENDING: t('case.statuses.PENDING'),
+    COMPLETED: t('case.statuses.COMPLETED'),
+    ARCHIVED: t('case.statuses.ARCHIVED'),
+    CANCELLED: t('case.statuses.CANCELLED'),
+  }
 
   const updateFilters = React.useCallback((key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -67,7 +88,7 @@ export function SearchForm({
           <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-premier-pearl-gray" />
           <Input
             type="text"
-            placeholder="Search by case number, title, or keywords..."
+            placeholder={t('search.placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="pl-12 h-12 text-base glass-card border-premier-gold/30 text-premier-pearl placeholder:text-premier-pearl-gray"
@@ -79,7 +100,7 @@ export function SearchForm({
           size="lg"
           icon={<Search className="h-4 w-4" />}
         >
-          Search
+          {t('common.search')}
         </PremierButton>
       </form>
 
@@ -98,34 +119,34 @@ export function SearchForm({
             </PremierButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="glass-card border-premier-gold/30">
-            <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('search.filters.category')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => updateFilters('category', '')}>
-              All Categories
+              {t('search.filters.allCategories')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('category', 'CIVIL')}>
-              Civil
+              {categoryLabels.CIVIL}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('category', 'CRIMINAL')}>
-              Criminal
+              {categoryLabels.CRIMINAL}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('category', 'CORPORATE')}>
-              Corporate
+              {categoryLabels.CORPORATE}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('category', 'FAMILY')}>
-              Family
+              {categoryLabels.FAMILY}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('category', 'PROPERTY')}>
-              Property
+              {categoryLabels.PROPERTY}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('category', 'EMPLOYMENT')}>
-              Employment
+              {categoryLabels.EMPLOYMENT}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('category', 'INTELLECTUAL_PROPERTY')}>
-              Intellectual Property
+              {categoryLabels.INTELLECTUAL_PROPERTY}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('category', 'OTHER')}>
-              Other
+              {categoryLabels.OTHER}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -143,25 +164,25 @@ export function SearchForm({
             </PremierButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="glass-card border-premier-gold/30">
-            <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('case.status')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => updateFilters('status', '')}>
-              All Statuses
+              {t('search.filters.allStatuses')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('status', 'ACTIVE')}>
-              Active
+              {statusLabels.ACTIVE}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('status', 'PENDING')}>
-              Pending
+              {statusLabels.PENDING}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('status', 'COMPLETED')}>
-              Completed
+              {statusLabels.COMPLETED}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('status', 'ARCHIVED')}>
-              Archived
+              {statusLabels.ARCHIVED}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => updateFilters('status', 'CANCELLED')}>
-              Cancelled
+              {statusLabels.CANCELLED}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -174,7 +195,7 @@ export function SearchForm({
             icon={<X className="h-4 w-4" />}
             onClick={clearFilters}
           >
-            Clear
+            {t('common.reset')}
           </PremierButton>
         )}
       </div>
@@ -184,17 +205,17 @@ export function SearchForm({
         <div className="flex flex-wrap gap-2">
           {initialQuery && (
             <Badge variant="outline" className="bg-premier-gold/10 text-premier-gold border-premier-gold/30">
-              Search: {initialQuery}
+              {t('common.search')}: {initialQuery}
             </Badge>
           )}
           {initialCategory && (
             <Badge variant="outline" className="bg-premier-gold/10 text-premier-gold border-premier-gold/30">
-              Category: {initialCategory.replace('_', ' ')}
+              {t('case.category')}: {categoryLabels[initialCategory] ?? initialCategory.replace('_', ' ')}
             </Badge>
           )}
           {initialStatus && (
             <Badge variant="outline" className="bg-premier-gold/10 text-premier-gold border-premier-gold/30">
-              Status: {initialStatus}
+              {t('case.status')}: {statusLabels[initialStatus] ?? initialStatus}
             </Badge>
           )}
         </div>

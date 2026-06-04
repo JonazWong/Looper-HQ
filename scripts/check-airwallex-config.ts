@@ -1,4 +1,4 @@
-const REQUIRED_SERVER_VARS = ['AIRWALLEX_CLIENT_ID', 'AIRWALLEX_API_KEY'] as const
+const REQUIRED_SERVER_VARS = ['AIRWALLEX_CLIENT_ID', 'AIRWALLEX_API_KEY', 'AIRWALLEX_WEBHOOK_SECRET'] as const
 
 function isPlaceholder(value?: string) {
   if (!value) return true

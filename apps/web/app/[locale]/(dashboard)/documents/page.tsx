@@ -4,6 +4,7 @@
  */
 
 import Link from "next/link"
+import { getTranslations } from 'next-intl/server'
 import { 
   FileText, 
   Upload, 
@@ -44,6 +45,7 @@ interface SearchParams {
 }
 
 interface DocumentsPageProps {
+  params: Promise<{ locale: string }>
   searchParams: Promise<SearchParams>
 }
 
@@ -188,7 +190,9 @@ function getFileTypeIcon(fileType: string): typeof FileText {
   return File
 }
 
-export default async function DocumentsPage({ searchParams }: DocumentsPageProps) {
+export default async function DocumentsPage({ params, searchParams }: DocumentsPageProps) {
+  const { locale } = await params
+  const t = await getTranslations({ locale })
   const resolvedSearchParams = await searchParams
   
   const [{ documents, totalDocuments, currentPage, totalPages }, stats] = await Promise.all([
@@ -202,36 +206,36 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gradient-gold">
-            Documents
+            {t('documents.title')}
           </h1>
           <p className="text-premier-pearl-gray">
-            Manage and organize all case documents
+            {t('documents.subtitle')}
           </p>
         </div>
         <PremierButton variant="primary" icon={<Upload className="h-4 w-4" />}>
-          Upload Document
+          {t('documents.uploadDocument')}
         </PremierButton>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Documents"
+          title={t('documents.totalDocuments')}
           value={stats.totalDocuments}
           icon={<FileText className="h-4 w-4" />}
         />
         <StatCard
-          title="Contracts"
+          title={t('documents.contracts')}
           value={stats.contractsCount}
           icon={<File className="h-4 w-4" />}
         />
         <StatCard
-          title="Evidence"
+          title={t('documents.evidence')}
           value={stats.evidenceCount}
           icon={<FolderOpen className="h-4 w-4" />}
         />
         <StatCard
-          title="Storage Used"
+          title={t('documents.storageUsed')}
           value={formatFileSize(stats.totalSize)}
           icon={<FileText className="h-4 w-4" />}
         />
@@ -245,11 +249,11 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-premier-pearl-gray" />
-                <form action="/documents" method="get">
+                <form action={`/${locale}/documents`} method="get">
                   <Input
                     name="search"
                     defaultValue={resolvedSearchParams.search}
-                    placeholder="Search documents by name, case, or description..."
+                    placeholder={t('documents.searchPlaceholder')}
                     className="pl-10 bg-premier-charcoal/50 border-premier-gold/30 text-premier-pearl"
                   />
                   {resolvedSearchParams.category && (
@@ -261,7 +265,7 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
 
             {/* Category Filters */}
             <div className="flex flex-wrap gap-2">
-              <Link href="/documents">
+              <Link href={`/${locale}/documents`}>
                 <Badge 
                   variant="outline"
                   className={!resolvedSearchParams.category 
@@ -269,13 +273,13 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                     : 'bg-premier-charcoal/50 text-premier-pearl-gray border-premier-gold/20 hover:bg-premier-gold/10 cursor-pointer'
                   }
                 >
-                  All ({stats.totalDocuments})
+                  {t('documents.all')} ({stats.totalDocuments})
                 </Badge>
               </Link>
               {Object.values(DocumentCategory).map((category) => (
                 <Link 
                   key={category} 
-                  href={`/documents?category=${category}${resolvedSearchParams.search ? `&search=${resolvedSearchParams.search}` : ''}`}
+                  href={`/${locale}/documents?category=${category}${resolvedSearchParams.search ? `&search=${resolvedSearchParams.search}` : ''}`}
                 >
                   <Badge 
                     variant="outline"
@@ -284,7 +288,7 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                       : 'bg-premier-charcoal/50 text-premier-pearl-gray border-premier-gold/20 hover:bg-premier-gold/10 cursor-pointer'
                     }
                   >
-                    {category.replace('_', ' ')}
+                    {t(`documents.categories.${category}` as const)}
                   </Badge>
                 </Link>
               ))}
@@ -296,11 +300,11 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
       {/* Documents Table */}
       <GlassCard variant="gold" glow>
         <GlassCardHeader>
-          <GlassCardTitle>All Documents</GlassCardTitle>
+          <GlassCardTitle>{t('documents.allDocuments')}</GlassCardTitle>
           <GlassCardDescription>
             {totalDocuments === 0 
-              ? 'No documents found' 
-              : `${totalDocuments} document${totalDocuments === 1 ? '' : 's'} in the system`
+              ? t('documents.noDocumentsFound') 
+              : t('documents.totalDocumentsInSystem', { count: totalDocuments })
             }
           </GlassCardDescription>
         </GlassCardHeader>
@@ -309,15 +313,15 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
             <div className="flex flex-col items-center justify-center py-12">
               <FileText className="h-12 w-12 text-premier-pearl-gray mb-4" />
               <h3 className="text-lg font-medium text-premier-pearl mb-2">
-                No documents found
+                {t('documents.noDocumentsFound')}
               </h3>
               <p className="text-sm text-premier-pearl-gray mb-6 text-center max-w-md">
                 {resolvedSearchParams.search || resolvedSearchParams.category
-                  ? 'Try adjusting your filters to find what you\'re looking for.'
-                  : 'Get started by uploading your first document.'}
+                  ? t('documents.noDocumentsFoundFilter')
+                  : t('documents.noDocumentsFoundEmpty')}
               </p>
               <PremierButton variant="primary" icon={<Upload className="h-4 w-4" />}>
-                Upload Document
+                {t('documents.uploadDocument')}
               </PremierButton>
             </div>
           ) : (
@@ -326,13 +330,13 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                 <Table>
                   <TableHeader>
                     <TableRow className="border-premier-gold/20">
-                      <TableHead className="text-premier-gold">File Name</TableHead>
-                      <TableHead className="text-premier-gold">Case</TableHead>
-                      <TableHead className="text-premier-gold">Category</TableHead>
-                      <TableHead className="text-premier-gold">Size</TableHead>
-                      <TableHead className="text-premier-gold">Uploaded By</TableHead>
-                      <TableHead className="text-premier-gold">Upload Date</TableHead>
-                      <TableHead className="text-premier-gold text-right">Actions</TableHead>
+                      <TableHead className="text-premier-gold">{t('documents.fileName')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('documents.case')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('documents.category')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('documents.fileSize')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('documents.uploadedBy')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('documents.uploadDate')}</TableHead>
+                      <TableHead className="text-premier-gold text-right">{t('common.view')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -352,7 +356,7 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                                   variant="outline" 
                                   className="bg-red-500/20 text-red-400 border-red-500/30 text-xs"
                                 >
-                                  Confidential
+                                  {t('documents.confidential')}
                                 </Badge>
                               )}
                             </div>
@@ -365,7 +369,7 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                           <TableCell>
                             {doc.case ? (
                               <Link
-                                href={`/cases/${doc.case.id}`}
+                                href={`/${locale}/cases/${doc.case.id}`}
                                 className="text-premier-gold hover:underline"
                               >
                                 {doc.case.caseNumber}
@@ -379,14 +383,14 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                               variant="outline" 
                               className={getCategoryColor(doc.category)}
                             >
-                              {doc.category.replace('_', ' ')}
+                              {t(`documents.categories.${doc.category}` as const)}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-premier-pearl-gray">
                             {formatFileSize(doc.fileSize)}
                           </TableCell>
                           <TableCell className="text-premier-pearl-gray">
-                            {doc.uploadedBy.name || UNKNOWN_USER}
+                            {doc.uploadedBy.name || t('documents.unknownUser')}
                           </TableCell>
                           <TableCell className="text-premier-pearl-gray">
                             {formatHKDate(doc.uploadedAt)}
@@ -416,22 +420,24 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
               {totalPages > 1 && (
                 <div className="flex items-center justify-between pt-4">
                   <p className="text-sm text-premier-pearl-gray">
-                    Showing {((currentPage - 1) * DOCUMENTS_PER_PAGE) + 1} to{' '}
-                    {Math.min(currentPage * DOCUMENTS_PER_PAGE, totalDocuments)} of{' '}
-                    {totalDocuments} documents
+                    {t('documents.showingDocuments', {
+                      start: ((currentPage - 1) * DOCUMENTS_PER_PAGE) + 1,
+                      end: Math.min(currentPage * DOCUMENTS_PER_PAGE, totalDocuments),
+                      count: totalDocuments,
+                    })}
                   </p>
                   <div className="flex gap-2">
                     {currentPage > 1 && (
-                      <Link href={`/documents?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage - 1) })}`}>
+                      <Link href={`/${locale}/documents?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage - 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
-                          Previous
+                          {t('documents.previous')}
                         </PremierButton>
                       </Link>
                     )}
                     {currentPage < totalPages && (
-                      <Link href={`/documents?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage + 1) })}`}>
+                      <Link href={`/${locale}/documents?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage + 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
-                          Next
+                          {t('documents.next')}
                         </PremierButton>
                       </Link>
                     )}

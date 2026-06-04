@@ -17,6 +17,7 @@ import { DashboardContent } from "@/components/dashboard/dashboard-content"
 import { type Activity } from "@/components/ui/activity-timeline"
 import { prisma } from "@/lib/db"
 import { requireAuth } from "@/lib/api/auth"
+import { getTranslations } from 'next-intl/server'
 import type { MembershipTier } from "@looper-hq/database"
 
 // Icon mapping for activities
@@ -129,7 +130,7 @@ async function getDashboardStats() {
 }
 
 // Fetch recent activities from database
-async function getRecentActivities() {
+async function getRecentActivities(t: (key: string) => string) {
   try {
     // Get activities
     const activities = await prisma.activity.findMany({
@@ -160,11 +161,11 @@ async function getRecentActivities() {
     const formattedActivities = activities.map((activity) => ({
       id: activity.id,
       user: {
-        name: activity.user.name || UNKNOWN_USER,
-        initials: getInitials(activity.user.name || UNKNOWN_USER),
+        name: activity.user.name || t('common.unknownUser'),
+        initials: getInitials(activity.user.name || t('common.unknownUser')),
       },
       action: activity.action,
-      description: activity.description || `${activity.action} - ${activity.case ? (activity.case.title_zh || activity.case.title_en || 'Unknown Case') : 'System'}`,
+      description: activity.description || `${activity.action} - ${activity.case ? (activity.case.title_zh || activity.case.title_en || t('common.unknownCase')) : t('common.system')}`,
       timestamp: activity.createdAt.toISOString(),
       iconType: activity.activityType, // Send icon type instead of component
     }))
@@ -176,9 +177,11 @@ async function getRecentActivities() {
   }
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
   // Get authenticated user
   const session = await requireAuth()
+  const { locale } = await params
+  const t = await getTranslations({ locale })
   
   // Fetch user's membership tier from memberships relation
   const userMemberships = await prisma.membership.findFirst({
@@ -192,7 +195,7 @@ export default async function DashboardPage() {
   // Fetch data in parallel
   const [stats, activities] = await Promise.all([
     getDashboardStats(),
-    getRecentActivities(),
+    getRecentActivities(t),
   ])
 
   return <DashboardContent 

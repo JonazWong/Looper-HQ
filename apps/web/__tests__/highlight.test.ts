@@ -7,19 +7,19 @@ import { escapeHtml, sanitiseHighlight, highlightTokens } from '@/lib/utils/high
 
 describe('escapeHtml', () => {
   it('escapes ampersands', () => {
-    expect(escapeHtml('a & b')).toBe('a &amp; b');
+    expect(escapeHtml({ text: 'a & b' })).toBe('a &amp; b');
   });
 
   it('escapes angle brackets', () => {
-    expect(escapeHtml('<script>')).toBe('&lt;script&gt;');
+    expect(escapeHtml({ text: '<script>' })).toBe('&lt;script&gt;');
   });
 
   it('escapes quotes', () => {
-    expect(escapeHtml('"hello"')).toBe('&quot;hello&quot;');
+    expect(escapeHtml({ text: '"hello"' })).toBe('&quot;hello&quot;');
   });
 
   it('leaves plain text unchanged', () => {
-    expect(escapeHtml('hello world')).toBe('hello world');
+    expect(escapeHtml({ text: 'hello world' })).toBe('hello world');
   });
 });
 

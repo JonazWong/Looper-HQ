@@ -4,6 +4,7 @@
  */
 
 import { headers } from 'next/headers'
+import { getTranslations } from 'next-intl/server'
 import { 
   Search as SearchIcon,
   FileText,
@@ -123,8 +124,9 @@ function getClientIp(headersList: Headers): string {
 }
 
 // Format date
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat('en-US', {
+function formatDate(date: Date, locale: string): string {
+  const dateLocale = locale === 'zh' ? 'zh-HK' : 'en-US'
+  return new Intl.DateTimeFormat(dateLocale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -160,6 +162,7 @@ function truncate(text: string | null, length: number): string {
 
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
   const { locale } = await params
+  const t = await getTranslations({ locale })
   const resolvedSearchParams = await searchParams
   
   // Get search results
@@ -184,11 +187,11 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
         <div className="flex items-center justify-center gap-3 mb-2">
           <Scale className="h-10 w-10 text-premier-gold" />
           <h1 className="text-4xl font-bold tracking-tight text-gradient-gold">
-            Public Case Search
+            {t('search.page.title')}
           </h1>
         </div>
         <p className="text-premier-pearl-gray text-lg">
-          Search for publicly available legal cases
+          {t('search.page.subtitle')}
         </p>
       </div>
 
@@ -207,17 +210,17 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
       {hasSearched && (
         <div className="grid gap-4 md:grid-cols-3">
           <StatCard
-            title="Search Results"
+            title={t('search.results')}
             value={totalResults}
             icon={<SearchIcon className="h-4 w-4" />}
           />
           <StatCard
-            title="Search Query"
-            value={resolvedSearchParams.q || 'Filtered'}
+            title={t('search.queryLabel')}
+            value={resolvedSearchParams.q || t('search.filtered')}
             icon={<FileText className="h-4 w-4" />}
           />
           <StatCard
-            title="Filters Applied"
+            title={t('search.filtersApplied')}
             value={(resolvedSearchParams.category ? 1 : 0) + (resolvedSearchParams.status ? 1 : 0)}
             icon={<AlertCircle className="h-4 w-4" />}
           />
@@ -233,9 +236,9 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
               <GlassCardContent className="py-16">
                 <div className="text-center">
                   <SearchIcon className="mx-auto h-16 w-16 text-premier-pearl-gray opacity-50" />
-                  <h3 className="mt-4 text-xl font-semibold text-premier-pearl">No results found</h3>
+                  <h3 className="mt-4 text-xl font-semibold text-premier-pearl">{t('search.noResults')}</h3>
                   <p className="mt-2 text-premier-pearl-gray">
-                    Try adjusting your search query or filters
+                    {t('search.tryAdjustingQuery')}
                   </p>
                 </div>
               </GlassCardContent>
@@ -245,7 +248,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
             <>
               <div className="mb-4">
                 <h2 className="text-2xl font-semibold text-premier-pearl">
-                  Found {totalResults} case{totalResults !== 1 ? 's' : ''}
+                  {t('search.results', { count: totalResults })}
                 </h2>
               </div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -265,7 +268,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                           variant="outline" 
                           className={getStatusColor(caseItem.status)}
                         >
-                          {caseItem.status}
+                          {t(`case.statuses.${caseItem.status}` as const)}
                         </Badge>
                       </div>
                     </GlassCardHeader>
@@ -273,13 +276,13 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                       <div className="flex items-center gap-2 text-sm">
                         <FileText className="h-4 w-4 text-premier-gold" />
                         <span className="text-premier-pearl-gray">
-                          {formatCategory(caseItem.category)}
+                          {t(`case.categories.${caseItem.category}` as const)}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-4 w-4 text-premier-gold" />
                         <span className="text-premier-pearl-gray">
-                          {formatDate(caseItem.startDate)}
+                          {formatDate(caseItem.startDate, locale)}
                         </span>
                       </div>
                       {getLocalizedField(caseItem, 'publicNote', locale as 'zh' | 'en') && (

@@ -4,6 +4,7 @@
  */
 
 import Link from "next/link"
+import { getTranslations } from 'next-intl/server'
 import { 
   Briefcase, 
   CheckCircle2, 
@@ -165,8 +166,8 @@ async function getCaseStats() {
 }
 
 // Format date
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat('en-US', {
+function formatDate(date: Date, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -200,14 +201,11 @@ function getPriorityColor(priority: Priority): string {
   return colors[priority] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'
 }
 
-// Format category for display
-function formatCategory(category: CaseCategory): string {
-  return category.replace('_', ' ')
-}
-
 export default async function CasesPage({ params, searchParams }: CasesPageProps) {
   const { locale } = await params
+  const t = await getTranslations({ locale })
   const resolvedSearchParams = await searchParams
+  const dateLocale = locale === 'zh' ? 'zh-HK' : 'en-US'
 
   // Fetch data in parallel
   const [{ cases, totalCases, currentPage, totalPages }, stats] = await Promise.all([
@@ -221,15 +219,15 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gradient-gold">
-            Cases
+            {t('cases.title')}
           </h1>
           <p className="text-premier-pearl-gray">
-            Manage and track all your legal cases
+            {t('cases.subtitle')}
           </p>
         </div>
-        <Link href="/cases/new">
+        <Link href={`/${locale}/cases/new`}>
           <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
-            New Case
+            {t('cases.newCase')}
           </PremierButton>
         </Link>
       </div>
@@ -237,22 +235,22 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Cases"
+          title={t('cases.totalCases')}
           value={stats.totalCases}
           icon={<Briefcase className="h-4 w-4" />}
         />
         <StatCard
-          title="Active Cases"
+          title={t('cases.activeCases')}
           value={stats.activeCases}
           icon={<FolderOpen className="h-4 w-4" />}
         />
         <StatCard
-          title="Pending Cases"
+          title={t('cases.pendingCases')}
           value={stats.pendingCases}
           icon={<Clock className="h-4 w-4" />}
         />
         <StatCard
-          title="Completed Cases"
+          title={t('cases.completedCases')}
           value={stats.completedCases}
           icon={<CheckCircle2 className="h-4 w-4" />}
         />
@@ -273,11 +271,11 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
       {/* Cases Table */}
       <GlassCard variant="gold" glow>
         <GlassCardHeader>
-          <GlassCardTitle>All Cases</GlassCardTitle>
+          <GlassCardTitle>{t('cases.allCases')}</GlassCardTitle>
           <GlassCardDescription>
             {totalCases === 0 
-              ? 'No cases found' 
-              : `${totalCases} case${totalCases === 1 ? '' : 's'} in the system`
+              ? t('cases.noCasesFound')
+              : t('cases.totalCasesInSystem', { count: totalCases })
             }
           </GlassCardDescription>
         </GlassCardHeader>
@@ -286,16 +284,16 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
             <div className="flex flex-col items-center justify-center py-12">
               <FileText className="h-12 w-12 text-premier-pearl-gray mb-4" />
               <h3 className="text-lg font-medium text-premier-pearl mb-2">
-                No cases found
+                {t('cases.noCasesFound')}
               </h3>
               <p className="text-sm text-premier-pearl-gray mb-6 text-center max-w-md">
                 {resolvedSearchParams.search || resolvedSearchParams.status || resolvedSearchParams.priority || resolvedSearchParams.category
-                  ? 'Try adjusting your filters to find what you\'re looking for.'
-                  : 'Get started by creating your first case.'}
+                  ? t('cases.noCasesFoundFilter')
+                  : t('cases.noCasesFoundEmpty')}
               </p>
-              <Link href="/cases/new">
+              <Link href={`/${locale}/cases/new`}>
                 <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
-                  Create New Case
+                  {t('cases.createNewCase')}
                 </PremierButton>
               </Link>
             </div>
@@ -305,15 +303,15 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
                 <Table>
                   <TableHeader>
                     <TableRow className="border-premier-gold/20">
-                      <TableHead className="text-premier-gold">Case Number</TableHead>
-                      <TableHead className="text-premier-gold">Title</TableHead>
-                      <TableHead className="text-premier-gold">Client</TableHead>
-                      <TableHead className="text-premier-gold">Lawyer</TableHead>
-                      <TableHead className="text-premier-gold">Category</TableHead>
-                      <TableHead className="text-premier-gold">Status</TableHead>
-                      <TableHead className="text-premier-gold">Priority</TableHead>
-                      <TableHead className="text-premier-gold">Created</TableHead>
-                      <TableHead className="text-premier-gold text-right">Actions</TableHead>
+                      <TableHead className="text-premier-gold">{t('case.caseNumber')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('case.title')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('case.client')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('case.lawyer')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('case.category')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('case.status')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('case.priority')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('case.startDate')}</TableHead>
+                      <TableHead className="text-premier-gold text-right">{t('common.view')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -324,7 +322,7 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
                       >
                         <TableCell className="font-medium">
                           <Link
-                            href={`/cases/${case_.id}`}
+                            href={`/${locale}/cases/${case_.id}`}
                             className="text-premier-gold hover:underline"
                           >
                             {case_.caseNumber}
@@ -334,17 +332,17 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
                           {getLocalizedField(case_, 'title', locale as 'zh' | 'en')}
                         </TableCell>
                         <TableCell className="text-premier-pearl-gray">
-                          {case_.client.name || UNKNOWN_CLIENT}
+                          {case_.client.name || t('cases.unknownClient')}
                         </TableCell>
                         <TableCell className="text-premier-pearl-gray">
-                          {case_.lawyer?.name || UNKNOWN_LAWYER}
+                          {case_.lawyer?.name || t('cases.unknownLawyer')}
                         </TableCell>
                         <TableCell>
                           <Badge 
                             variant="outline" 
                             className="bg-premier-mystery-violet/20 text-premier-mystery-violet border-premier-mystery-violet/30"
                           >
-                            {formatCategory(case_.category)}
+                            {t(`case.categories.${case_.category}` as const)}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -352,7 +350,7 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
                             variant="outline" 
                             className={getStatusColor(case_.status)}
                           >
-                            {case_.status}
+                            {t(`case.statuses.${case_.status}` as const)}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -360,22 +358,22 @@ export default async function CasesPage({ params, searchParams }: CasesPageProps
                             variant="outline" 
                             className={getPriorityColor(case_.priority)}
                           >
-                            {case_.priority}
+                            {t(`case.priorities.${case_.priority}` as const)}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-premier-pearl-gray">
-                          {formatDate(case_.createdAt)}
+                          {formatDate(case_.createdAt, dateLocale)}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            <Link href={`/cases/${case_.id}`}>
+                            <Link href={`/${locale}/cases/${case_.id}`}>
                               <PremierButton 
                                 variant="ghost" 
                                 size="icon" 
                                 icon={<Eye className="h-4 w-4" />}
                               />
                             </Link>
-                            <Link href={`/cases/${case_.id}/edit`}>
+                            <Link href={`/${locale}/cases/${case_.id}/edit`}>
                               <PremierButton 
                                 variant="ghost" 
                                 size="icon" 

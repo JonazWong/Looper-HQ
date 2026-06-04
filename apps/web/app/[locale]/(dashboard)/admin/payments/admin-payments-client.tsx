@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { DollarSign, Users, CheckCircle2, XCircle, Clock, Pencil, Plus } from 'lucide-react'
 import { GlassCard, GlassCardContent, GlassCardHeader, GlassCardTitle } from '@/components/ui/glass-card'
 import { Badge } from '@/components/ui/badge'
@@ -56,6 +57,7 @@ const STATUS_COLORS: Record<string, string> = {
 export function AdminPaymentsClient({
   payments, plans, total, page, perPage, currentStatus, stats, locale,
 }: Props) {
+  const t = useTranslations()
   const totalPages = Math.ceil(total / perPage)
 
   // Plan editing state
@@ -82,11 +84,11 @@ export function AdminPaymentsClient({
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error?.message)
-      setPlanSaveMsg((prev) => ({ ...prev, [plan.id]: '✓ 已儲存' }))
+      setPlanSaveMsg((prev) => ({ ...prev, [plan.id]: t('admin.payments.planSaved') }))
       setEditingPlan(null)
       setTimeout(() => setPlanSaveMsg((prev) => ({ ...prev, [plan.id]: '' })), 2000)
     } catch (err) {
-      setPlanSaveMsg((prev) => ({ ...prev, [plan.id]: `錯誤: ${err instanceof Error ? err.message : '未知'}` }))
+      setPlanSaveMsg((prev) => ({ ...prev, [plan.id]: `${t('admin.payments.error')}: ${err instanceof Error ? err.message : t('admin.payments.unknownError')}` }))
     } finally {
       setSavingPlan(null)
     }
@@ -108,9 +110,9 @@ export function AdminPaymentsClient({
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error?.message)
-      setIntentResult(`✅ Intent 已建立: ${json.data.intentId}\n請將 Payment Link 傳送給用戶。`)
+      setIntentResult(t('admin.payments.intentCreated', { intentId: json.data.intentId }))
     } catch (err) {
-      setIntentResult(`❌ ${err instanceof Error ? err.message : '錯誤'}`)
+      setIntentResult(`${t('admin.payments.intentError')} ${err instanceof Error ? err.message : t('admin.payments.unknownError')}`)
     } finally {
       setCreatingIntent(false)
     }
@@ -120,21 +122,23 @@ export function AdminPaymentsClient({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gradient-gold">付款管理</h1>
-          <p className="text-premier-pearl-gray">管理 Airwallex 付款記錄及會員方案定價</p>
+          <h1 className="text-3xl font-bold tracking-tight text-gradient-gold">
+            {t('admin.payments.title')}
+          </h1>
+          <p className="text-premier-pearl-gray">{t('admin.payments.subtitle')}</p>
         </div>
         <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />} onClick={() => setShowCreateIntent(true)}>
-          手動建立 Intent
+          {t('admin.payments.manualIntentButton')}
         </PremierButton>
       </div>
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        <StatCard title="成功付款" value={stats.SUCCEEDED?.count ?? 0} icon={<CheckCircle2 className="h-4 w-4" />} variant="success" />
-        <StatCard title="待處理" value={stats.PENDING?.count ?? 0} icon={<Clock className="h-4 w-4" />} variant="warning" />
-        <StatCard title="失敗" value={stats.FAILED?.count ?? 0} icon={<XCircle className="h-4 w-4" />} variant="danger" />
+        <StatCard title={t('admin.payments.stats.succeeded')} value={stats.SUCCEEDED?.count ?? 0} icon={<CheckCircle2 className="h-4 w-4" />} variant="success" />
+        <StatCard title={t('admin.payments.stats.pending')} value={stats.PENDING?.count ?? 0} icon={<Clock className="h-4 w-4" />} variant="warning" />
+        <StatCard title={t('admin.payments.stats.failed')} value={stats.FAILED?.count ?? 0} icon={<XCircle className="h-4 w-4" />} variant="danger" />
         <StatCard
-          title="總收款 (HKD)"
+          title={t('admin.payments.stats.totalRevenue')}
           value={`$${(stats.SUCCEEDED?.total ?? 0).toLocaleString()}`}
           icon={<DollarSign className="h-4 w-4" />}
           variant="success"
@@ -144,26 +148,26 @@ export function AdminPaymentsClient({
       {/* Plan Pricing Management */}
       <GlassCard variant="gold" glow>
         <GlassCardHeader>
-          <GlassCardTitle>方案定價管理</GlassCardTitle>
+          <GlassCardTitle>{t('admin.payments.planPricingTitle')}</GlassCardTitle>
         </GlassCardHeader>
         <GlassCardContent>
           <Table>
             <TableHeader>
               <TableRow className="border-premier-gold/20">
-                <TableHead className="text-premier-gold">方案</TableHead>
-                <TableHead className="text-premier-gold">類型</TableHead>
-                <TableHead className="text-premier-gold">金額 (HKD/月)</TableHead>
-                <TableHead className="text-premier-gold">狀態</TableHead>
-                <TableHead className="text-premier-gold text-right">操作</TableHead>
+                <TableHead className="text-premier-gold">{t('admin.payments.plan')}</TableHead>
+                <TableHead className="text-premier-gold">{t('admin.payments.type')}</TableHead>
+                <TableHead className="text-premier-gold">{t('admin.payments.amountMonthly')}</TableHead>
+                <TableHead className="text-premier-gold">{t('admin.payments.status')}</TableHead>
+                <TableHead className="text-premier-gold text-right">{t('common.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {plans.map((plan) => (
                 <TableRow key={plan.id} className="border-premier-gold/10 hover:bg-premier-gold/5">
-                  <TableCell className="font-medium text-premier-pearl">{plan.name_zh}</TableCell>
+                  <TableCell className="font-medium text-premier-pearl">{locale === 'zh' ? plan.name_zh : plan.name_en}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={plan.isCustom ? 'text-premier-mystery-violet border-premier-mystery-violet/40' : 'text-premier-gold border-premier-gold/40'}>
-                      {plan.isCustom ? '企業自定義' : '標準'}
+                      {plan.isCustom ? t('admin.payments.planType.custom') : t('admin.payments.planType.standard')}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -173,17 +177,17 @@ export function AdminPaymentsClient({
                           type="number"
                           value={planAmounts[plan.id]}
                           onChange={(e) => setPlanAmounts((prev) => ({ ...prev, [plan.id]: e.target.value }))}
-                          placeholder="留空 = 自定義"
+                          placeholder={t('admin.payments.placeholder.customAmount')}
                           className="w-28 rounded border border-premier-gold/30 bg-premier-black/60 px-2 py-1 text-sm text-premier-pearl"
                         />
                         <PremierButton size="sm" variant="primary" onClick={() => savePlanAmount(plan)} disabled={!!savingPlan}>
-                          {savingPlan === plan.id ? '儲存中…' : '儲存'}
+                          {savingPlan === plan.id ? t('admin.payments.saving') : t('common.save')}
                         </PremierButton>
-                        <PremierButton size="sm" variant="ghost" onClick={() => setEditingPlan(null)}>取消</PremierButton>
+                        <PremierButton size="sm" variant="ghost" onClick={() => setEditingPlan(null)}>{t('common.cancel')}</PremierButton>
                       </div>
                     ) : (
                       <span className="text-premier-pearl">
-                        {plan.amount !== null ? `HK$${plan.amount.toLocaleString()}` : '聯絡我們'}
+                        {plan.amount !== null ? `HK$${plan.amount.toLocaleString()}` : t('admin.payments.contactUs')}
                         {planSaveMsg[plan.id] && (
                           <span className="ml-2 text-xs text-emerald-400">{planSaveMsg[plan.id]}</span>
                         )}
@@ -192,13 +196,13 @@ export function AdminPaymentsClient({
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className={plan.isActive ? 'text-emerald-400 border-emerald-500/40' : 'text-gray-400 border-gray-500/40'}>
-                      {plan.isActive ? '啟用' : '停用'}
+                      {plan.isActive ? t('common.enabled') : t('common.disabled')}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     {editingPlan !== plan.id && (
                       <PremierButton size="sm" variant="ghost" icon={<Pencil className="h-3 w-3" />} onClick={() => setEditingPlan(plan.id)}>
-                        編輯
+                        {t('common.edit')}
                       </PremierButton>
                     )}
                   </TableCell>
@@ -214,40 +218,40 @@ export function AdminPaymentsClient({
         <GlassCard variant="default">
           <GlassCardHeader>
             <div className="flex items-center justify-between">
-              <GlassCardTitle>手動建立 Payment Intent（尊貴會員）</GlassCardTitle>
-              <PremierButton size="sm" variant="ghost" onClick={() => { setShowCreateIntent(false); setIntentResult(null) }}>✕ 關閉</PremierButton>
+              <GlassCardTitle>{t('admin.payments.manualIntentTitle')}</GlassCardTitle>
+              <PremierButton size="sm" variant="ghost" onClick={() => { setShowCreateIntent(false); setIntentResult(null) }}>{t('common.cancel')}</PremierButton>
             </div>
           </GlassCardHeader>
           <GlassCardContent>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm text-premier-pearl-gray mb-1">用戶 ID</label>
+                <label className="block text-sm text-premier-pearl-gray mb-1">{t('admin.payments.userId')}</label>
                 <input
                   value={intentForm.userId}
                   onChange={(e) => setIntentForm((p) => ({ ...p, userId: e.target.value }))}
-                  placeholder="cuid..."
+                  placeholder={t('admin.payments.placeholder.userId')}
                   className="w-full rounded border border-premier-gold/30 bg-premier-black/60 px-3 py-2 text-sm text-premier-pearl"
                 />
               </div>
               <div>
-                <label className="block text-sm text-premier-pearl-gray mb-1">目標方案</label>
+                <label className="block text-sm text-premier-pearl-gray mb-1">{t('admin.payments.targetTier')}</label>
                 <select
                   value={intentForm.tier}
                   onChange={(e) => setIntentForm((p) => ({ ...p, tier: e.target.value }))}
                   className="w-full rounded border border-premier-gold/30 bg-premier-black/60 px-3 py-2 text-sm text-premier-pearl"
                 >
-                  <option value="STANDARD">STANDARD 基本版</option>
-                  <option value="PREMIUM">PREMIUM 專業版</option>
-                  <option value="PREMIER">PREMIER 機構版</option>
+                  <option value="STANDARD">{t('admin.payments.tierChoice.standard')}</option>
+                  <option value="PREMIUM">{t('admin.payments.tierChoice.premium')}</option>
+                  <option value="PREMIER">{t('admin.payments.tierChoice.premier')}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-premier-pearl-gray mb-1">特別金額 (HKD)</label>
+                <label className="block text-sm text-premier-pearl-gray mb-1">{t('admin.payments.specialAmount')}</label>
                 <input
                   type="number"
                   value={intentForm.amount}
                   onChange={(e) => setIntentForm((p) => ({ ...p, amount: e.target.value }))}
-                  placeholder="例: 8000"
+                  placeholder={t('admin.payments.placeholder.exampleAmount')}
                   className="w-full rounded border border-premier-gold/30 bg-premier-black/60 px-3 py-2 text-sm text-premier-pearl"
                 />
               </div>
@@ -257,7 +261,7 @@ export function AdminPaymentsClient({
                   onClick={createAdminIntent}
                   disabled={creatingIntent || !intentForm.userId || !intentForm.amount}
                 >
-                  {creatingIntent ? '建立中…' : '建立 Intent'}
+                  {creatingIntent ? t('admin.payments.creating') : t('admin.payments.createIntent')}
                 </PremierButton>
               </div>
             </div>
@@ -274,7 +278,7 @@ export function AdminPaymentsClient({
       <GlassCard variant="default">
         <GlassCardHeader>
           <div className="flex items-center justify-between">
-            <GlassCardTitle>付款記錄 ({total})</GlassCardTitle>
+            <GlassCardTitle>{t('admin.payments.paymentRecordsTitle')}</GlassCardTitle>
             <div className="flex gap-2 flex-wrap">
               {['', 'PENDING', 'SUCCEEDED', 'FAILED', 'CANCELLED'].map((s) => (
                 <Link key={s} href={`/${locale}/admin/payments${s ? `?status=${s}` : ''}`}>
@@ -284,7 +288,7 @@ export function AdminPaymentsClient({
                       ? 'bg-premier-gold/20 text-premier-gold border-premier-gold/40 cursor-pointer'
                       : 'text-premier-pearl-gray border-premier-gold/20 hover:bg-premier-gold/10 cursor-pointer'}
                   >
-                    {s || '全部'}
+                    {s || t('admin.payments.all')}
                   </Badge>
                 </Link>
               ))}
@@ -295,19 +299,19 @@ export function AdminPaymentsClient({
           <Table>
             <TableHeader>
               <TableRow className="border-premier-gold/20">
-                <TableHead className="text-premier-gold">用戶</TableHead>
-                <TableHead className="text-premier-gold">目標等級</TableHead>
-                <TableHead className="text-premier-gold">金額</TableHead>
-                <TableHead className="text-premier-gold">狀態</TableHead>
-                <TableHead className="text-premier-gold">Intent ID</TableHead>
-                <TableHead className="text-premier-gold">時間</TableHead>
+                <TableHead className="text-premier-gold">{t('admin.payments.user')}</TableHead>
+                <TableHead className="text-premier-gold">{t('admin.payments.targetTier')}</TableHead>
+                <TableHead className="text-premier-gold">{t('admin.payments.amount')}</TableHead>
+                <TableHead className="text-premier-gold">{t('admin.payments.status')}</TableHead>
+                <TableHead className="text-premier-gold">{t('admin.payments.intentId')}</TableHead>
+                <TableHead className="text-premier-gold">{t('admin.payments.time')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {payments.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-premier-pearl-gray py-8">
-                    暫無付款記錄
+                    {t('admin.payments.noPaymentsFound')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -336,7 +340,7 @@ export function AdminPaymentsClient({
                       {p.intentId}
                     </TableCell>
                     <TableCell className="text-premier-pearl-gray text-xs">
-                      {new Date(p.createdAt).toLocaleString('zh-HK')}
+                      {new Date(p.createdAt).toLocaleString(locale === 'zh' ? 'zh-HK' : 'en-US')}
                     </TableCell>
                   </TableRow>
                 ))
@@ -349,7 +353,7 @@ export function AdminPaymentsClient({
             <div className="flex justify-end gap-2 pt-4">
               {page > 1 && (
                 <Link href={`/${locale}/admin/payments?page=${page - 1}${currentStatus ? `&status=${currentStatus}` : ''}`}>
-                  <PremierButton variant="ghost" size="sm">上一頁</PremierButton>
+                  <PremierButton variant="ghost" size="sm">{t('common.previous')}</PremierButton>
                 </Link>
               )}
               <span className="flex items-center text-sm text-premier-pearl-gray px-2">
@@ -357,7 +361,7 @@ export function AdminPaymentsClient({
               </span>
               {page < totalPages && (
                 <Link href={`/${locale}/admin/payments?page=${page + 1}${currentStatus ? `&status=${currentStatus}` : ''}`}>
-                  <PremierButton variant="ghost" size="sm">下一頁</PremierButton>
+                  <PremierButton variant="ghost" size="sm">{t('common.next')}</PremierButton>
                 </Link>
               )}
             </div>

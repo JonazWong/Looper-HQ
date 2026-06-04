@@ -35,7 +35,8 @@ const nextConfig = {
   },
 
   // Production standalone output for Docker
-  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
+  // Disable standalone output on Windows developer machines to avoid symlink permission failures.
+  output: process.env.NODE_ENV === 'production' && process.platform !== 'win32' ? 'standalone' : undefined,
 
   // Workspace root configuration
   outputFileTracingRoot: require('path').join(__dirname, '../../'),

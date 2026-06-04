@@ -22,7 +22,10 @@
     "add": "新增",
     "remove": "移除",
     "upload": "上傳",
-    "download": "下載"
+    "download": "下載",
+    "never": "從不",
+    "none": "無",
+    "na": "不適用"
   },
   "nav": {
     "home": "首頁",
@@ -137,6 +140,11 @@
     "activeClients": "活躍客戶",
     "pendingReviews": "待審核",
     "successRate": "成功率",
+    "change": {
+      "fromLastMonth": "較上個月",
+      "fromYesterday": "較昨天",
+      "thisQuarter": "本季度"
+    },
     "quickActions": "快速操作",
     "recentCases": "最近案件",
     "recentActivity": "最近活動",
@@ -146,7 +154,143 @@
     "searchCases": "搜尋案件",
     "viewCases": "檢視案件",
     "viewClients": "檢視客戶",
-    "uploadDocuments": "上傳文檔"
+    "uploadDocuments": "上傳文檔",
+    "aiTools": {
+      "title": "AI 工具",
+      "batchClassification": "批量分類",
+      "batchClassificationDescription": "使用 AI 批量分類案件。"
+    }
+  },
+  "calendar": {
+    "title": "行事曆",
+    "subtitle": "管理您的行程與事件",
+    "comingSoonTitle": "行事曆功能即將推出",
+    "comingSoonDescription": "此頁面正在建置中，未來版本將提供更多功能。"
+  },
+  "admin": {
+    "aiClassify": {
+      "title": "AI 批量分類",
+      "description": "使用 AI 自動分類法律案件。",
+      "button": {
+        "processing": "處理中...",
+        "start": "開始分類"
+      },
+      "result": {
+        "success": "分類完成",
+        "failure": "分類失敗",
+        "processed": "已處理 {count} 項",
+        "total": "共 {count} 項",
+        "errorFallback": "分類時發生錯誤。",
+        "error": "錯誤：",
+        "unknownError": "未知錯誤"
+      }
+    },
+    "status": {
+      "success": "成功",
+      "active": "運行中",
+      "failed": "失敗",
+      "error": "錯誤",
+      "partialSuccess": "部分成功",
+      "running": "執行中",
+      "inactive": "未啟用"
+    },
+    "dashboard": {
+      "title": "管理員儀表板",
+      "subtitle": "監控爬蟲健康、系統狀態和 RSS 資料來源效能。",
+      "overview": {
+        "totalCases": "總案件數",
+        "todaysNew": "今日新增",
+        "activeSources": "運行中的來源",
+        "successRate": "成功率"
+      },
+      "crawlerJobHistory": {
+        "title": "爬蟲執行記錄",
+        "lastRunStatus": "上次執行狀態",
+        "lastRunTime": "上次執行時間",
+        "itemsAdded": "新增項目數",
+        "duration": "持續時間",
+        "noRuns": "尚無任何執行記錄。"
+      },
+      "recentRuns": {
+        "status": "狀態",
+        "startedAt": "開始時間",
+        "added": "新增數量",
+        "errors": "錯誤數量",
+        "triggeredBy": "觸發者"
+      },
+      "rss": {
+        "title": "RSS 資源",
+        "noSources": "尚未設定任何 RSS 資源。",
+        "name": "來源名稱",
+        "status": "狀態",
+        "lastFetch": "最後抓取時間",
+        "lastError": "最後錯誤"
+      },
+      "overallSuccessRate": "整體成功率",
+      "errorSources": "{count} 個來源回報錯誤",
+      "systemSettings": {
+        "title": "系統設定",
+        "configuration": {
+          "title": "爬蟲設定",
+          "crawlerGlobalSwitch": "爬蟲全域開關",
+          "enabled": "已啟用",
+          "successRateThreshold": "成功率門檻",
+          "autoAlertBelowThreshold": "低於門檻時自動提醒"
+        }
+      }
+    }
+  },
+  "services": {
+    "status": {
+      "healthy": "健康",
+      "warning": "警告",
+      "error": "錯誤"
+    },
+    "title": "會員資料庫",
+    "welcomeBack": "歡迎回來，",
+    "guest": "訪客",
+    "todaySearches": "今日搜尋",
+    "savedDocuments": "已儲存文件",
+    "downloadedPdfs": "已下載 PDF",
+    "membershipTier": "會員等級",
+    "publicTier": "公開會員",
+    "searchDatabase": "搜尋資料庫",
+    "quickSearchPlaceholder": "搜尋案件、表單或標籤...",
+    "recentSearches": "近期搜尋",
+    "noRecentSearches": "尚無近期搜尋。",
+    "results": "結果",
+    "databaseUpdates": "資料庫更新",
+    "todayNewCases": "今日新增案件",
+    "totalCases": "案件總數",
+    "lastCrawl": "最後爬取",
+    "notAvailable": "暫無",
+    "systemStatus": "系統狀態",
+    "quickLinks": "快速連結",
+    "caseDatabase": "案例資料庫",
+    "formsRepository": "表單資料庫",
+    "aiSmartSearch": "AI 智能搜尋"
+  },
+  "settings": {
+    "title": "設定",
+    "subtitle": "管理您的帳戶設定與偏好",
+    "comingSoon": "敬請期待",
+    "comingSoonDescription": "此功能將於未來版本提供。"
+  },
+  "cases": {
+    "title": "案例管理",
+    "subtitle": "管理並追蹤您所有的法律案件",
+    "newCase": "新案件",
+    "totalCases": "總案件數",
+    "activeCases": "進行中案件",
+    "pendingCases": "待處理案件",
+    "completedCases": "已完成案件",
+    "allCases": "所有案例",
+    "noCasesFound": "未找到案例",
+    "noCasesFoundFilter": "請調整篩選條件以找到您要的結果。",
+    "noCasesFoundEmpty": "開始創建第一個案例。",
+    "createNewCase": "建立新案例",
+    "unknownClient": "未知客戶",
+    "unknownLawyer": "未指派"
   },
   "clients": {
     "title": "客戶",
@@ -160,7 +304,11 @@
     "corporate": "企業",
     "basic": "基本",
     "premium": "進階",
-    "enterprise": "企業"
+    "enterprise": "企業",
+    "totalClients": "總客戶數",
+    "noClientsFound": "未找到客戶",
+    "noClientsFoundFilter": "請調整篩選條件。",
+    "noClientsFoundEmpty": "開始新增第一位客戶"
   },
   "documents": {
     "title": "文檔",
@@ -168,7 +316,30 @@
     "fileName": "檔案名稱",
     "fileSize": "檔案大小",
     "uploadDate": "上傳日期",
-    "category": "類別"
+    "category": "類別",
+    "case": "案件",
+    "uploadedBy": "上傳者",
+    "searchPlaceholder": "按名稱、案件或描述搜尋文件...",
+    "uploadDocument": "上傳文件",
+    "all": "全部",
+    "allDocuments": "所有文件",
+    "noDocumentsFound": "未找到文件",
+    "totalDocumentsInSystem": "系統中共有 {count} 份文件",
+    "noDocumentsFoundFilter": "請調整篩選條件以找到所需文件。",
+    "noDocumentsFoundEmpty": "開始上傳您的第一份文件。",
+    "confidential": "機密",
+    "unknownUser": "未知使用者",
+    "previous": "上一頁",
+    "next": "下一頁",
+    "showingDocuments": "顯示第 {start} 至 {end} 筆，共 {count} 筆文件",
+    "categories": {
+      "CONTRACT": "合約",
+      "EVIDENCE": "證據",
+      "COURT_FILING": "法庭文件",
+      "CORRESPONDENCE": "往來信函",
+      "INVOICE": "發票",
+      "OTHER": "其他"
+    }
   },
   "billing": {
     "title": "帳單",

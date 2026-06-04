@@ -148,7 +148,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
           <StatCard
             title={t('dashboard.totalCases')}
             value={stats.totalCases}
-            change={{ value: 12, trend: 'up', label: 'from last month' }}
+            change={{ value: 12, trend: 'up', label: t('dashboard.change.fromLastMonth') }}
             icon={<Briefcase className="h-4 w-4" />}
           />
         </motion.div>
@@ -157,7 +157,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
           <StatCard
             title={t('dashboard.activeClients')}
             value={stats.totalClients}
-            change={{ value: 5, trend: 'up', label: 'from last month' }}
+            change={{ value: 5, trend: 'up', label: t('dashboard.change.fromLastMonth') }}
             icon={<Users className="h-4 w-4" />}
           />
         </motion.div>
@@ -166,7 +166,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
           <StatCard
             title={t('dashboard.pendingReviews')}
             value={stats.pendingCases}
-            change={{ value: 3, trend: 'down', label: 'from yesterday' }}
+            change={{ value: 3, trend: 'down', label: t('dashboard.change.fromYesterday') }}
             icon={<FileText className="h-4 w-4" />}
           />
         </motion.div>
@@ -175,7 +175,7 @@ export function DashboardContent({ stats, activities, membershipTier }: Dashboar
           <StatCard
             title={t('dashboard.successRate')}
             value={`${stats.successRate}%`}
-            change={{ value: 8, trend: 'up', label: 'this quarter' }}
+            change={{ value: 8, trend: 'up', label: t('dashboard.change.thisQuarter') }}
             icon={<TrendingUp className="h-4 w-4" />}
           />
         </motion.div>

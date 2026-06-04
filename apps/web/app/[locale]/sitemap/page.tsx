@@ -116,7 +116,7 @@ export default async function SitemapPage({
                       登入 / Login
                     </h3>
                     <p className="text-sm text-premier-pearl-gray">
-                      Demo: owner@wonglaw.hk / demo123456
+                      Demo: admin@looperhq.hk / 任意密碼
                     </p>
                   </div>
                   <code className="text-premier-mystery text-sm">/login</code>

@@ -182,11 +182,11 @@ export default function RegisterPage() {
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-premier-pearl">試用示範帳號</h3>
             <div className="p-4 bg-premier-mystery/10 border border-premier-mystery/30 rounded-lg space-y-2">
-              <p className="text-xs text-premier-pearl/70">使用以下憑證測試系統：</p>
+              <p className="text-xs text-premier-pearl/70">使用以下帳號測試系統（任意密碼均可登入）：</p>
               <div className="grid gap-1 text-xs font-mono">
-                <div><span className="text-premier-gold">管理員:</span> admin@looper-hq.local / admin123</div>
-                <div><span className="text-premier-gold">律師:</span> lawyer@looper-hq.local / lawyer123</div>
-                <div><span className="text-premier-gold">客戶:</span> client@looper-hq.local / client123</div>
+                <div><span className="text-premier-gold">管理員:</span> admin@looperhq.hk</div>
+                <div><span className="text-premier-gold">律師:</span> sarah.chen@looperhq.com</div>
+                <div><span className="text-premier-gold">客戶:</span> wong.client@example.com</div>
               </div>
             </div>
             <PremierButton

@@ -9,7 +9,7 @@
  * Escape HTML special characters.
  * Used to sanitise user-controlled content before rendering.
  */
-export function escapeHtml(text: string): string {
+export function escapeHtml({ text }: { text: string; }): string {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -29,7 +29,7 @@ export function escapeHtml(text: string): string {
  */
 export function sanitiseHighlight(raw: string): string {
   // First escape everything…
-  const escaped = escapeHtml(raw);
+  const escaped = escapeHtml({ text: raw });
   // …then un-escape only the literal <mark> and </mark> sequences that
   // ts_headline produces (no attributes, lowercase, no spaces).
   return escaped
@@ -48,7 +48,7 @@ export function sanitiseHighlight(raw: string): string {
  * @returns       HTML string with `<mark>` wrapping matched substrings.
  */
 export function highlightTokens(text: string, tokens: string[]): string {
-  if (!tokens.length || !text) return escapeHtml(text);
+  if (!tokens.length || !text) return escapeHtml({ text });
 
   // Build a single regex that matches any of the tokens (longest first to avoid
   // partial shadowing) — use case-insensitive flag only (not global, to avoid
@@ -66,6 +66,6 @@ export function highlightTokens(text: string, tokens: string[]): string {
   // Split, escape, reassemble with <mark> wrappers
   const parts = text.split(splitRe);
   return parts
-    .map((part) => (testRe.test(part) ? `<mark>${escapeHtml(part)}</mark>` : escapeHtml(part)))
+    .map((part) => (testRe.test(part) ? `<mark>${escapeHtml({ text: part })}</mark>` : escapeHtml({ text: part })))
     .join('');
 }

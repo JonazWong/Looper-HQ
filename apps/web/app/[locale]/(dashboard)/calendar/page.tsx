@@ -1,19 +1,28 @@
 import { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 
-export const metadata: Metadata = {
-  title: 'Calendar | Looper HQ',
-  description: 'View your court dates and appointments',
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'calendar' })
+
+  return {
+    title: `${t('title')} | Looper HQ`,
+    description: t('subtitle'),
+  }
 }
 
-export default function CalendarPage() {
+export default async function CalendarPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'calendar' })
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-serif font-bold text-gradient-gold mb-2">
-          Calendar
+          {t('title')}
         </h1>
         <p className="text-premier-pearl-gray">
-          Court dates and appointments calendar
+          {t('subtitle')}
         </p>
       </div>
 
@@ -34,10 +43,10 @@ export default function CalendarPage() {
           </svg>
         </div>
         <h2 className="text-xl font-semibold text-premier-pearl mb-2">
-          Calendar Coming Soon
+          {t('comingSoonTitle')}
         </h2>
         <p className="text-premier-pearl-gray">
-          Court dates and appointment scheduling will be available here.
+          {t('comingSoonDescription')}
         </p>
       </div>
     </div>

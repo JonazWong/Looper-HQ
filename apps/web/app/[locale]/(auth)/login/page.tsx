@@ -13,12 +13,26 @@ import { Chrome, Github, Shield } from "lucide-react"
 
 const keycloakEnabled = process.env.NEXT_PUBLIC_KEYCLOAK_ENABLED !== "false" && Boolean(process.env.NEXT_PUBLIC_KEYCLOAK_URL && process.env.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID)
 
+function getSafeCallbackUrl(rawCallbackUrl: string | null, locale: string) {
+  if (!rawCallbackUrl) return `/${locale}/dashboard`
+
+  try {
+    const url = new URL(rawCallbackUrl, "http://local")
+    if (url.origin !== "http://local") return `/${locale}/dashboard`
+    if (!url.pathname.startsWith("/")) return `/${locale}/dashboard`
+    if (url.pathname.startsWith("//")) return `/${locale}/dashboard`
+    return `${url.pathname}${url.search}${url.hash}`
+  } catch {
+    return `/${locale}/dashboard`
+  }
+}
+
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const params = useParams()
   const locale = params.locale as string
-  const callbackUrl = searchParams.get("callbackUrl") || `/${locale}/dashboard`
+  const callbackUrl = getSafeCallbackUrl(searchParams.get("callbackUrl"), locale)
   const error = searchParams.get("error")
 
   const [email, setEmail] = useState("")
@@ -70,7 +84,7 @@ function LoginForm() {
 
     try {
       await signIn(provider, {
-        callbackUrl,
+        redirectTo: callbackUrl,
       })
     } catch (error) {
       console.error(`${provider} login error:`, error)
@@ -86,7 +100,7 @@ function LoginForm() {
 
     try {
       await signIn("keycloak", {
-        callbackUrl,
+        redirectTo: callbackUrl,
       })
     } catch (error) {
       console.error("Keycloak login error:", error)

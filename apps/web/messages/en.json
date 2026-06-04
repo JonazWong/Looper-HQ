@@ -22,7 +22,10 @@
     "add": "Add",
     "remove": "Remove",
     "upload": "Upload",
-    "download": "Download"
+    "download": "Download",
+    "never": "Never",
+    "none": "None",
+    "na": "N/A"
   },
   "nav": {
     "home": "Home",
@@ -136,6 +139,11 @@
     "activeClients": "Active Clients",
     "pendingReviews": "Pending Reviews",
     "successRate": "Success Rate",
+    "change": {
+      "fromLastMonth": "from last month",
+      "fromYesterday": "from yesterday",
+      "thisQuarter": "this quarter"
+    },
     "quickActions": "Quick Actions",
     "recentCases": "Recent Cases",
     "recentActivity": "Recent Activity",
@@ -145,7 +153,143 @@
     "searchCases": "Search Cases",
     "viewCases": "View Cases",
     "viewClients": "View Clients",
-    "uploadDocuments": "Upload Documents"
+    "uploadDocuments": "Upload Documents",
+    "aiTools": {
+      "title": "AI Tools",
+      "batchClassification": "Batch Classification",
+      "batchClassificationDescription": "Use AI to classify cases in bulk."
+    }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "subtitle": "Manage your schedule and events",
+    "comingSoonTitle": "Calendar feature coming soon",
+    "comingSoonDescription": "This page is under construction and will be available in a future release."
+  },
+  "admin": {
+    "aiClassify": {
+      "title": "AI Batch Classification",
+      "description": "Automatically classify legal cases using AI.",
+      "button": {
+        "processing": "Processing...",
+        "start": "Start Classification"
+      },
+      "result": {
+        "success": "Classification Complete",
+        "failure": "Classification Failed",
+        "processed": "{count} items processed",
+        "total": "{count} total items",
+        "errorFallback": "An error occurred while classifying.",
+        "error": "Error:",
+        "unknownError": "Unknown error"
+      }
+    },
+    "status": {
+      "success": "Success",
+      "active": "Active",
+      "failed": "Failed",
+      "error": "Error",
+      "partialSuccess": "Partial Success",
+      "running": "Running",
+      "inactive": "Inactive"
+    },
+    "dashboard": {
+      "title": "Admin Dashboard",
+      "subtitle": "Monitor crawler health, system status and RSS data feed performance.",
+      "overview": {
+        "totalCases": "Total Cases",
+        "todaysNew": "Today's New",
+        "activeSources": "Active Sources",
+        "successRate": "Success Rate"
+      },
+      "crawlerJobHistory": {
+        "title": "Crawler Job History",
+        "lastRunStatus": "Last Run Status",
+        "lastRunTime": "Last Run Time",
+        "itemsAdded": "Items Added",
+        "duration": "Duration",
+        "noRuns": "No job runs have been recorded yet."
+      },
+      "recentRuns": {
+        "status": "Status",
+        "startedAt": "Started At",
+        "added": "Added",
+        "errors": "Errors",
+        "triggeredBy": "Triggered By"
+      },
+      "rss": {
+        "title": "RSS Sources",
+        "noSources": "No RSS sources configured.",
+        "name": "Source Name",
+        "status": "Status",
+        "lastFetch": "Last Fetch",
+        "lastError": "Last Error"
+      },
+      "overallSuccessRate": "Overall Success Rate",
+      "errorSources": "{count} sources reporting errors",
+      "systemSettings": {
+        "title": "System Settings",
+        "configuration": {
+          "title": "Crawler Configuration",
+          "crawlerGlobalSwitch": "Crawler Global Switch",
+          "enabled": "Enabled",
+          "successRateThreshold": "Success Rate Threshold",
+          "autoAlertBelowThreshold": "Automatically alert when below threshold"
+        }
+      }
+    }
+  },
+  "services": {
+    "status": {
+      "healthy": "Healthy",
+      "warning": "Warning",
+      "error": "Error"
+    },
+    "title": "Member Portal",
+    "welcomeBack": "Welcome back,",
+    "guest": "Guest",
+    "todaySearches": "Today's searches",
+    "savedDocuments": "Saved documents",
+    "downloadedPdfs": "Downloaded PDFs",
+    "membershipTier": "Membership Tier",
+    "publicTier": "Public Tier",
+    "searchDatabase": "Search the database",
+    "quickSearchPlaceholder": "Search cases, forms, or tags...",
+    "recentSearches": "Recent Searches",
+    "noRecentSearches": "No recent searches yet.",
+    "results": "results",
+    "databaseUpdates": "Database Updates",
+    "todayNewCases": "New cases today",
+    "totalCases": "Total cases",
+    "lastCrawl": "Last crawl",
+    "notAvailable": "Not available",
+    "systemStatus": "System Status",
+    "quickLinks": "Quick Links",
+    "caseDatabase": "Case Database",
+    "formsRepository": "Forms Repository",
+    "aiSmartSearch": "AI Smart Search"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account settings and preferences",
+    "comingSoon": "Coming soon",
+    "comingSoonDescription": "This section will be available in a future release."
+  },
+  "cases": {
+    "title": "Cases",
+    "subtitle": "Manage and track all your legal cases",
+    "newCase": "New Case",
+    "totalCases": "Total Cases",
+    "activeCases": "Active Cases",
+    "pendingCases": "Pending Cases",
+    "completedCases": "Completed Cases",
+    "allCases": "All Cases",
+    "noCasesFound": "No cases found",
+    "noCasesFoundFilter": "Try adjusting your filters to find what you're looking for.",
+    "noCasesFoundEmpty": "Get started by creating your first case.",
+    "createNewCase": "Create New Case",
+    "unknownClient": "Unknown Client",
+    "unknownLawyer": "Unassigned"
   },
   "clients": {
     "title": "Clients",
@@ -159,7 +303,11 @@
     "corporate": "Corporate",
     "basic": "Basic",
     "premium": "Premium",
-    "enterprise": "Enterprise"
+    "enterprise": "Enterprise",
+    "totalClients": "Total Clients",
+    "noClientsFound": "No clients found",
+    "noClientsFoundFilter": "Try adjusting your filters.",
+    "noClientsFoundEmpty": "Get started by adding a new client"
   },
   "documents": {
     "title": "Documents",
@@ -167,7 +315,30 @@
     "fileName": "File Name",
     "fileSize": "File Size",
     "uploadDate": "Upload Date",
-    "category": "Category"
+    "category": "Category",
+    "case": "Case",
+    "uploadedBy": "Uploaded By",
+    "searchPlaceholder": "Search documents by name, case, or description...",
+    "uploadDocument": "Upload Document",
+    "all": "All",
+    "allDocuments": "All Documents",
+    "noDocumentsFound": "No documents found",
+    "totalDocumentsInSystem": "{count} documents in the system",
+    "noDocumentsFoundFilter": "Try adjusting your filters to find what you're looking for.",
+    "noDocumentsFoundEmpty": "Get started by uploading your first document.",
+    "confidential": "Confidential",
+    "unknownUser": "Unknown User",
+    "previous": "Previous",
+    "next": "Next",
+    "showingDocuments": "Showing {start} to {end} of {count} documents",
+    "categories": {
+      "CONTRACT": "Contract",
+      "EVIDENCE": "Evidence",
+      "COURT_FILING": "Court Filing",
+      "CORRESPONDENCE": "Correspondence",
+      "INVOICE": "Invoice",
+      "OTHER": "Other"
+    }
   },
   "billing": {
     "title": "Billing & Invoices",

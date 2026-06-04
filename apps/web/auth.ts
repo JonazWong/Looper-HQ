@@ -95,8 +95,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
 
   pages: {
-    signIn: "/zh/login",  // 使用默認 locale 前綴
-    error: "/zh/login",
+    signIn: "/api/auth/login",
+    error: "/api/auth/login",
   },
 
   callbacks: {

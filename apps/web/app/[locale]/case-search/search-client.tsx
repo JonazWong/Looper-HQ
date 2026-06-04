@@ -182,20 +182,18 @@ export function CaseSearchClient() {
         .filter((t) => t.length > 0 && !t.includes(':'))
     : [];
 
-  const getTitle = (case_: PublicCase): string =>
-    case_.highlight_title
-      ? sanitiseHighlight(case_.highlight_title)
-      : freeTextTokens.length
-      ? highlightTokens(case_.title, freeTextTokens)
-      : sanitiseHighlight(case_.title);
+  const getTitle = (case_: PublicCase): string => {
+    if (case_.highlight_title) return sanitiseHighlight(case_.highlight_title);
+    if (case_.title === undefined) return '';
+    if (freeTextTokens.length) return highlightTokens(case_.title, freeTextTokens);
+    return sanitiseHighlight(case_.title);
+  };
 
   const getDescription = (case_: PublicCase): string | null => {
     if (!case_.description) return null;
-    if (case_.highlight_description)
-      return sanitiseHighlight(case_.highlight_description);
-    if (freeTextTokens.length)
-      return highlightTokens(case_.description, freeTextTokens);
-    return null;
+    if (case_.highlight_description) return sanitiseHighlight(case_.highlight_description);
+    if (freeTextTokens.length) return highlightTokens(case_.description, freeTextTokens);
+    return sanitiseHighlight(case_.description);
   };
 
   const formatDate = (dateStr: string) =>

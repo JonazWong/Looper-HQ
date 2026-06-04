@@ -4,6 +4,7 @@
  */
 
 import Link from "next/link"
+import { getTranslations } from 'next-intl/server'
 import { 
   Users, 
   Plus,
@@ -44,6 +45,7 @@ interface SearchParams {
 }
 
 interface ClientsPageProps {
+  params: Promise<{ locale: string }>
   searchParams: Promise<SearchParams>
 }
 
@@ -151,7 +153,9 @@ function getTypeColor(type: ClientType): string {
     : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
 }
 
-export default async function ClientsPage({ searchParams }: ClientsPageProps) {
+export default async function ClientsPage({ params, searchParams }: ClientsPageProps) {
+  const { locale } = await params
+  const t = await getTranslations({ locale })
   const resolvedSearchParams = await searchParams
   
   // Fetch data in parallel
@@ -166,15 +170,15 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gradient-gold">
-            Clients
+            {t('clients.title')}
           </h1>
           <p className="text-premier-pearl-gray">
-            Manage and track all your clients
+            {t('clients.subtitle')}
           </p>
         </div>
-        <Link href="/clients/new">
+        <Link href={`/${locale}/clients/new`}>
           <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
-            New Client
+            {t('dashboard.addClient')}
           </PremierButton>
         </Link>
       </div>
@@ -182,22 +186,22 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Clients"
+          title={t('clients.totalClients')}
           value={stats.totalClients}
           icon={<Users className="h-4 w-4" />}
         />
         <StatCard
-          title="Basic Tier"
+          title={t('clients.basic')}
           value={stats.basicTier}
           icon={<User className="h-4 w-4" />}
         />
         <StatCard
-          title="Premium Tier"
+          title={t('clients.premium')}
           value={stats.premiumTier}
           icon={<Building2 className="h-4 w-4" />}
         />
         <StatCard
-          title="Premier Tier"
+          title={t('clients.enterprise')}
           value={stats.premierTier}
           icon={<Building2 className="h-4 w-4" />}
         />
@@ -225,11 +229,11 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
           {clients.length === 0 ? (
             <div className="text-center py-12">
               <Users className="mx-auto h-12 w-12 text-premier-pearl-gray opacity-50" />
-              <h3 className="mt-4 text-lg font-semibold text-premier-pearl">No clients found</h3>
+              <h3 className="mt-4 text-lg font-semibold text-premier-pearl">{t('clients.noClientsFound')}</h3>
               <p className="mt-2 text-sm text-premier-pearl-gray">
                 {resolvedSearchParams.search || resolvedSearchParams.tier
-                  ? 'Try adjusting your filters'
-                  : 'Get started by adding a new client'}
+                  ? t('clients.noClientsFoundFilter')
+                  : t('clients.noClientsFoundEmpty')}
               </p>
             </div>
           ) : (
@@ -237,11 +241,11 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
               <Table>
                 <TableHeader>
                   <TableRow className="border-premier-gold/20 hover:bg-transparent">
-                    <TableHead className="text-premier-pearl">Name</TableHead>
-                    <TableHead className="text-premier-pearl">Contact</TableHead>
-                    <TableHead className="text-premier-pearl">Company/Type</TableHead>
-                    <TableHead className="text-premier-pearl">Membership</TableHead>
-                    <TableHead className="text-premier-pearl text-right">Actions</TableHead>
+                    <TableHead className="text-premier-pearl">{t('clients.clientName')}</TableHead>
+                    <TableHead className="text-premier-pearl">{t('clients.email')}</TableHead>
+                    <TableHead className="text-premier-pearl">{t('clients.type')}</TableHead>
+                    <TableHead className="text-premier-pearl">{t('clients.tier')}</TableHead>
+                    <TableHead className="text-premier-pearl text-right">{t('common.view')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -288,12 +292,12 @@ export default async function ClientsPage({ searchParams }: ClientsPageProps) {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Link href={`/clients/${client.id}`}>
+                          <Link href={`/${locale}/clients/${client.id}`}>
                             <PremierButton variant="ghost" size="sm" icon={<Eye className="h-4 w-4" />}>
                               View
                             </PremierButton>
                           </Link>
-                          <Link href={`/clients/${client.id}/edit`}>
+                          <Link href={`/${locale}/clients/${client.id}/edit`}>
                             <PremierButton variant="secondary" size="sm" icon={<Edit className="h-4 w-4" />}>
                               Edit
                             </PremierButton>

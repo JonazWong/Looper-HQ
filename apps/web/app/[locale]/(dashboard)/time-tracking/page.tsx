@@ -253,31 +253,31 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
           </p>
         </div>
         <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
-          Add Time Log
+          {t('addTimeLog')}
         </PremierButton>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Total Hours"
+          title={t('totalHours')}
           value={stats.totalHours.toFixed(2)}
           icon={<Clock className="h-4 w-4" />}
         />
         <StatCard
-          title="Billable Hours"
+          title={t('billableHours')}
           value={stats.billableHours.toFixed(2)}
           icon={<CheckCircle2 className="h-4 w-4" />}
           variant="success"
         />
         <StatCard
-          title="Total Revenue"
+          title={t('totalAmount')}
           value={`HKD ${stats.totalRevenue.toLocaleString()}`}
           icon={<DollarSign className="h-4 w-4" />}
           variant="success"
         />
         <StatCard
-          title="Time Entries"
+          title={t('timeEntries')}
           value={stats.totalLogs}
           icon={<Calendar className="h-4 w-4" />}
         />
@@ -290,13 +290,13 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {/* Case Filter */}
               <div className="space-y-2">
-                <label className="text-sm text-premier-pearl">Case</label>
+                <label className="text-sm text-premier-pearl">{t('caseFilter')}</label>
                 <select
                   name="caseId"
                   defaultValue={resolvedSearchParams.caseId || ''}
                   className="w-full px-3 py-2 bg-premier-charcoal/50 border border-premier-gold/30 rounded-md text-premier-pearl text-sm focus:outline-none focus:ring-2 focus:ring-premier-gold"
                 >
-                  <option value="">All Cases</option>
+                  <option value="">{t('allCases')}</option>
                   {cases.map((case_) => (
                     <option key={case_.id} value={case_.id}>
                       {case_.caseNumber} - {getLocalizedField(case_, 'title', locale as 'zh' | 'en')}
@@ -307,21 +307,21 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
 
               {/* Billable Filter */}
               <div className="space-y-2">
-                <label className="text-sm text-premier-pearl">Billable</label>
+                <label className="text-sm text-premier-pearl">{t('billableFilter')}</label>
                 <select
                   name="billable"
                   defaultValue={resolvedSearchParams.billable || ''}
                   className="w-full px-3 py-2 bg-premier-charcoal/50 border border-premier-gold/30 rounded-md text-premier-pearl text-sm focus:outline-none focus:ring-2 focus:ring-premier-gold"
                 >
-                  <option value="">All</option>
-                  <option value="true">Billable Only</option>
-                  <option value="false">Non-billable Only</option>
+                  <option value="">{t('all')}</option>
+                  <option value="true">{t('billableOnly')}</option>
+                  <option value="false">{t('nonBillableOnly')}</option>
                 </select>
               </div>
 
               {/* Start Date Filter */}
               <div className="space-y-2">
-                <label className="text-sm text-premier-pearl">Start Date</label>
+                <label className="text-sm text-premier-pearl">{t('startDate')}</label>
                 <Input
                   type="date"
                   name="startDate"
@@ -332,7 +332,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
 
               {/* End Date Filter */}
               <div className="space-y-2">
-                <label className="text-sm text-premier-pearl">End Date</label>
+                <label className="text-sm text-premier-pearl">{t('endDate')}</label>
                 <Input
                   type="date"
                   name="endDate"
@@ -344,15 +344,15 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
 
             <div className="flex gap-2">
               <PremierButton type="submit" variant="primary" icon={<Filter className="h-4 w-4" />} size="sm">
-                Apply Filters
+                {t('applyFilters')}
               </PremierButton>
               <Link href={`/${locale}/time-tracking`}>
                 <PremierButton type="button" variant="ghost" size="sm">
-                  Clear Filters
+                  {t('clearFilters')}
                 </PremierButton>
               </Link>
               <PremierButton type="button" variant="ghost" icon={<Download className="h-4 w-4" />} size="sm">
-                Export
+                {t('export')}
               </PremierButton>
             </div>
           </form>
@@ -362,11 +362,15 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
       {/* Time Logs Table */}
       <GlassCard variant="gold" glow>
         <GlassCardHeader>
-          <GlassCardTitle>Time Logs</GlassCardTitle>
+          <GlassCardTitle>{t('logsTitle')}</GlassCardTitle>
           <GlassCardDescription>
             {totalLogs === 0 
-              ? 'No time logs found' 
-              : `${totalLogs} time log${totalLogs === 1 ? '' : 's'} • ${stats.billableHours.toFixed(2)} billable hrs • HKD ${stats.totalRevenue.toLocaleString()}`
+              ? t('noTimeLogsFound') 
+              : t('logsDescription', {
+                  count: totalLogs,
+                  billableHours: stats.billableHours.toFixed(2),
+                  revenue: stats.totalRevenue.toLocaleString(),
+                })
             }
           </GlassCardDescription>
         </GlassCardHeader>
@@ -375,15 +379,15 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
             <div className="flex flex-col items-center justify-center py-12">
               <Clock className="h-12 w-12 text-premier-pearl-gray mb-4" />
               <h3 className="text-lg font-medium text-premier-pearl mb-2">
-                No time logs found
+                {t('noTimeLogsFound')}
               </h3>
               <p className="text-sm text-premier-pearl-gray mb-6 text-center max-w-md">
                 {resolvedSearchParams.caseId || resolvedSearchParams.billable || resolvedSearchParams.startDate || resolvedSearchParams.endDate
-                  ? 'Try adjusting your filters to find what you\'re looking for.'
-                  : 'Get started by adding your first time log.'}
+                  ? t('tryAdjustingFilters')
+                  : t('getStartedTimeLog')}
               </p>
               <PremierButton variant="primary" icon={<Plus className="h-4 w-4" />}>
-                Add Time Log
+                {t('addTimeLog')}
               </PremierButton>
             </div>
           ) : (
@@ -392,13 +396,13 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
                 <Table>
                   <TableHeader>
                     <TableRow className="border-premier-gold/20">
-                      <TableHead className="text-premier-gold">Date</TableHead>
-                      <TableHead className="text-premier-gold">Case</TableHead>
-                      <TableHead className="text-premier-gold">Description</TableHead>
-                      <TableHead className="text-premier-gold">Hours</TableHead>
-                      <TableHead className="text-premier-gold">Rate</TableHead>
-                      <TableHead className="text-premier-gold">Amount</TableHead>
-                      <TableHead className="text-premier-gold">Billable</TableHead>
+                      <TableHead className="text-premier-gold">{t('date')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('case')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('description')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('hours')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('rate')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('amount')}</TableHead>
+                      <TableHead className="text-premier-gold">{t('billable')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -423,7 +427,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
                               {log.case.caseNumber}
                             </Link>
                             <p className="text-xs text-premier-pearl-gray mt-1 max-w-xs truncate">
-                              {log.case.client.name || 'Unknown Client'}
+                              {log.case.client.name || t('unknownClient')}
                             </p>
                           </TableCell>
                           <TableCell className="text-premier-pearl max-w-md">
@@ -455,12 +459,12 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
                               {log.billable ? (
                                 <span className="flex items-center gap-1">
                                   <CheckCircle2 className="h-3 w-3" />
-                                  Billable
+                                  {t('billable')}
                                 </span>
                               ) : (
                                 <span className="flex items-center gap-1">
                                   <XCircle className="h-3 w-3" />
-                                  Non-billable
+                                  {t('nonBillable')}
                                 </span>
                               )}
                             </Badge>
@@ -476,13 +480,13 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
               <div className="border-t border-premier-gold/20 pt-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <p className="text-sm text-premier-pearl-gray">Total Hours</p>
+                    <p className="text-sm text-premier-pearl-gray">{t('totalHours')}</p>
                     <p className="text-lg font-bold text-premier-pearl">
                       {timeLogs.reduce((sum, log) => sum + Number(log.hours), 0).toFixed(2)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-premier-pearl-gray">Billable Hours</p>
+                    <p className="text-sm text-premier-pearl-gray">{t('billableHours')}</p>
                     <p className="text-lg font-bold text-premier-gold">
                       {timeLogs
                         .filter(log => log.billable)
@@ -491,7 +495,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-premier-pearl-gray">Total Amount</p>
+                    <p className="text-sm text-premier-pearl-gray">{t('totalAmount')}</p>
                     <p className="text-lg font-bold text-premier-gold">
                       HKD {timeLogs
                         .filter(log => log.billable && log.hourlyRate)
@@ -500,7 +504,7 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-premier-pearl-gray">Entries</p>
+                    <p className="text-sm text-premier-pearl-gray">{t('entries')}</p>
                     <p className="text-lg font-bold text-premier-pearl">
                       {timeLogs.length}
                     </p>
@@ -512,22 +516,24 @@ export default async function TimeTrackingPage({ params, searchParams }: TimeTra
               {totalPages > 1 && (
                 <div className="flex items-center justify-between pt-4">
                   <p className="text-sm text-premier-pearl-gray">
-                    Showing {((currentPage - 1) * LOGS_PER_PAGE) + 1} to{' '}
-                    {Math.min(currentPage * LOGS_PER_PAGE, totalLogs)} of{' '}
-                    {totalLogs} logs
+                    {t('showingLogs', {
+                      start: ((currentPage - 1) * LOGS_PER_PAGE) + 1,
+                      end: Math.min(currentPage * LOGS_PER_PAGE, totalLogs),
+                      total: totalLogs,
+                    })}
                   </p>
                   <div className="flex gap-2">
                     {currentPage > 1 && (
-                      <Link href={`/time-tracking?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage - 1) })}`}>
+                      <Link href={`/${locale}/time-tracking?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage - 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
-                          Previous
+                          {t('previous')}
                         </PremierButton>
                       </Link>
                     )}
                     {currentPage < totalPages && (
-                      <Link href={`/time-tracking?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage + 1) })}`}>
+                      <Link href={`/${locale}/time-tracking?${new URLSearchParams({ ...resolvedSearchParams, page: String(currentPage + 1) })}`}>
                         <PremierButton variant="ghost" size="sm">
-                          Next
+                          {t('next')}
                         </PremierButton>
                       </Link>
                     )}

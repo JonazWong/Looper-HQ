@@ -8,7 +8,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useLocale, useTranslations } from 'next-intl'
-import { Scale, User, LogOut, Bell } from "lucide-react"
+import { Scale, User, LogOut, Bell, Settings } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { signOut } from "next-auth/react"
 
 export function Header() {
   const pathname = usePathname()
@@ -113,10 +114,16 @@ export function Header() {
               <DropdownMenuLabel className="text-premier-pearl">{t('common.appName')}</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-premier-gold/10" />
               <DropdownMenuItem className="text-premier-pearl-gray hover:text-premier-gold focus:text-premier-gold">
-                {t('nav.settings')}
+                <Link href={`/${locale}/settings`} className="flex w-full items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  {t('nav.settings')}
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-premier-gold/10" />
-              <DropdownMenuItem className="text-premier-pearl-gray hover:text-premier-gold focus:text-premier-gold">
+              <DropdownMenuItem 
+                className="text-premier-pearl-gray hover:text-premier-gold focus:text-premier-gold"
+                onClick={() => signOut({ redirectTo: `/${locale}/login` })}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 {t('nav.logout')}
               </DropdownMenuItem>

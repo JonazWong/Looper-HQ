@@ -1,0 +1,222 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🚀 一鍵啟動開發環境",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-NoExit", "-File", "${workspaceFolder}/start-dev.ps1"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🐳 啟動 Docker 服務",
+      "type": "shell",
+      "command": "pnpm docker:up",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🛑 停止 Docker 服務",
+      "type": "shell",
+      "command": "pnpm docker:down",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🌐 啟動 Web App (port 3005)",
+      "type": "shell",
+      "command": "pnpm dev:web",
+      "group": "none",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "message": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Starting",
+          "endsPattern": "Ready in|started server"
+        }
+      }
+    },
+    {
+      "label": "🔍 啟動 Legal Case Search (port 3001)",
+      "type": "shell",
+      "command": "pnpm dev:legal",
+      "group": "none",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "message": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Starting",
+          "endsPattern": "Ready in|started server"
+        }
+      }
+    },
+    {
+      "label": "🌐🔍 啟動所有 App (並行)",
+      "dependsOn": [
+        "🌐 啟動 Web App (port 3005)",
+        "🔍 啟動 Legal Case Search (port 3001)"
+      ],
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "💾 同步 DB Schema (db:push)",
+      "type": "shell",
+      "command": "pnpm db:push",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🌱 填充測試資料 (db:seed)",
+      "type": "shell",
+      "command": "pnpm db:seed",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔧 生成 Prisma Client",
+      "type": "shell",
+      "command": "pnpm --filter=@looper-hq/database prisma generate",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🗄️ 開啟 Prisma Studio (port 5555)",
+      "type": "shell",
+      "command": "pnpm db:studio",
+      "group": "none",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "message": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Prisma Studio",
+          "endsPattern": "Started Prisma Studio"
+        }
+      }
+    },
+    {
+      "label": "👤 確保示範用戶存在",
+      "type": "shell",
+      "command": "pnpm auth:ensure-demo-users",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🕷️ 執行 RSS 爬蟲",
+      "type": "shell",
+      "command": "pnpm crawler:rss",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🕷️ 執行所有爬蟲",
+      "type": "shell",
+      "command": "pnpm crawler:all",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🏗️ 建置所有 App",
+      "type": "shell",
+      "command": "pnpm build",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": true
+      },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "🔍 型別檢查",
+      "type": "shell",
+      "command": "pnpm --filter=@looper-hq/web type-check",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": false
+      },
+      "problemMatcher": ["$tsc"]
+    }
+  ]
+}
